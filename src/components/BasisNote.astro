@@ -1,0 +1,21 @@
+---
+/**
+ * The rail note. Spectral italic at --text-note, --color-ink-muted. On
+ * mobile it renders in flow beneath its block with a 2px --color-rule left
+ * border and --space-note inset (the rail column collapses below 768px, so
+ * reordering happens by source order, not by grid placement).
+ */
+interface Props {
+  id: string;
+  marker: string;
+}
+const { id, marker } = Astro.props;
+---
+
+<li
+  id={id}
+  class="basis-note"
+  style="font-style: italic; font-size: var(--text-note); line-height: var(--text-note--line-height); color: var(--color-ink-muted); list-style: none; padding-left: var(--space-note); border-left: 2px solid var(--color-rule); margin-block: var(--space-tight);"
+>
+  <span class="fig" style="color: var(--color-accent); margin-right: 0.35em;">[{marker}]</span><slot />
+</li>

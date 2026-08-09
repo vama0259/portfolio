@@ -1,42 +1,41 @@
 ---
 import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
-import WorkCard from "../../components/WorkCard.astro";
+import Sheet from "../../components/Sheet.astro";
+import Figures from "../../components/Figures.astro";
+import Entry from "../../components/Entry.astro";
 
-const work = (await getCollection("work")).sort(
-  (a, b) => a.data.order - b.data.order,
-);
+const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order);
 ---
 
-<Base title="Work — Varun Malhotra">
-  <section class="mx-auto max-w-6xl px-6 pb-16 pt-24">
-    <p class="label mb-6">Case studies</p>
-    <h1 class="max-w-3xl text-title font-medium leading-[1.05] tracking-[-0.02em]">
-      Three systems, and what each of them cost.
+<Base title="Work - Varun Malhotra">
+  <Sheet>
+    <h1
+      class="u-display"
+      style="margin-top: var(--space-page); font-size: var(--text-h2); color: var(--color-ink);"
+    >
+      Work
     </h1>
-    <p class="mt-6 max-w-2xl text-lg leading-relaxed text-ink-muted">
-      Every one of these ends with the tradeoff it made and what I would build
-      differently now. That part is usually left out, and it is the part worth
-      reading.
+    <p style="margin-top: var(--space-tight); font-size: var(--text-lede); line-height: var(--text-lede--line-height); color: var(--color-ink-muted);">
+      Three systems, each ending with the trade-off it made and what I would build differently now.
     </p>
-  </section>
+  </Sheet>
 
-  <section class="mx-auto max-w-6xl px-6 pb-16">
-    <div class="grid gap-6">
-      {
-        work.map((entry, i) => (
-          <WorkCard
+  <Sheet class="full">
+    {
+      work.map((entry) => (
+        <Fragment>
+          <Entry
             slug={entry.id}
-            index={i + 1}
             title={entry.data.title}
             tagline={entry.data.tagline}
             status={entry.data.status}
             period={entry.data.period}
             stack={entry.data.stack}
-            metrics={entry.data.metrics}
           />
-        ))
-      }
-    </div>
-  </section>
+          <Figures metrics={entry.data.metrics.slice(0, 2)} prefix={entry.id} />
+        </Fragment>
+      ))
+    }
+  </Sheet>
 </Base>

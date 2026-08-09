@@ -1,0 +1,19 @@
+---
+/**
+ * The grid wrapper. Replaces the old Base.astro decorative grid overlay
+ * entirely - the overlay is deleted, decorative hairlines are a named tell.
+ *
+ * `rail` - set false on /about and /research (`.sheet--no-rail`), where the
+ * apparatus rail would sit empty.
+ */
+interface Props {
+  rail?: boolean;
+  class?: string;
+}
+
+const { rail = true, class: className = "" } = Astro.props;
+---
+
+<div class:list={["sheet", !rail && "sheet--no-rail", className]}>
+  <slot />
+</div>

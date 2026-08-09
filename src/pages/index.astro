@@ -1,121 +1,98 @@
 ---
 import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
-import WorkCard from "../components/WorkCard.astro";
-import Counter from "../components/Counter.astro";
+import Sheet from "../components/Sheet.astro";
+import Figures from "../components/Figures.astro";
+import Entry from "../components/Entry.astro";
 import { profile } from "../data/profile";
 
-const work = (await getCollection("work")).sort(
-  (a, b) => a.data.order - b.data.order,
-);
-
-const principles = [
-  {
-    n: "01",
-    h: "Measure before you claim",
-    p: "Every number on this site carries its basis. A 500-question benchmark is worth more than a demo that went well, and run-to-run consistency matters more than a peak score nobody can reproduce.",
-  },
-  {
-    n: "02",
-    h: "Assume it will be wrong",
-    p: "Read-only at every layer, human gates on ambiguity, evaluation wired in from the start. The interesting engineering is never the happy path — it is what the system does when it does not know.",
-  },
-  {
-    n: "03",
-    h: "Ship it into the default path",
-    p: "A model that runs when someone remembers to run it is a script. Anomaly detection became the standard cleaning stage in every sales pipeline, and that is when it started to matter.",
-  },
-];
+const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order);
 ---
 
 <Base>
-  <!-- ══ Hero ══════════════════════════════════════════════════════════ -->
-  <section class="mx-auto max-w-6xl px-6 pb-24 pt-24 sm:pt-32">
-    <p class="label mb-8 flex items-center gap-2.5">
-      <span
-        aria-hidden="true"
-        class="inline-block h-1.5 w-1.5 rounded-full bg-live"></span>
-      {profile.title}
-    </p>
-
-    <h1
-      class="max-w-4xl text-display font-medium leading-[0.95] tracking-[-0.03em]"
-    >
-      I build LLM systems<br />
-      that survive <span class="text-signal">production</span>.
-    </h1>
-
-    <p class="mt-9 max-w-2xl text-lg leading-relaxed text-ink-muted sm:text-xl">
-      Agent architectures, the evaluation stacks that prove they work, and the
-      guardrails that keep them honest. Three years at Michelin, two
-      peer-reviewed papers, one platform that fifty analysts open every morning.
-    </p>
-
-    <dl class="mt-16 grid gap-px border border-line bg-line sm:grid-cols-3">
-      {
-        profile.headline.map((m) => (
-          <div class="bg-surface px-5 py-7">
-            <dt class="label mb-3">{m.label}</dt>
-            <dd>
-              <span class="block text-4xl font-medium leading-none text-ink sm:text-5xl">
-                <Counter value={m.value} />
-              </span>
-              <span class="mt-3 block text-xs text-ink-dim">{m.basis}</span>
-            </dd>
-          </div>
-        ))
-      }
-    </dl>
-  </section>
-
-  <!-- ══ Work ══════════════════════════════════════════════════════════ -->
-  <section class="mx-auto max-w-6xl px-6 py-16">
-    <div
-      class="mb-10 flex items-baseline justify-between border-t border-line pt-6"
-    >
-      <h2 class="text-heading font-medium">Selected work</h2>
-      <a
-        href="/work"
-        class="font-mono text-xs uppercase tracking-[0.14em] text-ink-dim transition-colors hover:text-signal"
+  <!-- Masthead + abstract + results table: the whole first viewport. -->
+  <Sheet>
+    <div style="padding-top: var(--space-page);">
+      <h1
+        class="u-display"
+        style="font-size: var(--text-display); line-height: var(--text-display--line-height); letter-spacing: -0.02em; color: var(--color-ink);"
       >
-        All work →
-      </a>
+        {profile.name}
+      </h1>
+      <p style="margin-top: var(--space-tight); font-size: var(--text-lede); color: var(--color-ink-muted);">
+        Data scientist, generative AI and LLM engineering. {profile.roles[0].company}, Pune.
+      </p>
     </div>
 
-    <div class="grid gap-6">
+    <p style="margin-top: var(--space-block); font-size: var(--text-lede); line-height: var(--text-lede--line-height); color: var(--color-ink);">
+      {profile.positioning}
+    </p>
+
+    <Figures metrics={profile.headline} prefix="home" />
+  </Sheet>
+
+  <hr class="rule full" style="margin-top: var(--space-section); margin-inline: auto; max-width: var(--page-max);" />
+
+  <!-- SS1 Selected work -->
+  <Sheet>
+    <h2
+      class="u-label"
+      style="margin-top: var(--space-section); font-size: var(--text-caption); color: var(--color-ink-muted);"
+    >
+      Selected work
+    </h2>
+    <div>
       {
-        work.map((entry, i) => (
-          <WorkCard
+        work.map((entry) => (
+          <Entry
             slug={entry.id}
-            index={i + 1}
             title={entry.data.title}
             tagline={entry.data.tagline}
             status={entry.data.status}
             period={entry.data.period}
             stack={entry.data.stack}
-            metrics={entry.data.metrics}
           />
         ))
       }
     </div>
-  </section>
+    <p style="padding-top: var(--space-block); border-top: 1px solid var(--color-hairline);">
+      <a href="/work" style="font-size: var(--text-body); color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-rule); text-underline-offset: 3px;">
+        All work
+      </a>
+    </p>
+  </Sheet>
 
-  <!-- ══ Approach ══════════════════════════════════════════════════════ -->
-  <section class="mx-auto max-w-6xl px-6 py-16">
-    <h2 class="mb-10 border-t border-line pt-6 text-heading font-medium">
-      How I work
+  <hr class="rule full" style="margin-top: var(--space-section); margin-inline: auto; max-width: var(--page-max);" />
+
+  <!-- SS2 Publications -->
+  <Sheet>
+    <h2
+      class="u-label"
+      style="margin-top: var(--space-section); font-size: var(--text-caption); color: var(--color-ink-muted);"
+    >
+      Publications
     </h2>
-
-    <div class="grid gap-px border border-line bg-line md:grid-cols-3">
+    <div>
       {
-        principles.map((c) => (
-          <div class="reveal bg-surface p-7">
-            <span class="num mb-5 block text-xs text-signal">{c.n}</span>
-            <h3 class="mb-3 text-base font-medium text-ink">{c.h}</h3>
-            <p class="text-sm leading-relaxed text-ink-muted">{c.p}</p>
+        profile.publications.map((p, i) => (
+          <div style={`padding-block: var(--space-block); ${i > 0 ? "border-top: 1px solid var(--color-hairline);" : ""}`}>
+            <p class="fig" style="font-size: var(--text-note); color: var(--color-ink-muted);">
+              {p.venue}
+              {p.note.includes("First author") && (
+                <span class="u-label" style="margin-left: 0.75rem; font-size: var(--text-label); color: var(--color-ink);">
+                  First author
+                </span>
+              )}
+            </p>
+            <h3 style="margin-top: 0.35rem; font-family: var(--font-text); font-weight: 600; font-size: var(--text-h2); color: var(--color-ink);">
+              {p.title}
+            </h3>
+            <p style="margin-top: 0.35rem; font-size: var(--text-note); color: var(--color-ink-muted);">
+              {p.note}
+            </p>
           </div>
         ))
       }
     </div>
-  </section>
+  </Sheet>
 </Base>

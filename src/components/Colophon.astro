@@ -1,0 +1,39 @@
+---
+/**
+ * Footer. Left: contact lines. Right: a build line with only the year and
+ * the type credit. No version string, no build number, no sync timestamp.
+ */
+import { profile } from "../data/profile";
+
+const year = new Date().getFullYear();
+const channels = [
+  { label: "Email", value: profile.email, href: `mailto:${profile.email}` },
+  { label: "LinkedIn", value: "in/vama0259", href: profile.linkedin },
+  { label: "GitHub", value: "vama0259", href: profile.github },
+];
+---
+
+<footer class="full" style="margin-top: var(--space-page); border-top: 1px solid var(--color-rule);">
+  <div class="sheet" style="padding-block: var(--space-block);">
+    <div class="full" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-block); max-width: var(--page-max); margin-inline: auto;">
+      <ul style="list-style: none; display: flex; flex-wrap: wrap; gap: 1.5rem;">
+        {
+          channels.map((c) => (
+            <li>
+              <p class="u-label" style="font-size: var(--text-label); color: var(--color-ink-muted);">
+                {c.label}
+              </p>
+              <a href={c.href} class="fig" style="font-size: var(--text-note); color: var(--color-ink);">
+                {c.value}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="u-label" style="font-size: var(--text-caption); color: var(--color-ink-muted); text-align: right;">
+        {year}. Set in Spectral, Archivo and Martian Mono.
+      </p>
+    </div>
+  </div>
+</footer>

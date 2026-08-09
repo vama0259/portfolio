@@ -61,20 +61,48 @@ loosen the schema to make a case study easier to write; write the missing part.
 
 Note that YAML parses a bare `2024` as a number — quote `period` values.
 
-## Design direction: "instrument panel"
+## Design direction: "the offprint"
 
-Dark, dense, monospace numerals, one accent (amber `--color-signal`). The premise is that the
-site should look like the observability tooling Varun builds, not like a sci-fi movie.
+The site is a contemporary scientific offprint. Light ledger paper by default, Spectral for
+text, Archivo for utility, Martian Mono for figures only, one proof-correction red. Every
+corner is `0px`. There are no cards.
 
-- **Amber is for live values and nothing else.** Spending it on decoration kills the signal.
-- **Numbers always use `.num`** (monospace, tabular). A figure should look like a measurement.
-- **Motion only where it explains.** The agent trace earns animation because it teaches the
-  ReAct loop. Nothing else should move without a comparable argument.
-- Explicitly avoided: purple/blue gradients, particle fields, glow, typing effects — the
-  templated "AI portfolio" signals.
+The full spec — tokens with verified contrast ratios, the `.sheet` grid, component
+composition, per-page layouts, ship checklist — is `.design/DIRECTION.md`. Read it before
+changing anything visual. `.design/REFERENCES.md` §C is a banned list of visual patterns that
+read as machine-generated; check work against it.
 
-All motion sits behind `@supports (animation-timeline: view())` and `prefers-reduced-motion`,
-and degrades to a static, fully legible state.
+The premise it replaced was "instrument panel" — dark, amber, mono micro-labels. It was
+discarded, not tuned: near-black plus one bright accent is a top-two identifiable AI default,
+and a competent instance of the most common answer still reads as generated. Do not drift back
+toward it.
+
+Two rules carry the identity:
+
+- **`basis` is the visual signature.** Every metric's basis renders as a margin note in the
+  apparatus rail, keyed by a superscript anchor. Real in-page anchors — the apparatus must work
+  with JS *and* CSS disabled. This is the schema rule made visible; it is why the design cannot
+  decay away from the content.
+- **The accent has exactly three permitted uses**: the errata marker, the `production` status
+  glyph, and focus/basis markers. A fourth use is a regression.
+
+### Motion budget
+
+Concentrated, never sprinkled. The entire budget is spent on **Fig. 1, the ReAct trace**, which
+is a simulation rather than a diagram: the reader drives a query through the loop, watches it
+stall at the human-in-the-loop gate, and watches a write bounce off the read-only guardrail. The
+interaction *is* the argument — a reader tests the guardrail claim instead of taking it on faith.
+
+Everywhere else, motion is limited to interface physics on state: focus, hover, the nav
+underline, the basis-marker link. Spring curves, ~120–180ms, critically damped so things settle
+rather than bounce.
+
+- **No scroll-reveal. Anywhere.** Nothing fades in because it entered the viewport. Uniform
+  fade-up is on the banned list and spring-easing everything is its successor.
+- First paint is the final state. No entrance animation stands between a hurried reader and the
+  results table.
+- Fig. 1 must be complete and readable with JS off. Motion is enhancement, never a prerequisite.
+- Everything respects `prefers-reduced-motion`.
 
 ## Agent tooling
 
@@ -139,8 +167,12 @@ the components, and the rules below should not stop you from grepping when the g
 `.graphifyignore` excludes `.claude/` and `.agents/`. Without it the agent tooling swamps the
 graph — the first build was 2392 nodes, of which the actual site was under 10%.
 
-Rules:
-- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
-- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
-- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+**Optional, not mandatory.** An earlier version of this file required a `graphify query` before
+reading any source file. That rule was removed: it cost a tool round-trip before every read, on a
+codebase where the graph cannot parse the files being read. This site is ~15 files. Read them.
+
+Use it when it actually helps:
+- `graphify query "<question>"` / `path "<A>" "<B>"` / `explain "<concept>"` for orientation in the
+  TypeScript and content layers, where the AST is real.
+- Do not run it before reading a `.astro` file. It has nothing to say about them.
+- After a substantial refactor, `graphify update .` keeps it current (AST-only, no API cost).

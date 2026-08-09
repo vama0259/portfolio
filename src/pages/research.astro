@@ -1,79 +1,66 @@
 ---
 import Base from "../layouts/Base.astro";
+import Sheet from "../components/Sheet.astro";
 import { profile } from "../data/profile";
 ---
 
-<Base title="Research — Varun Malhotra">
-  <section class="mx-auto max-w-4xl px-6 pb-14 pt-24">
-    <p class="label mb-6">Publications</p>
-    <h1 class="text-title font-medium leading-[1.05] tracking-[-0.02em]">
-      Two peer-reviewed papers.
+<Base title="Research - Varun Malhotra">
+  <Sheet rail={false}>
+    <h1
+      class="u-display"
+      style="margin-top: var(--space-page); font-size: var(--text-h2); color: var(--color-ink);"
+    >
+      Research
     </h1>
-    <p class="mt-6 max-w-2xl text-lg leading-relaxed text-ink-muted">
-      Both came out of production problems rather than the other way round —
-      which is the only reason they were worth writing.
+    <p style="margin-top: var(--space-tight); font-size: var(--text-lede); line-height: var(--text-lede--line-height); color: var(--color-ink-muted);">
+      Two peer-reviewed papers, both grown out of production problems rather than the other way round.
     </p>
-  </section>
 
-  <section class="mx-auto max-w-4xl px-6">
-    <ol class="grid gap-px border border-line bg-line">
+    <div style="margin-top: var(--space-section);">
       {
         profile.publications.map((p, i) => (
-          <li class="reveal bg-surface p-7 sm:p-9">
-            <div class="mb-4 flex flex-wrap items-center gap-3">
-              <span class="num text-xs text-ink-dim">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span class="border border-signal/30 bg-signal/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-signal">
-                {p.venue}
-              </span>
-              <span class="font-mono text-[11px] text-ink-dim">{p.note}</span>
-            </div>
-            <h2 class="text-heading font-medium leading-snug text-ink">
+          <div style={`padding-block: var(--space-block); ${i > 0 ? "border-top: 1px solid var(--color-hairline);" : ""}`}>
+            <p class="fig" style="font-size: var(--text-note); color: var(--color-ink-muted);">
+              {p.venue}
+              {p.note.includes("First author") && (
+                <span class="u-label" style="margin-left: 0.75rem; font-size: var(--text-label); color: var(--color-ink);">
+                  First author
+                </span>
+              )}
+            </p>
+            <h2 style="margin-top: 0.35rem; font-family: var(--font-text); font-weight: 600; font-size: var(--text-h3); color: var(--color-ink);">
               {p.title}
             </h2>
-            <p class="mt-3 max-w-2xl leading-relaxed text-ink-muted">
+            <p style="margin-top: 0.2rem; font-size: var(--text-note); color: var(--color-ink-muted);">{p.note}</p>
+            <p style="margin-top: var(--space-tight); max-width: var(--measure); font-size: var(--text-body); line-height: var(--text-body--line-height); color: var(--color-ink);">
               {p.detail}
             </p>
-          </li>
-        ))
-      }
-    </ol>
-  </section>
-
-  <!-- Earlier research -->
-  <section class="mx-auto max-w-4xl px-6 pt-20">
-    <h2 class="mb-8 border-t border-line pt-6 text-heading font-medium">
-      Earlier research
-    </h2>
-    <div class="panel p-7">
-      <p class="label mb-3">Samsung PRISM · Feb — Jun 2023</p>
-      <h3 class="text-base font-medium text-ink">
-        GAN-based image restoration
-      </h3>
-      <p class="mt-3 max-w-2xl leading-relaxed text-ink-muted">
-        DeblurGAN, GFP-GAN, Pix2PixHD and CGAN, shipped as a PyQt desktop
-        application doing real-time deblurring. It won a Samsung Excellence
-        Award — and it is the last time I built something without an evaluation
-        harness, which is probably the more useful lesson.
-      </p>
-    </div>
-  </section>
-
-  <!-- Awards -->
-  <section class="mx-auto max-w-4xl px-6 pt-20">
-    <h2 class="mb-8 border-t border-line pt-6 text-heading font-medium">
-      Recognition
-    </h2>
-    <dl class="grid gap-px border border-line bg-line sm:grid-cols-3">
-      {
-        profile.awards.map((a) => (
-          <div class="bg-surface p-6">
-            <dt class="text-sm font-medium leading-snug text-ink">{a.title}</dt>
-            <dd class="num mt-3 text-xs text-ink-dim">{a.date}</dd>
           </div>
         ))
       }
-    </dl>
-  </section>
+    </div>
+
+    <hr class="rule" style="margin-top: var(--space-section);" />
+
+    <h2
+      class="u-label"
+      style="margin-top: var(--space-section); font-size: var(--text-caption); color: var(--color-ink-muted);"
+    >
+      Awards and recognition
+    </h2>
+    <div>
+      {
+        profile.awards.map((a, i) => (
+          <div style={`display: flex; justify-content: space-between; gap: 1rem; padding-block: var(--space-note); ${i > 0 ? "border-top: 1px solid var(--color-hairline);" : ""}`}>
+            <span class="fig" style="font-size: var(--text-note); color: var(--color-ink-muted); white-space: nowrap;">
+              {a.date}
+            </span>
+            <span style="font-size: var(--text-body); color: var(--color-ink); text-align: right;">
+              {a.title}
+            </span>
+          </div>
+        ))
+      }
+    </div>
+  </Sheet>
 </Base>

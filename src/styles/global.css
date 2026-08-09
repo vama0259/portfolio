@@ -1,229 +1,319 @@
 @import "tailwindcss";
 
-@import "@fontsource-variable/inter";
-@import "@fontsource-variable/jetbrains-mono";
-
 /* ---------------------------------------------------------------------------
-   Cross-document view transitions.
-
-   Native, zero JavaScript, no client router — the site stays a static MPA and
-   still morphs between pages. Elements sharing a `view-transition-name` across
-   two documents animate position and size between them, so a metric row on the
-   index becomes the header of the case study rather than being replaced by it.
+   THE OFFPRINT — design tokens (Tailwind v4, CSS-first)
+   Light ledger-paper ground by default; dark is a media-query override only.
+   One accent, rationed to three semantic jobs: the errata marker, the
+   `production` status glyph, and link hover/focus + basis markers.
 --------------------------------------------------------------------------- */
-@view-transition {
-  navigation: auto;
+@theme {
+  --color-paper:        #E8ECEF;
+  --color-paper-raised: #F2F4F6;
+  --color-ink:          #0E1620;
+  --color-ink-muted:    #424D57;
+  --color-rule:         #737F88;
+  --color-hairline:     #C3C9CD;
+  --color-accent:       #C8102E;
+  --color-accent-quiet: #F3DDE1;
+
+  --font-text:  "Spectral", ui-serif, Georgia, serif;
+  --font-util:  "Archivo Variable", "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-fig:   "Martian Mono Variable", "Martian Mono", ui-monospace, monospace;
+
+  --text-caption:   0.75rem;    --text-caption--line-height:   1.4;
+  --text-label:     0.6875rem;  --text-label--line-height:     1.2;
+  --text-note:      0.8125rem;  --text-note--line-height:      1.5;
+  --text-body:      1.0625rem;  --text-body--line-height:      1.65;
+  --text-lede:      1.25rem;    --text-lede--line-height:      1.55;
+  --text-h3:        1.125rem;   --text-h3--line-height:        1.35;
+  --text-h2:        1.375rem;   --text-h2--line-height:        1.3;
+  --text-figure:    clamp(1.75rem, 5vw, 2.5rem);
+  --text-figure--line-height: 1;
+  --text-display:   clamp(2.25rem, 1.6rem + 3.2vw, 4rem);
+  --text-display--line-height: 1.02;
+
+  --measure:      62ch;
+  --rail:         15rem;
+  --rail-md:      8rem;
+  --gutter:       2.5rem;
+  --page-max:     1180px;
+
+  --space-hair:   0.25rem;
+  --space-tight:  0.5rem;
+  --space-note:   0.875rem;
+  --space-para:   1.25rem;
+  --space-block:  2.5rem;
+  --space-section:4.5rem;
+  --space-page:   7rem;
+
+  --radius-none:  0px;
+
+  --dur-state:    120ms;
+  --ease-state:   cubic-bezier(0.2, 0, 0, 1);
 }
 
-::view-transition-group(*) {
-  animation-duration: 260ms;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
-    animation-duration: 0.01ms !important;
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-paper:        #0E1620;
+    --color-paper-raised: #16202C;
+    --color-ink:          #E8ECEF;
+    --color-ink-muted:    #9FAAB3;
+    --color-rule:         #5A6874;
+    --color-hairline:     #2A3541;
+    --color-accent:       #FF4D5E;
+    --color-accent-quiet: #2A1A1F;
   }
 }
 
 /* ---------------------------------------------------------------------------
-   Design tokens — "instrument panel"
-   Dark, dense, monospace numerals, one accent. The accent is amber because
-   every other ML portfolio is purple; amber also reads as instrumentation
-   rather than decoration. Use it sparingly — it marks live values and
-   nothing else.
---------------------------------------------------------------------------- */
-@theme {
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
-
-  /* Surfaces: cool near-black, three steps of elevation. */
-  --color-void: #08090b;
-  --color-surface: #0e1013;
-  --color-raised: #16191d;
-  --color-line: #23272d;
-  --color-line-bright: #333941;
-
-  /* Text: two weights of legibility, plus a dim for metadata. */
-  --color-ink: #e8eaed;
-  --color-ink-muted: #939ba5;
-  --color-ink-dim: #5f676f;
-
-  /* Signal. */
-  --color-signal: #ffb000;
-  --color-signal-dim: #8a6100;
-  --color-live: #3ddc97;
-  --color-alert: #ff5c5c;
-
-  /* Type scale — 1.25 minor third, clamped for fluid sizing. */
-  --text-display: clamp(2.75rem, 7vw, 5.5rem);
-  --text-title: clamp(1.9rem, 4vw, 3rem);
-  --text-heading: clamp(1.35rem, 2.4vw, 1.75rem);
-
-  --radius-panel: 2px;
-}
-
-/* ---------------------------------------------------------------------------
-   Base
+   Base layer
 --------------------------------------------------------------------------- */
 @layer base {
+  * {
+    border-radius: 0 !important;
+  }
+
   html {
-    scroll-behavior: smooth;
-    color-scheme: dark;
+    color-scheme: light dark;
   }
 
   body {
-    background-color: var(--color-void);
+    background-color: var(--color-paper);
     color: var(--color-ink);
-    font-family: var(--font-sans);
+    font-family: var(--font-text);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
-  /* Every number on this site is monospace and tabular. A figure is a
-     measurement, and it should look like one. */
-  .num {
-    font-family: var(--font-mono);
-    font-variant-numeric: tabular-nums;
+  h1, h2, h3 {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a:not(.entry-link) {
+    transition: color var(--dur-state) var(--ease-state);
+  }
+
+  a:hover {
+    color: var(--color-accent);
   }
 
   ::selection {
-    background-color: var(--color-signal);
-    color: var(--color-void);
+    background-color: var(--color-accent-quiet);
+    color: var(--color-ink);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-signal);
-    outline-offset: 3px;
-  }
-}
-
-@layer components {
-  .panel {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-panel);
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
   }
 
-  /* Small uppercase label — used for every field name in the instrument
-     panel. Tracking is wide enough to read at 11px. */
-  .label {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    line-height: 1.2;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-ink-dim);
+  /* Figures only. Never running text, never a label. */
+  .fig {
+    font-family: var(--font-fig);
+    font-variation-settings: "wdth" 87, "wght" 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
   }
 
-  .link-underline {
-    background-image: linear-gradient(var(--color-signal), var(--color-signal));
-    background-repeat: no-repeat;
-    background-position: 0 100%;
-    background-size: 0% 1px;
-    transition: background-size 220ms ease;
+  .u-label {
+    font-family: var(--font-util);
+    font-variation-settings: "wdth" 100, "wght" 600;
   }
 
-  .link-underline:hover {
-    background-size: 100% 1px;
+  .u-display {
+    font-family: var(--font-util);
+    font-variation-settings: "wdth" 96, "wght" 700;
   }
 }
 
 /* ---------------------------------------------------------------------------
-   Counting numerals, with no JavaScript at all.
-
-   A registered custom property is animatable, and `counter()` renders an
-   integer, so a metric can tick up in pure CSS. This replaced a React island
-   that cost 254 KB to animate three numbers.
-
-   Degradation matters here: `--tick` defaults to the target value, so if the
-   animation never runs the correct number is already on screen. It counts up
-   as an enhancement, never as a prerequisite for being readable.
+   The sheet grid — margin-and-measure, not 12-column.
 --------------------------------------------------------------------------- */
-@property --tick {
-  syntax: "<integer>";
-  initial-value: 0;
-  inherits: true;
-}
-
 @layer components {
-  .tick {
-    --tick: var(--tick-to, 0);
+  .sheet {
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+    display: grid;
+    grid-template-columns:
+      [full-start] minmax(0, 1fr)
+      [measure-start] minmax(0, var(--measure))
+      [measure-end] minmax(0, 1fr)
+      [full-end];
   }
 
-  .tick-value::after {
-    content: counter(tick);
-    counter-reset: tick var(--tick);
-  }
-
-  @keyframes tick-up {
-    from {
-      --tick: 0;
-    }
-    to {
-      --tick: var(--tick-to, 0);
+  @media (min-width: 48rem) {
+    .sheet {
+      padding-inline: 2rem;
+      grid-template-columns:
+        [full-start rail-start] var(--rail-md) [rail-end] var(--gutter)
+        [measure-start] minmax(0, var(--measure)) [measure-end]
+        minmax(0, 1fr) [full-end];
     }
   }
 
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      .tick {
-        animation: tick-up 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
-        animation-timeline: view();
-        animation-range: entry 20% entry 90%;
-      }
+  @media (min-width: 64rem) {
+    .sheet {
+      grid-template-columns:
+        [full-start rail-start] var(--rail) [rail-end] var(--gutter)
+        [measure-start] minmax(0, var(--measure)) [measure-end]
+        minmax(0, 1fr) [full-end];
     }
+  }
+
+  .sheet > * {
+    grid-column: measure;
+  }
+
+  .sheet .rail {
+    grid-column: measure;
+  }
+  @media (min-width: 48rem) {
+    .sheet .rail {
+      grid-column: rail;
+    }
+  }
+
+  .sheet .breakout {
+    grid-column: measure;
+  }
+  @media (min-width: 48rem) {
+    .sheet .breakout {
+      grid-column: measure-start / full-end;
+    }
+  }
+
+  .sheet .full {
+    grid-column: full;
+  }
+
+  /* /about and /research: no apparatus rail, measure centred. */
+  .sheet--no-rail {
+    grid-template-columns:
+      [full-start] minmax(0, 1fr)
+      [measure-start] minmax(0, var(--measure))
+      [measure-end] minmax(0, 1fr)
+      [full-end];
+  }
+  .sheet--no-rail > * {
+    grid-column: measure;
+  }
+  .sheet--no-rail .full {
+    grid-column: full;
+  }
+
+  .rule {
+    grid-column: full;
+    height: 1px;
+    background: var(--color-rule);
+    border: 0;
+    margin: 0;
   }
 }
 
 /* ---------------------------------------------------------------------------
-   Motion
-   Scroll-driven where supported; static and fully legible where not.
+   Prose — the case-study body. CSS-counter section numbering on h2.
 --------------------------------------------------------------------------- */
-@layer utilities {
-  @keyframes reveal-in {
-    from {
-      opacity: 0;
-      transform: translateY(14px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
+@layer components {
+  .prose {
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    color: var(--color-ink-muted);
+    counter-reset: section 1;
   }
 
-  @supports (animation-timeline: view()) {
-    .reveal {
-      animation: reveal-in linear both;
-      animation-timeline: view();
-      animation-range: entry 10% entry 55%;
-    }
+  .prose > * + * {
+    margin-top: var(--space-para);
   }
 
-  /* A status dot is static on purpose. Pulsing one animates something that
-     is not changing — decoration wearing the costume of telemetry, and a
-     well-known tell. It reads as a real indicator precisely because it holds
-     still. */
+  .prose h2 {
+    counter-increment: section;
+    margin-top: var(--space-section);
+    padding-top: var(--space-block);
+    border-top: 1px solid var(--color-rule);
+    font-family: var(--font-util);
+    font-variation-settings: "wdth" 100, "wght" 700;
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .prose h2::before {
+    content: "§" counter(section) " ";
+    color: var(--color-ink-muted);
+  }
+
+  .prose h3 {
+    margin-top: var(--space-block);
+    font-family: var(--font-util);
+    font-variation-settings: "wdth" 100, "wght" 600;
+    font-size: var(--text-h3);
+    color: var(--color-ink);
+  }
+
+  .prose p {
+    max-width: var(--measure);
+    text-wrap: pretty;
+  }
+
+  .prose strong {
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .prose a {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule);
+    text-underline-offset: 3px;
+  }
+
+  .prose a:hover,
+  .prose a:focus-visible {
+    color: var(--color-accent);
+    text-decoration-color: var(--color-accent);
+  }
+
+  .prose ul {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .prose li {
+    position: relative;
+    padding-left: 1.4rem;
+    max-width: var(--measure);
+  }
+
+  .prose li + li {
+    margin-top: var(--space-tight);
+  }
+
+  .prose li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.75em;
+    width: 0.5rem;
+    height: 1px;
+    background: var(--color-rule);
+  }
 }
 
-/* Anyone who has asked for less motion gets none of it. */
+/* ---------------------------------------------------------------------------
+   Motion: the entire budget.
+   There is nothing to disable under prefers-reduced-motion — no entrance
+   animation, no scroll reveal, no parallax, no counters, no marquee exist
+   in this build. The media query below is asserted, not left empty.
+--------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  .reveal {
-    opacity: 1 !important;
-    transform: none !important;
-  }
+  /* Intentionally empty: the only motion on the site (120ms colour/underline
+     transitions on hover and :focus-visible) is not disorienting and needs
+     no reduction. Nothing else moves to begin with. */
 }
