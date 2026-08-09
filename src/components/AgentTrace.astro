@@ -1,0 +1,141 @@
+---
+/**
+ * The ReAct loop, animated by scroll position alone.
+ *
+ * Built on native CSS scroll-driven animations (`animation-timeline: view()`),
+ * so it ships zero JavaScript. Where the feature is unsupported the steps are
+ * simply all visible and fully legible — the diagram degrades to a static one
+ * rather than to nothing.
+ */
+interface Step {
+  step: string;
+  detail: string;
+  emphasis?: boolean;
+}
+
+interface Props {
+  steps: readonly Step[];
+  caption?: string;
+}
+
+const { steps, caption } = Astro.props;
+---
+
+<figure class="my-14">
+  <div class="trace relative pl-10">
+    <!-- Dim spine, always present -->
+    <span
+      aria-hidden="true"
+      class="absolute left-[7px] top-2 bottom-2 w-px bg-line"></span>
+    <!-- Amber spine, drawn by scroll -->
+    <span
+      aria-hidden="true"
+      class="trace-progress absolute left-[7px] top-2 bottom-2 w-px origin-top bg-signal"
+    ></span>
+
+    <ol class="space-y-9">
+      {
+        steps.map((s, i) => (
+          <li class="trace-step relative" style={`--i:${i}`}>
+            <span
+              aria-hidden="true"
+              class:list={[
+                "trace-node absolute -left-10 top-1 grid h-[15px] w-[15px] place-items-center rounded-full border",
+                s.emphasis
+                  ? "border-signal bg-void"
+                  : "border-line-bright bg-void",
+              ]}
+            >
+              <span
+                class:list={[
+                  "h-[5px] w-[5px] rounded-full",
+                  s.emphasis ? "bg-signal" : "bg-ink-dim",
+                ]}
+              />
+            </span>
+
+            <div class="flex flex-wrap items-baseline gap-x-3">
+              <span class="num text-[11px] text-ink-dim">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h4
+                class:list={[
+                  "text-base font-medium",
+                  s.emphasis ? "text-signal" : "text-ink",
+                ]}
+              >
+                {s.step}
+              </h4>
+            </div>
+            <p class="mt-1.5 text-sm leading-relaxed text-ink-muted">
+              {s.detail}
+            </p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  {
+    caption && (
+      <figcaption class="label mt-8 border-t border-line pt-3">
+        {caption}
+      </figcaption>
+    )
+  }
+</figure>
+
+<style>
+  @keyframes draw-spine {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes step-in {
+    from {
+      opacity: 0.25;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes node-fire {
+    from {
+      box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-signal) 45%, transparent);
+    }
+    to {
+      box-shadow: 0 0 0 7px transparent;
+    }
+  }
+
+  /* Unsupported browsers never run these, and everything stays at its
+     final, readable state. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .trace-progress {
+        animation: draw-spine linear both;
+        animation-timeline: view();
+        animation-range: entry 60% exit 20%;
+      }
+
+      .trace-step {
+        animation: step-in linear both;
+        animation-timeline: view();
+        animation-range: entry 45% cover 22%;
+      }
+
+      .trace-node {
+        animation: node-fire linear both;
+        animation-timeline: view();
+        animation-range: entry 50% cover 20%;
+      }
+    }
+  }
+</style>

@@ -1,0 +1,65 @@
+---
+import "../styles/global.css";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import CommandPalette from "../components/CommandPalette.astro";
+import { profile } from "../data/profile";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = `${profile.name} — ${profile.title}`,
+  description = profile.positioning,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://example.com");
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#08090b" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="min-h-screen antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-signal focus:px-4 focus:py-2 focus:text-void"
+    >
+      Skip to content
+    </a>
+
+    <!-- The faint vertical grid. Present, never noticed — it is what makes the
+         page feel measured rather than merely dark. -->
+    <div
+      aria-hidden="true"
+      class="pointer-events-none fixed inset-0 z-0 opacity-[0.055]"
+      style="background-image: linear-gradient(90deg, var(--color-ink) 1px, transparent 1px); background-size: 5rem 100%;"
+    >
+    </div>
+
+    <div class="relative z-10 flex min-h-screen flex-col">
+      <Nav />
+      <main id="main" class="flex-1">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+
+    <CommandPalette />
+  </body>
+</html>

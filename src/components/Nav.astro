@@ -1,0 +1,72 @@
+---
+import { profile } from "../data/profile";
+
+const path = Astro.url.pathname;
+const links = [
+  { href: "/work", label: "Work" },
+  { href: "/research", label: "Research" },
+  { href: "/about", label: "About" },
+];
+
+const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
+---
+
+<header class="sticky top-0 z-40 border-b border-line bg-void/80 backdrop-blur-md">
+  <nav
+    aria-label="Primary"
+    class="mx-auto flex h-14 max-w-6xl items-center justify-between px-6"
+  >
+    <a
+      href="/"
+      class="group flex items-baseline gap-2.5 font-mono text-sm tracking-tight"
+    >
+      <span class="text-ink">{profile.name.split(" ")[0]}</span>
+      <span class="text-ink-dim">{profile.name.split(" ")[1]}</span>
+      <span
+        aria-hidden="true"
+        class="ml-0.5 h-1.5 w-1.5 translate-y-[-2px] rounded-full bg-signal"
+      ></span>
+    </a>
+
+    <ul class="flex items-center gap-1">
+      {
+        links.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              aria-current={isActive(link.href) ? "page" : undefined}
+              class:list={[
+                "px-3 py-2 font-mono text-xs uppercase tracking-[0.14em] transition-colors",
+                isActive(link.href)
+                  ? "text-signal"
+                  : "text-ink-dim hover:text-ink",
+              ]}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+      <li class="ml-2 border-l border-line pl-3">
+        <a
+          href={`mailto:${profile.email}`}
+          class="px-2 py-2 font-mono text-xs uppercase tracking-[0.14em] text-ink-dim transition-colors hover:text-ink"
+        >
+          Contact
+        </a>
+      </li>
+      <li class="ml-1">
+        <button
+          type="button"
+          data-palette-open
+          aria-label="Open command palette"
+          aria-keyshortcuts="Meta+K Control+K"
+          class="flex items-center gap-2 border border-line px-2 py-1.5 font-mono text-[11px] text-ink-dim transition-colors hover:border-line-bright hover:text-ink"
+        >
+          <span aria-hidden="true">Search</span>
+          <kbd class="border border-line-bright px-1 py-px text-[10px]">⌘K</kbd>
+        </button>
+      </li>
+    </ul>
+  </nav>
+</header>

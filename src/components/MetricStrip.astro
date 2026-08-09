@@ -1,0 +1,53 @@
+---
+/**
+ * The core repeating unit of the site. Every number appears with its basis —
+ * a figure without a source is marketing, and this component makes it
+ * structurally awkward to publish one.
+ */
+interface Metric {
+  label: string;
+  value: string;
+  basis: string;
+}
+
+interface Props {
+  metrics: readonly Metric[];
+  size?: "sm" | "lg";
+}
+
+const { metrics, size = "sm" } = Astro.props;
+
+const valueClass = size === "lg" ? "text-3xl sm:text-4xl" : "text-xl";
+---
+
+<dl
+  class:list={[
+    "grid gap-px border border-line bg-line",
+    metrics.length === 3
+      ? "sm:grid-cols-3"
+      : metrics.length >= 4
+        ? "sm:grid-cols-2 lg:grid-cols-4"
+        : "sm:grid-cols-2",
+  ]}
+>
+  {
+    metrics.map((m) => (
+      <div class="group bg-surface p-4 transition-colors duration-300 hover:bg-raised">
+        <dt class="label mb-2">{m.label}</dt>
+        <dd>
+          <span
+            class:list={[
+              "num block font-medium leading-none text-ink transition-colors duration-300 group-hover:text-signal",
+              valueClass,
+            ]}
+          >
+            {m.value}
+          </span>
+          <span class="mt-2 block text-xs leading-snug text-ink-dim">
+            {m.basis}
+          </span>
+        </dd>
+      </div>
+    ))
+  }
+</dl>

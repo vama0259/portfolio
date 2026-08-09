@@ -1,17 +1,121 @@
 ---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import WorkCard from "../components/WorkCard.astro";
+import Counter from "../components/Counter.astro";
+import { profile } from "../data/profile";
 
+const work = (await getCollection("work")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const principles = [
+  {
+    n: "01",
+    h: "Measure before you claim",
+    p: "Every number on this site carries its basis. A 500-question benchmark is worth more than a demo that went well, and run-to-run consistency matters more than a peak score nobody can reproduce.",
+  },
+  {
+    n: "02",
+    h: "Assume it will be wrong",
+    p: "Read-only at every layer, human gates on ambiguity, evaluation wired in from the start. The interesting engineering is never the happy path — it is what the system does when it does not know.",
+  },
+  {
+    n: "03",
+    h: "Ship it into the default path",
+    p: "A model that runs when someone remembers to run it is a script. Anomaly detection became the standard cleaning stage in every sales pipeline, and that is when it started to matter.",
+  },
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base>
+  <!-- ══ Hero ══════════════════════════════════════════════════════════ -->
+  <section class="mx-auto max-w-6xl px-6 pb-24 pt-24 sm:pt-32">
+    <p class="label mb-8 flex items-center gap-2.5">
+      <span
+        aria-hidden="true"
+        class="inline-block h-1.5 w-1.5 rounded-full bg-live"></span>
+      {profile.title}
+    </p>
+
+    <h1
+      class="max-w-4xl text-display font-medium leading-[0.95] tracking-[-0.03em]"
+    >
+      I build LLM systems<br />
+      that survive <span class="text-signal">production</span>.
+    </h1>
+
+    <p class="mt-9 max-w-2xl text-lg leading-relaxed text-ink-muted sm:text-xl">
+      Agent architectures, the evaluation stacks that prove they work, and the
+      guardrails that keep them honest. Three years at Michelin, two
+      peer-reviewed papers, one platform that fifty analysts open every morning.
+    </p>
+
+    <dl class="mt-16 grid gap-px border border-line bg-line sm:grid-cols-3">
+      {
+        profile.headline.map((m) => (
+          <div class="bg-surface px-5 py-7">
+            <dt class="label mb-3">{m.label}</dt>
+            <dd>
+              <span class="block text-4xl font-medium leading-none text-ink sm:text-5xl">
+                <Counter value={m.value} />
+              </span>
+              <span class="mt-3 block text-xs text-ink-dim">{m.basis}</span>
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
+  <!-- ══ Work ══════════════════════════════════════════════════════════ -->
+  <section class="mx-auto max-w-6xl px-6 py-16">
+    <div
+      class="mb-10 flex items-baseline justify-between border-t border-line pt-6"
+    >
+      <h2 class="text-heading font-medium">Selected work</h2>
+      <a
+        href="/work"
+        class="font-mono text-xs uppercase tracking-[0.14em] text-ink-dim transition-colors hover:text-signal"
+      >
+        All work →
+      </a>
+    </div>
+
+    <div class="grid gap-6">
+      {
+        work.map((entry, i) => (
+          <WorkCard
+            slug={entry.id}
+            index={i + 1}
+            title={entry.data.title}
+            tagline={entry.data.tagline}
+            status={entry.data.status}
+            period={entry.data.period}
+            stack={entry.data.stack}
+            metrics={entry.data.metrics}
+          />
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ══ Approach ══════════════════════════════════════════════════════ -->
+  <section class="mx-auto max-w-6xl px-6 py-16">
+    <h2 class="mb-10 border-t border-line pt-6 text-heading font-medium">
+      How I work
+    </h2>
+
+    <div class="grid gap-px border border-line bg-line md:grid-cols-3">
+      {
+        principles.map((c) => (
+          <div class="reveal bg-surface p-7">
+            <span class="num mb-5 block text-xs text-signal">{c.n}</span>
+            <h3 class="mb-3 text-base font-medium text-ink">{c.h}</h3>
+            <p class="text-sm leading-relaxed text-ink-muted">{c.p}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</Base>

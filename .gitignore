@@ -17,6 +17,13 @@ pnpm-debug.log*
 .env
 .env.production
 
+# agent tooling: local secrets (API keys for the MCP servers in .mcp.json)
+.claude/settings.local.json
+
+# agent tooling: derived artifacts
+graphify-out/
+.firecrawl/
+
 # macOS-specific files
 .DS_Store
 

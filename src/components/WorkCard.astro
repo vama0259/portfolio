@@ -1,0 +1,100 @@
+---
+import MetricStrip from "./MetricStrip.astro";
+
+interface Props {
+  slug: string;
+  index: number;
+  title: string;
+  tagline: string;
+  status: "production" | "research" | "shipped";
+  period: string;
+  stack: readonly string[];
+  metrics: readonly { label: string; value: string; basis: string }[];
+}
+
+const { slug, index, title, tagline, status, period, stack, metrics } =
+  Astro.props;
+
+const statusColor = {
+  production: "text-live border-live/30 bg-live/5",
+  research: "text-signal border-signal/30 bg-signal/5",
+  shipped: "text-ink-muted border-line-bright bg-raised",
+}[status];
+---
+
+<article class="reveal group relative border border-line bg-surface transition-colors duration-500 hover:border-line-bright">
+  <a href={`/work/${slug}`} class="block p-6 sm:p-8">
+    <!-- Index + status header -->
+    <div class="mb-5 flex items-center justify-between gap-4">
+      <span class="num text-xs text-ink-dim">
+        {String(index).padStart(2, "0")}
+      </span>
+      <div class="flex items-center gap-3">
+        <span class="num text-xs text-ink-dim">{period}</span>
+        <span
+          class:list={[
+            "border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em]",
+            statusColor,
+          ]}
+        >
+          {status}
+        </span>
+      </div>
+    </div>
+
+    {/* Shared with the case study's <h1>. Matching names across two documents
+        make the browser morph the title between them rather than cross-fade
+        the whole page — the card becomes the header. */}
+    <h3
+      style={`view-transition-name: t-${slug}`}
+      class="text-heading font-medium leading-tight text-ink transition-colors duration-300 group-hover:text-signal"
+    >
+      {title}
+    </h3>
+
+    <p class="mt-3 max-w-2xl text-base leading-relaxed text-ink-muted">
+      {tagline}
+    </p>
+
+    <div class="mt-7" style={`view-transition-name: m-${slug}`}>
+      <MetricStrip metrics={metrics} />
+    </div>
+
+    <ul class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+      {
+        stack.slice(0, 6).map((s, i) => (
+          <li class="flex items-center gap-2 font-mono text-[11px] text-ink-dim">
+            {i > 0 && (
+              <span aria-hidden="true" class="text-line-bright">
+                ·
+              </span>
+            )}
+            {s}
+          </li>
+        ))
+      }
+      {
+        stack.length > 6 && (
+          <li class="num text-[11px] text-ink-dim">
+            <span aria-hidden="true" class="mr-2 text-line-bright">
+              ·
+            </span>
+            +{stack.length - 6} more
+          </li>
+        )
+      }
+    </ul>
+
+    <span
+      class="mt-7 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-ink-dim transition-colors duration-300 group-hover:text-signal"
+    >
+      Read the case study
+      <span
+        aria-hidden="true"
+        class="transition-transform duration-300 group-hover:translate-x-1"
+      >
+        →
+      </span>
+    </span>
+  </a>
+</article>

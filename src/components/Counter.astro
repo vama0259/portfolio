@@ -1,0 +1,36 @@
+---
+/**
+ * Zero-JS replacement for the old React count-up island.
+ *
+ * Splits a display string like "50+", "95%" or "27/wk" into the leading
+ * number and whatever surrounds it, then animates only the number via a
+ * registered custom property (see `.tick` in global.css).
+ *
+ * Ships nothing. The previous React version cost 254 KB.
+ */
+interface Props {
+  value: string;
+}
+
+const { value } = Astro.props;
+
+const match = value.match(/^(\D*)(\d+)(.*)$/);
+const prefix = match?.[1] ?? "";
+const digits = match?.[2] ?? "";
+const suffix = match?.[3] ?? value;
+---
+
+{
+  digits ? (
+    <span class="tick num" style={`--tick-to: ${digits}`}>
+      {prefix}
+      <span class="tick-value" aria-hidden="true" />
+      {suffix}
+      {/* The animated counter is decorative markup; screen readers get the
+          real string rather than a mid-animation integer. */}
+      <span class="sr-only">{value}</span>
+    </span>
+  ) : (
+    <span class="num">{value}</span>
+  )
+}
