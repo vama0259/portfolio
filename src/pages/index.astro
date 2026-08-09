@@ -12,32 +12,30 @@ const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.
 <Base>
   <!-- Masthead + abstract + results table: the whole first viewport. -->
   <Sheet>
-    <div style="padding-top: var(--space-page);">
+    <div class="home-masthead">
       <h1
-        class="u-display"
-        style="font-size: var(--text-display); line-height: var(--text-display--line-height); letter-spacing: -0.02em; color: var(--color-ink);"
+        class="u-display home-title"
       >
         {profile.name}
       </h1>
-      <p style="margin-top: var(--space-tight); font-size: var(--text-lede); color: var(--color-ink-muted);">
+      <p class="home-subtitle">
         Data scientist, generative AI and LLM engineering. {profile.roles[0].company}, Pune.
       </p>
     </div>
 
-    <p style="margin-top: var(--space-block); font-size: var(--text-lede); line-height: var(--text-lede--line-height); color: var(--color-ink);">
+    <p class="lede">
       {profile.positioning}
     </p>
 
     <Figures metrics={profile.headline} prefix="home" />
   </Sheet>
 
-  <hr class="rule full" style="margin-top: var(--space-section); margin-inline: auto; max-width: var(--page-max);" />
+  <hr class="rule full section-divider" />
 
   <!-- SS1 Selected work -->
   <Sheet>
     <h2
-      class="u-label"
-      style="margin-top: var(--space-section); font-size: var(--text-caption); color: var(--color-ink-muted);"
+      class="u-label section-heading"
     >
       Selected work
     </h2>
@@ -55,40 +53,39 @@ const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.
         ))
       }
     </div>
-    <p style="padding-top: var(--space-block); border-top: 1px solid var(--color-hairline);">
-      <a href="/work" style="font-size: var(--text-body); color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-rule); text-underline-offset: 3px;">
+    <p class="section-footer-link">
+      <a href="/work" class="link-underline">
         All work
       </a>
     </p>
   </Sheet>
 
-  <hr class="rule full" style="margin-top: var(--space-section); margin-inline: auto; max-width: var(--page-max);" />
+  <hr class="rule full section-divider" />
 
   <!-- SS2 Publications -->
   <Sheet>
     <h2
-      class="u-label"
-      style="margin-top: var(--space-section); font-size: var(--text-caption); color: var(--color-ink-muted);"
+      class="u-label section-heading"
     >
       Publications
     </h2>
     <div>
       {
-        profile.publications.map((p, i) => (
-          <div style={`padding-block: var(--space-block); ${i > 0 ? "border-top: 1px solid var(--color-hairline);" : ""}`}>
-            <p class="fig" style="font-size: var(--text-note); color: var(--color-ink-muted);">
+        profile.publications.map((p) => (
+          <div class="pub-row">
+            <p class="fig pub-venue">
               {p.venue}
               {p.note.includes("First author") && (
-                <span class="u-label" style="margin-left: 0.75rem; font-size: var(--text-label); color: var(--color-ink);">
+                <span class="u-label pub-badge">
                   First author
                 </span>
               )}
             </p>
-            <h3 style="margin-top: 0.35rem; font-family: var(--font-text); font-weight: 600; font-size: var(--text-h2); color: var(--color-ink);">
+            <h3 class="pub-title">
               {p.title}
             </h3>
-            <p style="margin-top: 0.35rem; font-size: var(--text-note); color: var(--color-ink-muted);">
-              {p.note}
+            <p class="pub-note">
+              {p.note.replace(/^First author\s*[·-]\s*/, "")}
             </p>
           </div>
         ))

@@ -20,21 +20,18 @@ const meta = [period, status, ...stack.slice(0, 4)];
 
 <a
   href={`/work/${slug}`}
-  class="entry-link"
-  style="display: block; padding-block: var(--space-block); border-top: 1px solid var(--color-hairline); min-height: 56px; text-decoration: none;"
+  class="entry-link entry-row"
 >
-  <h3
-    style="font-family: var(--font-text); font-weight: 600; font-size: var(--text-h2); line-height: var(--text-h2--line-height); color: var(--color-ink);"
-  >
+  <h3 class="entry-title">
     {title}
     {status === "production" && (
-      <span aria-label="In production" style="color: var(--color-accent);"> ●</span>
+      <span aria-label="In production" class="status-mark"> ●</span>
     )}
   </h3>
-  <p style="margin-top: 0.4rem; font-size: var(--text-body); color: var(--color-ink-muted);">
+  <p class="entry-tagline">
     {tagline}
   </p>
-  <p class="u-label" style="margin-top: var(--space-tight); font-size: var(--text-caption); color: var(--color-ink-muted);">
+  <p class="u-label entry-meta">
     {meta.join(" ❘ ")}
   </p>
 </a>

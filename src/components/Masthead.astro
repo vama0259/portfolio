@@ -12,17 +12,16 @@ interface Props {
 const { title, standfirst } = Astro.props;
 ---
 
-<header class="full" style="grid-column: full;">
-  <div class="sheet" style="padding-top: var(--space-page); padding-bottom: var(--space-block);">
+<header class="full masthead">
+  <div class="sheet masthead-inner">
     <h1
-      class="u-display"
-      style="font-size: var(--text-display); line-height: var(--text-display--line-height); letter-spacing: -0.02em; color: var(--color-ink); grid-column: measure;"
+      class="u-display display-title masthead-title"
       set:html={title}
     />
     {
       standfirst && (
         <p
-          style="margin-top: var(--space-para); font-size: var(--text-lede); line-height: var(--text-lede--line-height); color: var(--color-ink-muted); grid-column: measure;"
+          class="masthead-standfirst"
         >
           {standfirst}
         </p>

@@ -13,17 +13,17 @@ const channels = [
 ];
 ---
 
-<footer class="full" style="margin-top: var(--space-page); border-top: 1px solid var(--color-rule);">
-  <div class="sheet" style="padding-block: var(--space-block);">
-    <div class="full" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-block); max-width: var(--page-max); margin-inline: auto;">
-      <ul style="list-style: none; display: flex; flex-wrap: wrap; gap: 1.5rem;">
+<footer class="full site-footer">
+  <div class="sheet footer-inner">
+    <div class="full footer-row">
+      <ul class="footer-channels">
         {
           channels.map((c) => (
             <li>
-              <p class="u-label" style="font-size: var(--text-label); color: var(--color-ink-muted);">
+              <p class="u-label footer-channel-label">
                 {c.label}
               </p>
-              <a href={c.href} class="fig" style="font-size: var(--text-note); color: var(--color-ink);">
+              <a href={c.href} class="fig footer-channel-value">
                 {c.value}
               </a>
             </li>
@@ -31,7 +31,7 @@ const channels = [
         }
       </ul>
 
-      <p class="u-label" style="font-size: var(--text-caption); color: var(--color-ink-muted); text-align: right;">
+      <p class="u-label footer-meta">
         {year}. Set in Spectral, Archivo and Martian Mono.
       </p>
     </div>

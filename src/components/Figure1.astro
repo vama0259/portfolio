@@ -1,9 +1,13 @@
 ---
 /**
- * The printed ReAct trace. Replaces AgentTrace.astro. A numbered vertical
- * sequence on --color-paper-raised, each step a row: ordinal in .fig, step
- * name in Archivo 600, detail in Spectral. emphasis:true steps carry a 2px
- * accent left rule and their detail set in --color-ink. Zero animation.
+ * The ReAct trace. Server-rendered as a complete, fully readable printed
+ * trace — every step, every detail, the caption — identical with JS off.
+ * A vanilla-JS layer (no framework, no library) then upgrades it in place:
+ * a query token travels the loop under a hand-rolled spring integrator,
+ * stalls at the ambiguity gate (emphasis step 1) until the reader resolves
+ * it, and can be sent at the guardrail (emphasis step 2) to demonstrate the
+ * read-only rejection. Reader-driven only: click-to-step or drag/keyboard
+ * scrub. No autoplay, no scroll trigger. Respects prefers-reduced-motion.
  */
 interface Step {
   step: string;
@@ -20,33 +24,46 @@ interface Props {
 const { steps, number = "1", caption } = Astro.props;
 ---
 
-<figure class="breakout" style="margin-block: var(--space-block); background-color: var(--color-paper-raised);">
-  <ol style="list-style: none; padding: var(--space-block) 1.5rem; margin: 0; display: flex; flex-direction: column; gap: var(--space-block);">
+<figure class="breakout fig1" style="margin-block: var(--space-block); background-color: var(--color-paper-raised);">
+  <ol class="fig1-track">
     {
       steps.map((s, i) => (
-        <li
-          style={`display: grid; grid-template-columns: 2.5rem 1fr; gap: 1rem; padding-left: 1rem; border-left: ${s.emphasis ? "2px solid var(--color-accent)" : "2px solid transparent"};`}
-        >
-          <span class="fig" style="color: var(--color-ink-muted); font-size: var(--text-note);">
-            {String(i + 1).padStart(2, "0")}
-          </span>
+        <li class={`fig1-row${s.emphasis ? " fig1-row--emphasis" : ""}`} data-index={i}>
+          <span class="fig fig1-ord">{String(i + 1).padStart(2, "0")}</span>
           <div>
-            <h4
-              class="u-label"
-              style={`font-size: var(--text-body); color: ${s.emphasis ? "var(--color-ink)" : "var(--color-ink)"};`}
-            >
-              {s.step}
-            </h4>
-            <p
-              style={`margin-top: 0.25rem; font-size: var(--text-note); line-height: var(--text-note--line-height); color: ${s.emphasis ? "var(--color-ink)" : "var(--color-ink-muted)"};`}
-            >
-              {s.detail}
-            </p>
+            <h4 class="u-label fig1-step">{s.step}</h4>
+            <p class="fig1-detail">{s.detail}</p>
           </div>
         </li>
       ))
     }
   </ol>
+
+  <div class="fig1-controls" hidden>
+    <button type="button" class="fig1-btn" data-act="prev" aria-label="Previous step">&#8249; Prev</button>
+    <span class="fig1-controls-label u-label">
+      Step <span class="fig" data-cur>01</span> / {String(steps.length).padStart(2, "0")}
+    </span>
+    <button type="button" class="fig1-btn" data-act="next" aria-label="Next step">Next &#8250;</button>
+    <label class="fig1-scrub u-label">
+      Scrub
+      <input type="range" min="0" max={steps.length - 1} step="1" value="0" data-scrub aria-label="Scrub through trace steps" />
+    </label>
+    <button type="button" class="fig1-btn fig1-btn--write" data-act="write" hidden>
+      Attempt a write query
+    </button>
+  </div>
+
+  <div class="fig1-choice" hidden data-choice-panel>
+    <p class="u-label fig1-choice-prompt">Ambiguous schema match. Two tables fit this question equally well — which did the analyst mean?</p>
+    <div class="fig1-choice-opts">
+      <button type="button" class="fig1-btn" data-choice="a">Candidate A &mdash; narrower match</button>
+      <button type="button" class="fig1-btn" data-choice="b">Candidate B &mdash; broader match</button>
+    </div>
+  </div>
+
+  <p class="fig1-sr-status" role="status" aria-live="polite" data-status></p>
+
   <figcaption
     class="u-label"
     style="font-size: var(--text-caption); color: var(--color-ink-muted); border-top: 1px solid var(--color-hairline); padding: var(--space-note) 1.5rem;"
@@ -54,3 +71,368 @@ const { steps, number = "1", caption } = Astro.props;
     Fig. {number} - {caption}
   </figcaption>
 </figure>
+
+<style>
+  .fig1-track {
+    list-style: none;
+    padding: var(--space-block) 1.5rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-block);
+    position: relative;
+  }
+
+  .fig1-row {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 1rem;
+    padding-left: 1rem;
+    border-left: 2px solid transparent;
+    transition: border-color var(--dur-state) var(--ease-state);
+  }
+
+  .fig1-row--emphasis {
+    border-left-color: var(--color-accent);
+  }
+
+  .fig1-ord {
+    color: var(--color-ink-muted);
+    font-size: var(--text-note);
+  }
+
+  .fig1-step {
+    font-size: var(--text-body);
+    color: var(--color-ink);
+  }
+
+  .fig1-detail {
+    margin-top: 0.25rem;
+    font-size: var(--text-note);
+    line-height: var(--text-note--line-height);
+    color: var(--color-ink-muted);
+  }
+
+  .fig1-row--emphasis .fig1-detail {
+    color: var(--color-ink);
+  }
+
+  @media (max-width: 30rem) {
+    .fig1-row {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+    .fig1-ord {
+      display: block;
+    }
+  }
+
+  /* Active-step feedback: pure CSS attribute selector, no JS class churn */
+  .fig1-row[data-active="true"] .fig1-step {
+    color: var(--color-accent);
+  }
+
+  /* ---- interactive layer: hidden entirely without JS ---- */
+  .fig1-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-para);
+    padding: 0 1.5rem var(--space-block);
+    border-top: 1px solid var(--color-hairline);
+    padding-top: var(--space-note);
+  }
+
+  .fig1-btn {
+    font-family: var(--font-util);
+    font-variation-settings: "wdth" 100, "wght" 600;
+    font-size: var(--text-caption);
+    color: var(--color-ink);
+    background: transparent;
+    border: 1px solid var(--color-rule);
+    padding: 0.625rem 0.875rem;
+    min-height: 44px;
+    cursor: pointer;
+  }
+
+  .fig1-btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .fig1-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .fig1-btn--write {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .fig1-controls-label {
+    font-size: var(--text-caption);
+    color: var(--color-ink-muted);
+  }
+
+  .fig1-scrub {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-caption);
+    color: var(--color-ink-muted);
+  }
+
+  .fig1-scrub input[type="range"] {
+    accent-color: var(--color-accent);
+    min-height: 44px;
+  }
+
+  .fig1-choice {
+    margin: 0 1.5rem var(--space-block);
+    padding: var(--space-note);
+    border: 1px solid var(--color-accent);
+    background: var(--color-accent-quiet);
+  }
+
+  .fig1-choice-prompt {
+    font-size: var(--text-caption);
+    color: var(--color-ink);
+    margin: 0 0 var(--space-tight);
+  }
+
+  .fig1-choice-opts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .fig1-sr-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* The token itself: only ever created by the script, so it cannot exist
+     without JS. Absolutely positioned over the track. */
+  :global(.fig1-token) {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--color-ink-muted);
+    pointer-events: none;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    transform: translate(0, 0);
+  }
+
+  :global(.fig1-token[data-state="rejected"]) {
+    background: var(--color-accent);
+  }
+
+  :global(.fig1-token[data-state="waiting"]) {
+    background: var(--color-accent);
+  }
+</style>
+
+<script>
+  // Vanilla progressive enhancement. No framework, no animation library.
+  // Hand-rolled velocity/stiffness/damping spring, stepped on rAF.
+  // If this script never runs (JS disabled), the figure above is already
+  // the complete, readable trace and nothing here is required.
+
+  type Spring = { pos: number; vel: number; target: number };
+
+  function makeSpring(v: number): Spring {
+    return { pos: v, vel: 0, target: v };
+  }
+
+  // zeta ~0.9: settles quickly without oscillating past the target.
+  const STIFFNESS = 210;
+  const ZETA = 0.9;
+  const DAMPING = 2 * Math.sqrt(STIFFNESS) * ZETA;
+  const REST_EPS = 0.4;
+
+  function step(s: Spring, dt: number) {
+    const accel = -STIFFNESS * (s.pos - s.target) - DAMPING * s.vel;
+    s.vel += accel * dt;
+    s.pos += s.vel * dt;
+  }
+
+  function atRest(s: Spring) {
+    return Math.abs(s.pos - s.target) < REST_EPS && Math.abs(s.vel) < REST_EPS;
+  }
+
+  function initFigure1(fig: HTMLElement) {
+    const track = fig.querySelector<HTMLOListElement>(".fig1-track");
+    const rows = Array.from(fig.querySelectorAll<HTMLLIElement>(".fig1-row"));
+    const controls = fig.querySelector<HTMLElement>(".fig1-controls");
+    const choicePanel = fig.querySelector<HTMLElement>("[data-choice-panel]");
+    const status = fig.querySelector<HTMLElement>("[data-status]");
+    const curLabel = fig.querySelector<HTMLElement>("[data-cur]");
+    const scrub = fig.querySelector<HTMLInputElement>("[data-scrub]");
+    const prevBtn = fig.querySelector<HTMLButtonElement>('[data-act="prev"]');
+    const nextBtn = fig.querySelector<HTMLButtonElement>('[data-act="next"]');
+    const writeBtn = fig.querySelector<HTMLButtonElement>('[data-act="write"]');
+    const choiceBtns = Array.from(fig.querySelectorAll<HTMLButtonElement>("[data-choice]"));
+    if (!track || rows.length === 0 || !controls) return;
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const gateIndex = rows.findIndex((r) => r.classList.contains("fig1-row--emphasis"));
+    const guardIndex = rows.findIndex(
+      (r, i) => i > gateIndex && r.classList.contains("fig1-row--emphasis"),
+    );
+
+    let current = 0;
+    let gateResolved = gateIndex < 0;
+
+    const token = document.createElement("div");
+    token.className = "fig1-token";
+    track.style.position = "relative";
+    track.appendChild(token);
+
+    const sx = makeSpring(0);
+    const sy = makeSpring(0);
+    let raf = 0;
+    let last = 0;
+
+    function markerRect(row: HTMLElement) {
+      const ord = row.querySelector<HTMLElement>(".fig1-ord")!;
+      const trackRect = track!.getBoundingClientRect();
+      const r = ord.getBoundingClientRect();
+      return {
+        x: r.left - trackRect.left + r.width / 2 - 5,
+        y: r.top - trackRect.top + r.height / 2 - 5,
+      };
+    }
+
+    function setTarget(x: number, y: number) {
+      sx.target = x;
+      sy.target = y;
+      if (reduceMotion) {
+        sx.pos = x;
+        sx.vel = 0;
+        sy.pos = y;
+        sy.vel = 0;
+        render();
+      } else {
+        ensureLoop();
+      }
+    }
+
+    function goToRow(index: number, dx = 0) {
+      const p = markerRect(rows[index]);
+      setTarget(p.x + dx, p.y);
+    }
+
+    function render() {
+      token.style.transform = `translate(${sx.pos}px, ${sy.pos}px)`;
+    }
+
+    function ensureLoop() {
+      if (raf) return;
+      last = performance.now();
+      raf = requestAnimationFrame(loop);
+    }
+
+    function loop(now: number) {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      step(sx, dt);
+      step(sy, dt);
+      render();
+      if (atRest(sx) && atRest(sy)) {
+        sx.pos = sx.target;
+        sy.pos = sy.target;
+        render();
+        raf = 0;
+        return;
+      }
+      raf = requestAnimationFrame(loop);
+    }
+
+    function announce(msg: string) {
+      if (status) status.textContent = msg;
+    }
+
+    function updateUI() {
+      rows.forEach((r, i) => {
+        if (i === current) r.setAttribute("data-active", "true");
+        else r.removeAttribute("data-active");
+      });
+      if (curLabel) curLabel.textContent = String(current + 1).padStart(2, "0");
+      if (scrub) scrub.value = String(current);
+      if (prevBtn) prevBtn.disabled = current === 0;
+      const gated = gateIndex >= 0 && current === gateIndex && !gateResolved;
+      if (nextBtn) nextBtn.disabled = current === rows.length - 1 || gated;
+      if (writeBtn) writeBtn.hidden = !(guardIndex >= 0 && current === guardIndex);
+      if (choicePanel) choicePanel.hidden = !gated;
+    }
+
+    function moveTo(requested: number) {
+      let target = Math.max(0, Math.min(rows.length - 1, requested));
+      // The ambiguity gate stalls the token here until the reader resolves
+      // which table was meant. Movement past it is clamped, not blocked
+      // silently, so the control still reflects where the token actually is.
+      if (gateIndex >= 0 && !gateResolved && target > gateIndex) target = gateIndex;
+      current = target;
+      goToRow(current);
+      updateUI();
+      const row = rows[current];
+      const name = row.querySelector(".fig1-step")?.textContent ?? "";
+      announce(`Step ${current + 1} of ${rows.length}: ${name}`);
+    }
+
+    prevBtn?.addEventListener("click", () => moveTo(current - 1));
+    nextBtn?.addEventListener("click", () => moveTo(current + 1));
+    scrub?.addEventListener("input", () => moveTo(Number(scrub.value)));
+    rows.forEach((row, i) => {
+      row.style.cursor = "pointer";
+      row.addEventListener("click", () => moveTo(i));
+    });
+
+    choiceBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        gateResolved = true;
+        const label = btn.textContent?.trim() ?? "";
+        announce(`Schema resolved: ${label}. Continuing.`);
+        updateUI();
+      });
+    });
+
+    writeBtn?.addEventListener("click", () => {
+      if (guardIndex < 0) return;
+      token.dataset.state = "rejected";
+      goToRow(guardIndex, 44);
+      announce("Write attempt rejected: read-only is enforced at the guardrail.");
+      window.setTimeout(
+        () => {
+          goToRow(guardIndex, 0);
+          window.setTimeout(
+            () => {
+              token.dataset.state = "";
+            },
+            reduceMotion ? 0 : 260,
+          );
+        },
+        reduceMotion ? 0 : 160,
+      );
+    });
+
+    window.addEventListener("resize", () => goToRow(current));
+
+    controls.hidden = false;
+    goToRow(0);
+    updateUI();
+  }
+
+  document.querySelectorAll<HTMLElement>(".fig1").forEach(initFigure1);
+</script>

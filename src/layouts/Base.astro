@@ -62,15 +62,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://example.com
     -->
     <a
       href="#main"
-      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50"
-      style="background-color: var(--color-accent); color: var(--color-paper); padding: 0.5rem 1rem;"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 skip-link"
     >
       Skip to content
     </a>
 
-    <div style="display: flex; min-height: 100vh; flex-direction: column;">
+    <div class="page-shell">
       <Nav sticky={navSticky} />
-      <main id="main" style="flex: 1;">
+      <main id="main" class="main-content">
         <slot />
       </main>
       <Colophon />

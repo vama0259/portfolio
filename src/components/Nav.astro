@@ -23,19 +23,17 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 
 <header
   class:list={["nav-bar", sticky && "nav-bar--sticky"]}
-  style={`border-bottom: 1px solid var(--color-rule); background-color: var(--color-paper);`}
 >
   <nav
     aria-label="Primary"
-    class="sheet"
-    style="grid-template-rows: auto; align-items: center; padding-block: 0.75rem;"
+    class="sheet nav-inner"
   >
-    <div style="grid-column: full; display: flex; align-items: center; justify-content: space-between; gap: 1rem; max-width: var(--page-max); margin-inline: auto;">
-      <a href="/" class="u-label" style="font-size: var(--text-caption); color: var(--color-ink);">
+    <div class="nav-row">
+      <a href="/" class="u-label nav-brand">
         {profile.name}
       </a>
 
-      <ul style="display: flex; align-items: center; gap: 1.25rem; list-style: none;">
+      <ul class="nav-list">
         {
           links.map((link) => (
             <li>
@@ -43,7 +41,6 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
                 href={link.href}
                 aria-current={isActive(link.href) ? "page" : undefined}
                 class="u-label nav-link"
-                style={`font-size: var(--text-caption); color: ${isActive(link.href) ? "var(--color-ink)" : "var(--color-ink-muted)"}; border-bottom: 2px solid ${isActive(link.href) ? "var(--color-accent)" : "transparent"}; padding-bottom: 2px;`}
               >
                 {link.label}
               </a>
@@ -53,8 +50,7 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
         <li>
           <a
             href={`mailto:${profile.email}`}
-            class="u-label"
-            style="font-size: var(--text-caption); color: var(--color-ink-muted);"
+            class="u-label nav-email"
           >
             {profile.email}
           </a>

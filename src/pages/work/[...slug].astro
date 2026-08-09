@@ -25,48 +25,47 @@ const next = all[(idx + 1) % all.length];
 <Base title={`${d.title} - Varun Malhotra`} description={d.tagline} navSticky>
   <article>
     <Sheet>
-      <p class="rail u-label" style="margin-top: var(--space-page); font-size: var(--text-caption); color: var(--color-ink-muted);">
-        <a href="/work" style="color: var(--color-ink-muted);">Work</a><br />
-        <span class="fig" style="font-size: var(--text-note);">{d.period}</span><br />
+      <p class="rail u-label case-meta">
+        <a href="/work" class="text-muted">Work</a><br />
+        <span class="fig case-period">{d.period}</span><br />
         {
           d.status === "production" ? (
-            <span style="color: var(--color-accent);">● production</span>
+            <span class="status-live">● production</span>
           ) : (
             <span>{d.status}</span>
           )
         }
       </p>
 
-      <div style="margin-top: var(--space-page);">
+      <div class="case-header">
         <h1
-          class="u-display"
-          style="font-size: var(--text-display); line-height: var(--text-display--line-height); letter-spacing: -0.02em; color: var(--color-ink);"
+          class="u-display display-title"
         >
           {d.title}
         </h1>
-        <p style="margin-top: var(--space-tight); font-size: var(--text-lede); line-height: var(--text-lede--line-height); color: var(--color-ink-muted);">
+        <p class="case-tagline">
           {d.tagline}
         </p>
 
         {
           entry.id === "talk-to-data" && (
-            <p class="u-label" style="margin-top: var(--space-block); font-size: var(--text-caption); color: var(--color-ink-muted);">
+            <p class="u-label case-owned">
               Owned: agent architecture, LLMOps stack, security model, frontend.
             </p>
           )
         }
 
-        <p style="margin-top: var(--space-block); font-size: var(--text-lede); line-height: var(--text-lede--line-height); color: var(--color-ink);">
+        <p class="case-problem">
           {d.problem}
         </p>
       </div>
 
       <Figures metrics={d.metrics} prefix={entry.id} />
 
-      <ul class="breakout" style="margin-top: var(--space-block); padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem;">
+      <ul class="breakout stack-list">
         {
           d.stack.map((s) => (
-            <li class="u-label" style="font-size: var(--text-caption); color: var(--color-ink-muted);">
+            <li class="u-label stack-item">
               {s}
             </li>
           ))
@@ -79,29 +78,29 @@ const next = all[(idx + 1) % all.length];
         )
       }
 
-      <div class="prose" style="margin-top: var(--space-section);">
+      <div class="prose prose-spaced">
         <Content />
 
         <h2>Trade-off</h2>
         <p>{d.tradeoff}</p>
 
         <h2>
-          <span style="color: var(--color-accent);">&#9670;</span> What I would build differently
+          <span class="accent-mark">&#9670;</span> What I would build differently
         </h2>
         <p>{d.wouldChange}</p>
       </div>
 
-      <nav style="margin-top: var(--space-section); padding-top: var(--space-block); border-top: 1px solid var(--color-rule);">
-        <a href={`/work/${next.id}`} style="display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; text-decoration: none;">
+      <nav class="case-nav">
+        <a href={`/work/${next.id}`} class="case-nav-link">
           <span>
-            <span class="u-label" style="display: block; font-size: var(--text-caption); color: var(--color-ink-muted);">
+            <span class="u-label case-nav-eyebrow">
               Next case study
             </span>
-            <span style="font-family: var(--font-text); font-weight: 600; font-size: var(--text-h2); color: var(--color-ink);">
+            <span class="case-nav-title">
               {next.data.title}
             </span>
           </span>
-          <span aria-hidden="true" class="fig" style="color: var(--color-ink-muted);">-&gt;</span>
+          <span aria-hidden="true" class="fig case-nav-arrow">-&gt;</span>
         </a>
       </nav>
     </Sheet>

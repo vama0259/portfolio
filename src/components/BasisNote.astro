@@ -15,7 +15,6 @@ const { id, marker } = Astro.props;
 <li
   id={id}
   class="basis-note"
-  style="font-style: italic; font-size: var(--text-note); line-height: var(--text-note--line-height); color: var(--color-ink-muted); list-style: none; padding-left: var(--space-note); border-left: 2px solid var(--color-rule); margin-block: var(--space-tight);"
 >
-  <span class="fig" style="color: var(--color-accent); margin-right: 0.35em;">[{marker}]</span><slot />
+  <span class="fig basis-note-mark">[{marker}]</span><slot />
 </li>

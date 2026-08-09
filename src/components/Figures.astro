@@ -24,8 +24,7 @@ const letters = "abcdefghij";
 
 <Fragment>
   <dl
-    class="breakout"
-    style="margin-top: var(--space-block); display: grid; grid-template-columns: auto 1fr auto; column-gap: 1rem; row-gap: 0;"
+    class="breakout metrics-table"
   >
     {
       metrics.map((m, i) => {
@@ -33,28 +32,25 @@ const letters = "abcdefghij";
         const id = `basis-${prefix}-${marker}`;
         return (
           <div
-            class="figures-row"
-            style={`display: contents;`}
+            class="figures-row metrics-row"
           >
             <dt
-              class="fig"
-              style="grid-column: 1; font-size: var(--text-figure); line-height: var(--text-figure--line-height); text-align: right; align-self: center; padding-block: var(--space-tight); border-top: 1px solid var(--color-hairline);"
+              class="fig metric-value"
             >
               {m.value}
             </dt>
             <dd
-              style="grid-column: 2; align-self: center; padding-block: var(--space-tight); padding-inline-start: var(--space-para); font-size: var(--text-body); color: var(--color-ink); border-top: 1px solid var(--color-hairline);"
+              class="metric-label"
             >
               {m.label}
             </dd>
             <dd
-              style="grid-column: 3; align-self: center; padding-block: var(--space-tight); border-top: 1px solid var(--color-hairline);"
+              class="metric-marker-cell"
             >
               <a
                 href={`#${id}`}
-                class="fig basis-marker"
+                class="fig basis-marker metric-marker"
                 aria-label={`Basis for ${m.label}`}
-                style="font-size: 0.6875rem; color: var(--color-accent); vertical-align: super; text-decoration: none;"
               >
                 [{marker}]
               </a>
@@ -65,7 +61,7 @@ const letters = "abcdefghij";
     }
   </dl>
 
-  <ul class="rail basis-list" style="padding: 0; margin-top: var(--space-tight);">
+  <ul class="rail basis-list">
     {
       metrics.map((m, i) => {
         const marker = letters[i] ?? String(i + 1);
@@ -73,9 +69,9 @@ const letters = "abcdefghij";
         return (
           <li
             id={id}
-            style="font-style: italic; font-size: var(--text-note); line-height: var(--text-note--line-height); color: var(--color-ink-muted); list-style: none; padding-left: var(--space-note); border-left: 2px solid var(--color-rule); margin-block: var(--space-tight);"
+            class="basis-note"
           >
-            <span class="fig" style="color: var(--color-accent); margin-right: 0.35em;">
+            <span class="fig basis-note-mark">
               [{marker}]
             </span>
             {m.basis}

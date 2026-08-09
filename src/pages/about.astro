@@ -7,99 +7,95 @@ import { profile } from "../data/profile";
 <Base title="About - Varun Malhotra">
   <Sheet rail={false}>
     <h1
-      class="u-display"
-      style="margin-top: var(--space-page); font-size: var(--text-h2); color: var(--color-ink);"
+      class="u-display page-title"
     >
       About
     </h1>
 
-    <div style="margin-top: var(--space-block); font-size: var(--text-lede); line-height: var(--text-lede--line-height); color: var(--color-ink);">
+    <div class="about-intro">
       <p>
         The through-line has been the same question in different clothes: how do you know the
         model is right. At Samsung it was image restoration you could judge by eye. At Michelin it
         is a natural-language interface to a pricing warehouse, where the answer looks equally
         plausible whether or not it is correct, and eyeballing it stops working.
       </p>
-      <p style="margin-top: var(--space-para);">
+      <p>
         That is why most of what I build now is evaluation and guardrails rather than models.
         Benchmarks that exist before the system does, read-only enforcement that holds at every
         layer, gates that stop the agent when it is uncertain instead of letting it guess
         confidently.
       </p>
-      <p style="margin-top: var(--space-para);">
+      <p>
         I am in {profile.location}, and I am looking for work where the system has to hold up
         under real users rather than a demo.
       </p>
     </div>
 
-    <hr class="rule" style="margin-top: var(--space-section);" />
+    <hr class="rule section-rule" />
 
     <h2
-      class="u-label"
-      style="margin-top: var(--space-section); font-size: var(--text-caption); color: var(--color-ink-muted);"
+      class="u-label section-heading"
     >
       Positions
     </h2>
     <div>
       {
-        profile.roles.map((r, i) => (
-          <div style={`display: flex; justify-content: space-between; gap: 1rem; padding-block: var(--space-note); ${i > 0 ? "border-top: 1px solid var(--color-hairline);" : ""}`}>
-            <span class="fig" style="font-size: var(--text-note); color: var(--color-ink-muted); white-space: nowrap;">
+        profile.roles.map((r) => (
+          <div class="list-row">
+            <span class="fig list-row-date">
               {r.dates}
             </span>
-            <span style="text-align: right;">
-              <span style="font-family: var(--font-text); font-weight: 600; font-size: var(--text-body); color: var(--color-ink);">
+            <span class="list-row-main">
+              <span class="list-row-title">
                 {r.title}
               </span>
-              {r.current && <span style="color: var(--color-accent);"> ●</span>}
+              {r.current && <span class="status-mark"> ●</span>}
               <br />
-              <span style="font-size: var(--text-note); color: var(--color-ink-muted);">{r.company}</span>
+              <span class="list-row-sub">{r.company}</span>
             </span>
           </div>
         ))
       }
     </div>
 
-    <hr class="rule" style="margin-top: var(--space-section);" />
+    <hr class="rule section-rule" />
 
     <h2
-      class="u-label"
-      style="margin-top: var(--space-section); font-size: var(--text-caption); color: var(--color-ink-muted);"
+      class="u-label section-heading"
     >
       Education
     </h2>
-    <div style="display: flex; justify-content: space-between; gap: 1rem; padding-block: var(--space-note);">
-      <span class="fig" style="font-size: var(--text-note); color: var(--color-ink-muted); white-space: nowrap;">
+    <div class="list-row">
+      <span class="fig list-row-date">
         {profile.education.dates}
       </span>
-      <span style="text-align: right;">
-        <span style="font-family: var(--font-text); font-weight: 600; font-size: var(--text-body); color: var(--color-ink);">
+      <span class="list-row-main">
+        <span class="list-row-title">
           {profile.education.school}
         </span>
         <br />
-        <span style="font-size: var(--text-note); color: var(--color-ink-muted);">
+        <span class="list-row-sub">
           {profile.education.degree}, GPA {profile.education.gpa}
         </span>
       </span>
     </div>
 
-    <hr class="rule" style="margin-top: var(--space-section);" />
+    <hr class="rule section-rule" />
 
     <h2
-      class="u-label"
-      style="margin-top: var(--space-section); font-size: var(--text-caption); color: var(--color-ink-muted);"
+      class="u-label section-heading"
     >
       Skills
     </h2>
-    <div style="margin-top: var(--space-tight);">
+    <div class="skills-list">
       {
         profile.skills.map((g) => (
-          <p style="margin-top: var(--space-tight); font-size: var(--text-note); line-height: 1.8;">
-            <span class="u-label" style="color: var(--color-ink-muted);">{g.group}:</span>{" "}
+          <p class="skills-group">
+            <span class="u-label skills-group-label">{g.group}:</span>{" "}
             {g.items.map((s, i) => (
               <Fragment>
-                {i > 0 && <span style="color: var(--color-rule);"> ❘ </span>}
-                <span style="color: var(--color-ink);">{s}</span>
+                {i > 0 && <span class="pipe-sep"> ❘ </span>}
+                <span class="skills-item">{s}</span>
               </Fragment>
             ))}
           </p>
@@ -107,19 +103,18 @@ import { profile } from "../data/profile";
       }
     </div>
 
-    <hr class="rule" style="margin-top: var(--space-section);" />
+    <hr class="rule section-rule" />
 
     <h2
-      class="u-label"
-      style="margin-top: var(--space-section); font-size: var(--text-caption); color: var(--color-ink-muted);"
+      class="u-label section-heading"
     >
       Contact
     </h2>
-    <p style="margin-top: var(--space-tight); font-size: var(--text-body);">
-      <a href={`mailto:${profile.email}`} style="text-decoration: underline; text-decoration-color: var(--color-rule);">{profile.email}</a><br />
-      <a href={profile.linkedin} style="text-decoration: underline; text-decoration-color: var(--color-rule);">{profile.linkedin.replace("https://www.", "")}</a><br />
-      <a href={profile.github} style="text-decoration: underline; text-decoration-color: var(--color-rule);">{profile.github.replace("https://", "")}</a><br />
-      <span style="color: var(--color-ink-muted);">{profile.location}</span>
+    <p class="contact-block">
+      <a href={`mailto:${profile.email}`} class="link-underline">{profile.email}</a><br />
+      <a href={profile.linkedin} class="link-underline">{profile.linkedin.replace("https://www.", "")}</a><br />
+      <a href={profile.github} class="link-underline">{profile.github.replace("https://", "")}</a><br />
+      <span class="text-muted">{profile.location}</span>
     </p>
   </Sheet>
 </Base>
