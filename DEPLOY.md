@@ -41,12 +41,12 @@ but does not deploy anything. Cloudflare's own build is the one that ships.
 `astro.config.mjs` hardcodes the canonical domain in `site`:
 
 ```js
-site: "https://varun-malhotra.pages.dev",
+site: "https://varunmalhotra.net",
 ```
 
 That value drives canonical `<link>` tags, the sitemap (`@astrojs/sitemap`),
 `robots.txt`, and the OG/Twitter image URLs and JSON-LD `@id`s in
-`src/layouts/Base.astro`. If a custom domain (e.g. a `varunmalhotra.me`) is attached in
+`src/layouts/Base.astro`. If the custom domain changes, update it in
 the Cloudflare Pages dashboard, **update `site` to match in the same commit** — otherwise
 canonicals, the sitemap, and structured data will keep advertising the old
 `*.pages.dev` host even though the site now serves from the new domain.

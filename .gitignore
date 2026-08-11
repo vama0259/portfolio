@@ -18,10 +18,33 @@ pnpm-debug.log*
 .env.*
 !.env.example
 
-# agent tooling: local secrets (API keys for the MCP servers in .mcp.json)
-.claude/settings.local.json
+# ---------------------------------------------------------------------------
+# Local tooling and working notes. Deliberately NOT published.
+#
+# This repo is public. These directories are ~17 MB of third-party agent skill
+# payloads and process scaffolding that have nothing to do with the site: they
+# would dominate the file listing and language stats, and they document how the
+# work was made rather than the work. Everything here still lives on disk —
+# it is untracked, not deleted.
+# ---------------------------------------------------------------------------
+.claude/
+.agents/
 
-# agent tooling: derived artifacts
+# Design working notes: benchmark scores, superseded directions, reference
+# teardowns. Useful to keep locally, noise in a public repo.
+.design/
+
+# Standalone reference designs, including two that were built and rejected.
+mockups/
+
+# Agent instruction files. The genuinely useful engineering notes from these
+# live in README.md instead.
+CLAUDE.md
+AGENTS.md
+.mcp.json
+.graphifyignore
+
+# derived artifacts
 graphify-out/
 .firecrawl/
 
@@ -30,3 +53,4 @@ graphify-out/
 
 # jetbrains setting folder
 .idea/
+skills-lock.json

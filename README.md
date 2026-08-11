@@ -1,9 +1,9 @@
-# varunmalhotra.me
+# varunmalhotra.net
 
 Varun Malhotra's portfolio. Static site, zero client-side framework, built with
 [Astro](https://astro.build).
 
-**Live:** https://varun-malhotra.pages.dev (custom domain pending — see `DEPLOY.md`)
+**Live:** https://varunmalhotra.net
 
 ## Stack, and why
 
