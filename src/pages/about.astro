@@ -1,55 +1,48 @@
 ---
 import Base from "../layouts/Base.astro";
-import Sheet from "../components/Sheet.astro";
+import Masthead from "../components/Masthead.astro";
 import { profile } from "../data/profile";
 ---
 
 <Base title="About - Varun Malhotra">
-  <Sheet rail={false}>
-    <h1
-      class="u-display page-title"
-    >
-      About
-    </h1>
+  <Masthead title="About" />
 
-    <div class="about-intro">
-      <p>
-        The through-line has been the same question in different clothes: how do you know the
-        model is right. At Samsung it was image restoration you could judge by eye. At Michelin it
-        is a natural-language interface to a pricing warehouse, where the answer looks equally
-        plausible whether or not it is correct, and eyeballing it stops working.
+  <section>
+    <div class="wrap">
+      <p style="font-size: 1.15rem; line-height: 1.65; color: var(--color-ink); max-width: 62ch;">
+        The through-line has been the same question in different clothes: how do you know the model is
+        right. At Samsung it was image restoration you could judge by eye. At Michelin it is a
+        natural-language interface to a pricing warehouse, where the answer looks equally plausible whether
+        or not it is correct, and eyeballing it stops working.
       </p>
-      <p>
-        That is why most of what I build now is evaluation and guardrails rather than models.
-        Benchmarks that exist before the system does, read-only enforcement that holds at every
-        layer, gates that stop the agent when it is uncertain instead of letting it guess
-        confidently.
+      <p style="font-size: 1.15rem; line-height: 1.65; color: var(--color-ink); max-width: 62ch; margin-top: 1.2rem;">
+        That is why most of what I build now is evaluation and guardrails rather than models. Benchmarks
+        that exist before the system does, read-only enforcement that holds at every layer, gates that stop
+        the agent when it is uncertain instead of letting it guess confidently.
       </p>
-      <p>
-        I am in {profile.location}, and I am looking for work where the system has to hold up
-        under real users rather than a demo.
+      <p style="font-size: 1.15rem; line-height: 1.65; color: var(--color-ink); max-width: 62ch; margin-top: 1.2rem;">
+        I am in {profile.location}, and I am looking for work where the system has to hold up under real
+        users rather than a demo.
       </p>
     </div>
+  </section>
 
-    <hr class="rule section-rule" />
-
-    <h2
-      class="u-label section-heading"
-    >
-      Positions
-    </h2>
-    <div>
+  <section>
+    <div class="wrap">
+      <div class="kicker">
+        <span class="idx">01</span>
+        <h2>Positions</h2>
+        <span class="rule"></span>
+      </div>
       {
         profile.roles.map((r) => (
           <div class="list-row">
-            <span class="fig list-row-date">
-              {r.dates}
-            </span>
+            <span class="list-row-date mono">{r.dates}</span>
             <span class="list-row-main">
               <span class="list-row-title">
                 {r.title}
+                {r.current && <span class="status-mark"> &#9679;</span>}
               </span>
-              {r.current && <span class="status-mark"> ●</span>}
               <br />
               <span class="list-row-sub">{r.company}</span>
             </span>
@@ -57,44 +50,42 @@ import { profile } from "../data/profile";
         ))
       }
     </div>
+  </section>
 
-    <hr class="rule section-rule" />
-
-    <h2
-      class="u-label section-heading"
-    >
-      Education
-    </h2>
-    <div class="list-row">
-      <span class="fig list-row-date">
-        {profile.education.dates}
-      </span>
-      <span class="list-row-main">
-        <span class="list-row-title">
-          {profile.education.school}
+  <section>
+    <div class="wrap">
+      <div class="kicker">
+        <span class="idx">02</span>
+        <h2>Education</h2>
+        <span class="rule"></span>
+      </div>
+      <div class="list-row">
+        <span class="list-row-date mono">{profile.education.dates}</span>
+        <span class="list-row-main">
+          <span class="list-row-title">{profile.education.school}</span>
+          <br />
+          <span class="list-row-sub">
+            {profile.education.degree}, GPA {profile.education.gpa}
+          </span>
         </span>
-        <br />
-        <span class="list-row-sub">
-          {profile.education.degree}, GPA {profile.education.gpa}
-        </span>
-      </span>
+      </div>
     </div>
+  </section>
 
-    <hr class="rule section-rule" />
-
-    <h2
-      class="u-label section-heading"
-    >
-      Skills
-    </h2>
-    <div class="skills-list">
+  <section>
+    <div class="wrap">
+      <div class="kicker">
+        <span class="idx">03</span>
+        <h2>Skills</h2>
+        <span class="rule"></span>
+      </div>
       {
         profile.skills.map((g) => (
           <p class="skills-group">
-            <span class="u-label skills-group-label">{g.group}:</span>{" "}
+            <span class="skills-group-label">{g.group}:</span>{" "}
             {g.items.map((s, i) => (
               <Fragment>
-                {i > 0 && <span class="pipe-sep"> ❘ </span>}
+                {i > 0 && <span class="pipe-sep"> &#10072; </span>}
                 <span class="skills-item">{s}</span>
               </Fragment>
             ))}
@@ -102,19 +93,24 @@ import { profile } from "../data/profile";
         ))
       }
     </div>
+  </section>
 
-    <hr class="rule section-rule" />
-
-    <h2
-      class="u-label section-heading"
-    >
-      Contact
-    </h2>
-    <p class="contact-block">
-      <a href={`mailto:${profile.email}`} class="link-underline">{profile.email}</a><br />
-      <a href={profile.linkedin} class="link-underline">{profile.linkedin.replace("https://www.", "")}</a><br />
-      <a href={profile.github} class="link-underline">{profile.github.replace("https://", "")}</a><br />
-      <span class="text-muted">{profile.location}</span>
-    </p>
-  </Sheet>
+  <section>
+    <div class="wrap">
+      <div class="kicker">
+        <span class="idx">04</span>
+        <h2>Contact</h2>
+        <span class="rule"></span>
+      </div>
+      <div class="contact-panel" style="max-width: 32rem;">
+        <h3>Let's talk shop.</h3>
+        <a class="email" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <div class="loc">
+          <a href={profile.linkedin} style="color: inherit;">{profile.linkedin.replace("https://www.", "")}</a><br />
+          <a href={profile.github} style="color: inherit;">{profile.github.replace("https://", "")}</a><br />
+          {profile.location}
+        </div>
+      </div>
+    </div>
+  </section>
 </Base>

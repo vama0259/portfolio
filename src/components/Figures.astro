@@ -1,11 +1,25 @@
 ---
 /**
- * The results table. Replaces MetricStrip.astro. A <dl>-derived structure:
- * each row is value + label + a marker anchoring to its basis note. Value
- * uses `.fig`. Rows separated by one --color-hairline. The marker is a real
- * in-page anchor to a <BasisNote> in the rail, so the apparatus works with
- * JS disabled.
+ * Results, plotted. Generates one SVG bar chart per metric directly from a
+ * case study's (or profile.headline's) `metrics` array — adding a metric in
+ * markdown produces a plotted bar with no template change.
+ *
+ * Parsing rules (see parseMetric below):
+ *  - "before -> after" strings (e.g. "30% -> 59-68%") become a grouped
+ *    before/after bar pair, matching the mockup's component-ID chart.
+ *  - a value containing an en dash/hyphen range or a leading "$" (e.g.
+ *    "$0.05-0.20", "10-15%") has no natural single bar height, so it renders
+ *    as a plain figure: value + basis, no SVG.
+ *  - a plain leading number ("95%", "50+", "27/wk") becomes a single bar,
+ *    scaled 0-100 (values above 100 clamp the bar full and still print the
+ *    real number).
+ *  - anything else (e.g. "MLDS 2025", "Default") renders as a plain figure.
+ *
+ * Every metric, in every branch, prints its `basis` — that rule is not
+ * conditional on which chart kind it drew.
  */
+import BasisNote from "./BasisNote.astro";
+
 interface Metric {
   label: string;
   value: string;
@@ -14,82 +28,183 @@ interface Metric {
 
 interface Props {
   metrics: readonly Metric[];
-  /** Unique per instance so ids never collide across a page. */
+  /** Unique per instance so element ids never collide across a page. */
   prefix: string;
 }
 
 const { metrics, prefix } = Astro.props;
-const letters = "abcdefghij";
 
-// Count-up target: only pure leading numerics animate (e.g. "95", "500").
-// Ranges, currency and mixed values ("$0.05-0.20", "27/wk") render as-is —
-// counting up half of a range or a currency symbol reads as a bug, not a
-// feature. See .design/MOTION.md #3.
-function countTarget(value: string): number | null {
-  const match = value.match(/^(\d+(?:\.\d+)?)\s*%?$/);
-  return match ? Number(match[1]) : null;
+type Parsed =
+  | { kind: "lift"; before: number; after: number; afterLabel: string }
+  | { kind: "bar"; num: number }
+  | { kind: "plain" };
+
+function parseMetric(value: string): Parsed {
+  const lift = value.match(/^([\d.]+)%?\s*(?:→|->)\s*(.+)$/);
+  if (lift) {
+    const before = Number(lift[1]);
+    const afterRaw = lift[2].trim();
+    const nums = afterRaw.match(/[\d.]+/g)?.map(Number) ?? [];
+    const after = nums.length ? Math.max(...nums) : before;
+    return { kind: "lift", before, after, afterLabel: afterRaw };
+  }
+  if (/[–—]/.test(value) || (/^\$/.test(value) && /-/.test(value))) {
+    return { kind: "plain" };
+  }
+  const simple = value.match(/^\$?(\d+(?:\.\d+)?)/);
+  if (simple && /^\$?[\d.]+[%+]?(\/\w+)?$/.test(value.trim())) {
+    return { kind: "bar", num: Number(simple[1]) };
+  }
+  return { kind: "plain" };
+}
+
+const CHART_TOP = 32;
+const CHART_BASE = 150;
+const CHART_H = CHART_BASE - CHART_TOP;
+
+function barGeom(num: number) {
+  const pct = Math.max(0, Math.min(100, num));
+  const h = (pct / 100) * CHART_H;
+  return { y: CHART_BASE - h, h };
 }
 ---
 
-<Fragment>
-  <div class="figures-grid">
-    <dl class="basis-list-reset" style="display: contents;">
-      {
-        metrics.map((m, i) => {
-          const marker = letters[i] ?? String(i + 1);
-          const id = `basis-${prefix}-${marker}`;
-          const target = countTarget(m.value);
-          const suffix = target !== null ? m.value.replace(/^[\d.]+/, "") : "";
-          return (
-            <div class="metrics-row" style={`--rm: ${2 * i + 1}; --rd: ${i + 1}`}>
-              <dt
-                class="fig metric-value"
-                data-count={target !== null ? target : undefined}
-                data-count-suffix={target !== null ? suffix : undefined}
-              >
-                {m.value}
-              </dt>
-              <dd
-                class="metric-label"
-              >
-                {m.label}
-              </dd>
-              <dd
-                class="metric-marker-cell"
-              >
-                <a
-                  href={`#${id}`}
-                  class="fig basis-marker metric-marker"
-                  aria-label={`Basis for ${m.label}`}
-                >
-                  [{marker}]
-                </a>
-              </dd>
-            </div>
-          );
-        })
-      }
-    </dl>
+<div class="chart-grid">
+  {
+    metrics.map((m, i) => {
+      const id = `${prefix}-${i}`;
+      const parsed = parseMetric(m.value);
+      return (
+        <div class="chart-card" data-fade="chart">
+          <h3>{m.label}</h3>
+          <BasisNote basis={m.basis} />
 
-    <ul class="rail basis-list">
-      {
-        metrics.map((m, i) => {
-          const marker = letters[i] ?? String(i + 1);
-          const id = `basis-${prefix}-${marker}`;
-          return (
-            <li
-              id={id}
-              class="basis-note"
-              style={`--rm: ${2 * i + 2}; --rd: ${i + 1}`}
-            >
-              <span class="fig basis-note-mark">
-                [{marker}]
-              </span>
-              {m.basis}
-            </li>
-          );
-        })
-      }
-    </ul>
-  </div>
-</Fragment>
+          {parsed.kind === "bar" && (
+            <svg viewBox="0 0 300 190" data-chart-single data-target={parsed.num} data-bar-id={`bar-${id}`} data-val-id={`val-${id}`}>
+              <line class="grid-line ref-line" x1="30" y1={CHART_TOP} x2="280" y2={CHART_TOP} stroke-dasharray="1,3" opacity="0.4" />
+              <line class="grid-line" x1="30" y1={CHART_BASE} x2="280" y2={CHART_BASE} />
+              <text class="axis-label" x="6" y={CHART_TOP + 4}>100</text>
+              <text class="axis-label" x="14" y={CHART_BASE + 4}>0</text>
+              <rect
+                class="bar-fill"
+                id={`bar-${id}`}
+                x="131"
+                width="48"
+                y={barGeom(parsed.num).y}
+                height={barGeom(parsed.num).h}
+              />
+              <text class="val-label" id={`val-${id}`} x="155" y={barGeom(parsed.num).y - 9} text-anchor="middle">
+                {m.value}
+              </text>
+            </svg>
+          )}
+
+          {parsed.kind === "lift" && (
+            <svg viewBox="0 0 300 190" data-chart-lift data-before={parsed.before} data-after={parsed.after}>
+              <line class="grid-line ref-line" x1="30" y1={CHART_TOP} x2="280" y2={CHART_TOP} stroke-dasharray="1,3" opacity="0.4" />
+              <line class="grid-line" x1="30" y1={CHART_BASE} x2="280" y2={CHART_BASE} />
+              <text class="axis-label" x="6" y={CHART_TOP + 4}>100</text>
+              <text class="axis-label" x="14" y={CHART_BASE + 4}>0</text>
+
+              <rect
+                class="bar-fill-before"
+                id={`bar-${id}-before`}
+                x="80"
+                width="40"
+                y={barGeom(parsed.before).y}
+                height={barGeom(parsed.before).h}
+              />
+              <text class="val-label" id={`val-${id}-before`} x="100" y={barGeom(parsed.before).y - 9} text-anchor="middle">
+                {parsed.before}%
+              </text>
+              <text class="axis-label" x="85" y={CHART_BASE + 18}>before</text>
+
+              <rect
+                class="bar-fill"
+                id={`bar-${id}-after`}
+                x="190"
+                width="40"
+                y={barGeom(parsed.after).y}
+                height={barGeom(parsed.after).h}
+              />
+              <text class="val-label" id={`val-${id}-after`} x="210" y={barGeom(parsed.after).y - 9} text-anchor="middle">
+                {parsed.afterLabel}
+              </text>
+              <text class="axis-label" x="192" y={CHART_BASE + 18}>after</text>
+            </svg>
+          )}
+
+          {parsed.kind === "plain" && <div class="plain-value mono">{m.value}</div>}
+        </div>
+      );
+    })
+  }
+</div>
+
+<script>
+  // Draw-in on scroll. Markup already holds each bar's TRUE final y/height
+  // and each value label's real text — a JS-off or JS-broken page shows
+  // correct data with no animation. Only when this script runs do we zero a
+  // bar out and animate it back up to the value already declared in the
+  // markup.
+  function animateBar(bar: SVGRectElement, val: SVGTextElement | null, baseY: number, finalY: number, finalH: number) {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    const finalText = val?.textContent ?? null;
+    bar.setAttribute("y", String(baseY));
+    bar.setAttribute("height", "0");
+    if (val) val.setAttribute("opacity", "0");
+    const dur = 900;
+    let start: number | null = null;
+    function step(ts: number) {
+      if (start === null) start = ts;
+      const p = Math.min(1, (ts - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const h = finalH * eased;
+      bar.setAttribute("y", String(baseY - h));
+      bar.setAttribute("height", String(h));
+      if (p >= 0.6 && val) val.setAttribute("opacity", String(Math.min(1, (p - 0.6) / 0.4)));
+      if (p < 1) requestAnimationFrame(step);
+      else if (val && finalText !== null) val.textContent = finalText;
+    }
+    requestAnimationFrame(step);
+  }
+
+  const BASE_Y = 150;
+  const cards = document.querySelectorAll<HTMLElement>(".chart-card");
+  const drawn = new WeakSet<Element>();
+
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting || drawn.has(entry.target)) continue;
+          drawn.add(entry.target);
+          const single = entry.target.querySelector<SVGSVGElement>("svg[data-chart-single]");
+          if (single) {
+            const bar = single.querySelector<SVGRectElement>("rect");
+            const val = single.querySelector<SVGTextElement>("text.val-label");
+            if (bar) {
+              const finalY = Number(bar.getAttribute("y"));
+              const finalH = Number(bar.getAttribute("height"));
+              animateBar(bar, val, BASE_Y, finalY, finalH);
+            }
+          }
+          const lift = entry.target.querySelector<SVGSVGElement>("svg[data-chart-lift]");
+          if (lift) {
+            const rects = lift.querySelectorAll<SVGRectElement>("rect.bar-fill-before, rect.bar-fill");
+            const vals = lift.querySelectorAll<SVGTextElement>("text.val-label");
+            rects.forEach((bar, i) => {
+              const finalY = Number(bar.getAttribute("y"));
+              const finalH = Number(bar.getAttribute("height"));
+              window.setTimeout(() => animateBar(bar, vals[i] ?? null, BASE_Y, finalY, finalH), i * 180);
+            });
+          }
+          io.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.35 },
+    );
+    cards.forEach((el) => io.observe(el));
+  }
+</script>

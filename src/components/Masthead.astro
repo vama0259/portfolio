@@ -1,32 +1,17 @@
 ---
 /**
- * Page header. Name/title in Archivo at --text-display, one Spectral line
- * beneath, closed by a single --color-rule line spanning `full`. No nav
- * inside it.
+ * Page header for /work, /research, /about — title + standfirst, closed by
+ * a hairline. The home page uses its own hero (see index.astro); this is
+ * for the plainer interior pages.
  */
 interface Props {
   title: string;
   standfirst?: string;
 }
-
 const { title, standfirst } = Astro.props;
 ---
 
-<header class="full masthead">
-  <div class="sheet masthead-inner">
-    <h1
-      class="u-display display-title masthead-title"
-      set:html={title}
-    />
-    {
-      standfirst && (
-        <p
-          class="masthead-standfirst"
-        >
-          {standfirst}
-        </p>
-      )
-    }
-  </div>
-  <hr class="rule" />
+<header class="wrap" style="padding-top: 3.2rem; padding-bottom: 2rem;">
+  <h1 class="display page-title" set:html={title} />
+  {standfirst && <p class="page-standfirst">{standfirst}</p>}
 </header>

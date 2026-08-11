@@ -1,7 +1,8 @@
 ---
 /**
- * Footer. Left: contact lines. Right: a build line with only the year and
- * the type credit. No version string, no build number, no sync timestamp.
+ * Footer. Left: contact channels. Right: year + type credit. Matches
+ * mockups/c-technical.html footer, extended with the channel list the old
+ * design carried (kept — more useful than the mockup's placeholder line).
  */
 import { profile } from "../data/profile";
 
@@ -13,27 +14,16 @@ const channels = [
 ];
 ---
 
-<footer class="full site-footer">
-  <div class="sheet footer-inner">
-    <div class="full footer-row">
-      <ul class="footer-channels">
-        {
-          channels.map((c) => (
-            <li>
-              <p class="u-label footer-channel-label">
-                {c.label}
-              </p>
-              <a href={c.href} class="fig footer-channel-value">
-                {c.value}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-
-      <p class="u-label footer-meta">
-        {year}. Set in Spectral, Archivo and Martian Mono.
-      </p>
-    </div>
-  </div>
+<footer class="site-footer">
+  <ul class="footer-channels">
+    {
+      channels.map((c) => (
+        <li>
+          <p class="footer-channel-label">{c.label}</p>
+          <a href={c.href} class="footer-channel-value">{c.value}</a>
+        </li>
+      ))
+    }
+  </ul>
+  <span class="footer-meta">&copy; {year} {profile.name} &mdash; Swiss Technical</span>
 </footer>

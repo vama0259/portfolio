@@ -1,53 +1,55 @@
 ---
 /**
- * A work-index row, not a card. Replaces WorkCard.astro. Full-width, three
- * lines: title (Spectral 600), tagline (Spectral, muted), a metadata line
- * (period, status, up to four stack items separated by a hairline pipe).
- * The whole row is the link target. Minimum tap height 56px.
+ * A work-list row — the mockup's `.work-row`/`.work-entry`. Index number,
+ * status tag, title, pull-quote, stack chips on the left/centre; a compact
+ * metrics list (value + label + basis, so the "every metric shows its
+ * basis" rule holds even in this condensed view) on the right.
  */
+interface Metric {
+  label: string;
+  value: string;
+  basis: string;
+}
+
 interface Props {
   slug: string;
+  index: number;
   title: string;
   tagline: string;
   status: "production" | "research" | "shipped";
   period: string;
   stack: readonly string[];
-  /** Position in the list; staggers the scroll-reveal, capped at 6 rows. */
+  metrics: readonly Metric[];
   revealIndex?: number;
 }
 
-const { slug, title, tagline, status, period, stack, revealIndex } = Astro.props;
-const meta = [period, status, ...stack.slice(0, 4)];
+const { slug, index, title, tagline, status, period, stack, metrics, revealIndex } = Astro.props;
 const delay = revealIndex !== undefined ? Math.min(revealIndex, 5) * 60 : 0;
+const statusLabel =
+  status === "production" ? `Production · ${period}` : status === "research" ? `Research · ${period}` : `Shipped · ${period}`;
 ---
 
-<a
-  href={`/work/${slug}`}
-  class="entry-link entry-row"
-  data-reveal="entry"
-  style={`transition-delay: ${delay}ms`}
->
-  <h3 class="entry-title">
-    {title}
-    {status === "production" && (
-      <span aria-label="In production" class="status-mark"> ●</span>
-    )}
-  </h3>
-  <p class="entry-tagline">
-    {tagline}
-  </p>
-  <p class="u-label entry-meta">
-    {meta.join(" ❘ ")}
-  </p>
-</a>
-
-<style>
-  .entry-link:hover h3,
-  .entry-link:focus-visible h3 {
-    color: var(--color-accent);
-  }
-  .entry-link:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 4px;
-  }
-</style>
+<article class="work-row">
+  <a href={`/work/${slug}`} class="work-entry" data-fade="entry" style={`transition-delay: ${delay}ms`}>
+    <div class="idx mono">{String(index).padStart(2, "0")}</div>
+    <div>
+      <span class:list={["status", status]}>{statusLabel}</span>
+      <h3>{title}</h3>
+      <p class="quote">&ldquo;{tagline}&rdquo;</p>
+      <ul class="work-stack">
+        {stack.map((s) => <li>{s}</li>)}
+      </ul>
+    </div>
+    <div class="work-metrics">
+      {
+        metrics.slice(0, 4).map((m) => (
+          <div class="wm">
+            <div class="v mono">{m.value}</div>
+            <div class="k">{m.label}</div>
+            <div class="basis">{m.basis}</div>
+          </div>
+        ))
+      }
+    </div>
+  </a>
+</article>

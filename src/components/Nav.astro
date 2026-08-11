@@ -1,15 +1,14 @@
 ---
 /**
- * One line, <=64px tall. Four items: Work, Research, About, email. Sentence
- * case, not uppercase-tracked. Current page marked with a 2px accent
- * underline. No logo mark, no status dot, no locale strip, no theme toggle.
+ * Sticky technical header — brand + mono nav links with a draw-in underline
+ * on hover/active, email on the right. Matches mockups/c-technical.html.
  */
 import { profile } from "../data/profile";
 
 interface Props {
   sticky?: boolean;
 }
-const { sticky = false } = Astro.props;
+const { sticky = true } = Astro.props;
 
 const path = Astro.url.pathname;
 const links = [
@@ -21,26 +20,18 @@ const links = [
 const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 ---
 
-<header
-  class:list={["nav-bar", sticky && "nav-bar--sticky"]}
->
-  <nav
-    aria-label="Primary"
-    class="sheet nav-inner"
-  >
-    <div class="nav-row">
-      <a href="/" class="u-label nav-brand">
-        {profile.name}
-      </a>
-
-      <ul class="nav-list">
+<header class:list={["nav-bar", sticky && "nav-bar--sticky"]}>
+  <div class="nav-inner">
+    <a href="/" class="display nav-brand">{profile.name}</a>
+    <nav aria-label="Primary">
+      <ul class="nav-list nav-list--links">
         {
           links.map((link) => (
             <li>
               <a
                 href={link.href}
                 aria-current={isActive(link.href) ? "page" : undefined}
-                class="u-label nav-link"
+                class="nav-link"
               >
                 {link.label}
               </a>
@@ -48,22 +39,9 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
           ))
         }
         <li>
-          <a
-            href={`mailto:${profile.email}`}
-            class="u-label nav-email"
-          >
-            {profile.email}
-          </a>
+          <a href={`mailto:${profile.email}`} class="nav-email">{profile.email}</a>
         </li>
       </ul>
-    </div>
-  </nav>
+    </nav>
+  </div>
 </header>
-
-<style>
-  .nav-bar--sticky {
-    position: sticky;
-    top: 0;
-    z-index: 40;
-  }
-</style>

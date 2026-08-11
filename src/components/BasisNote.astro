@@ -1,20 +1,14 @@
 ---
 /**
- * The rail note. Spectral italic at --text-note, --color-ink-muted. On
- * mobile it renders in flow beneath its block with a 2px --color-rule left
- * border and --space-note inset (the rail column collapses below 768px, so
- * reordering happens by source order, not by grid placement).
+ * The basis caption — "Basis — <source>", mono, uppercase, muted. Printed
+ * directly under a chart title (Figures.astro) so every metric's source is
+ * visible without a hover or a separate rail; works identically with JS on
+ * or off.
  */
 interface Props {
-  id: string;
-  marker: string;
+  basis: string;
 }
-const { id, marker } = Astro.props;
+const { basis } = Astro.props;
 ---
 
-<li
-  id={id}
-  class="basis-note"
->
-  <span class="fig basis-note-mark">[{marker}]</span><slot />
-</li>
+<div class="basis">Basis &mdash; {basis}</div>

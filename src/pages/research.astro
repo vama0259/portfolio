@@ -1,64 +1,52 @@
 ---
 import Base from "../layouts/Base.astro";
-import Sheet from "../components/Sheet.astro";
+import Masthead from "../components/Masthead.astro";
 import { profile } from "../data/profile";
 ---
 
 <Base title="Research - Varun Malhotra">
-  <Sheet rail={false}>
-    <h1
-      class="u-display page-title"
-    >
-      Research
-    </h1>
-    <p class="page-standfirst">
-      Two peer-reviewed papers, both grown out of production problems rather than the other way round.
-    </p>
-
-    <div class="section-rule">
+  <Masthead
+    title="Research"
+    standfirst="Two peer-reviewed papers, both grown out of production problems rather than the other way round."
+  />
+  <section>
+    <div class="wrap">
+      <div class="kicker">
+        <span class="idx">01</span>
+        <h2>Publications</h2>
+        <span class="rule"></span>
+      </div>
       {
         profile.publications.map((p) => (
           <div class="pub-row">
-            <p class="fig pub-venue">
-              {p.venue}
-              {p.note.includes("First author") && (
-                <span class="u-label pub-badge">
-                  First author
-                </span>
-              )}
-            </p>
-            <h2 class="pub-title-compact">
-              {p.title}
-            </h2>
-            <p class="pub-note-tight">{p.note.replace(/^First author\s*[·-]\s*/, "")}</p>
-            <p class="pub-detail">
-              {p.detail}
-            </p>
+            <div class="venue mono">{p.venue}</div>
+            <div>
+              <h3>{p.title}</h3>
+              <p>{p.note}</p>
+              <p class="detail">{p.detail}</p>
+            </div>
+            <div class="tag">{p.note.includes("peer-reviewed") ? "Peer-reviewed" : ""}</div>
           </div>
         ))
       }
     </div>
+  </section>
 
-    <hr class="rule section-rule" />
-
-    <h2
-      class="u-label section-heading"
-    >
-      Awards and recognition
-    </h2>
-    <div>
+  <section>
+    <div class="wrap">
+      <div class="kicker">
+        <span class="idx">02</span>
+        <h2>Awards and recognition</h2>
+        <span class="rule"></span>
+      </div>
       {
         profile.awards.map((a) => (
           <div class="list-row">
-            <span class="fig list-row-date">
-              {a.date}
-            </span>
-            <span class="list-row-value">
-              {a.title}
-            </span>
+            <span class="list-row-date mono">{a.date}</span>
+            <span class="list-row-title">{a.title}</span>
           </div>
         ))
       }
     </div>
-  </Sheet>
+  </section>
 </Base>

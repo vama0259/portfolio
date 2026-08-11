@@ -1,15 +1,11 @@
 /**
- * Shared motion primitives. See .design/MOTION.md. Extends Figure1.astro's
- * hand-rolled spring instead of pulling in an animation library — the
- * integrator here is byte-for-byte the same tuning (k=210, zeta=0.9) so
- * every discrete transition on the site descends from the same "physical,
- * settles, no bounce" character, even though only Fig. 1 runs it as a
- * continuous drag system. Everything else here is CSS transitions driven by
- * attribute toggles; this module's only runtime job is flipping those
- * attributes at the right time.
+ * Shared motion primitives for the Swiss Technical direction. Fig. 1's spring
+ * lives in its own component script (Figure1.astro) — this module covers
+ * everything else: the kicker draw-in, the [data-fade] reveal system, and
+ * the hero panel's live-figures count-up. All CSS transitions declared in
+ * global.css; this file only toggles classes/attributes and drives the
+ * count-up numerals.
  */
-
-export const SPRING = { k: 210, zeta: 0.9 } as const;
 
 export function prefersReducedMotion(): boolean {
   return typeof matchMedia === "function"
@@ -17,167 +13,103 @@ export function prefersReducedMotion(): boolean {
     : false;
 }
 
-export interface Spring {
-  pos: number;
-  vel: number;
-  target: number;
-}
+/* -------------------------------------------------------------------------
+ * Kicker rules + index draw in once, on scroll into view.
+ * ---------------------------------------------------------------------- */
+export function initKickers(): void {
+  const kickers = document.querySelectorAll<HTMLElement>(".kicker");
+  if (kickers.length === 0) return;
 
-export function makeSpring(v: number): Spring {
-  return { pos: v, vel: 0, target: v };
-}
+  const reveal = (el: HTMLElement) => {
+    el.querySelector(".rule")?.classList.add("in");
+    el.querySelector(".idx")?.classList.add("in");
+  };
 
-const DAMPING = 2 * Math.sqrt(SPRING.k) * SPRING.zeta;
-
-export function stepSpring(s: Spring, dt: number): void {
-  const accel = -SPRING.k * (s.pos - s.target) - DAMPING * s.vel;
-  s.vel += accel * dt;
-  s.pos += s.vel * dt;
+  if ("IntersectionObserver" in window && !prefersReducedMotion()) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          reveal(entry.target as HTMLElement);
+          io.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.4 },
+    );
+    kickers.forEach((el) => io.observe(el));
+  } else {
+    kickers.forEach(reveal);
+  }
 }
 
 /* -------------------------------------------------------------------------
- * Hero entrance: flips [data-entrance] -> [data-entrance="run"] once, on
- * load. Reduced motion still flips the attribute (so the JS/no-JS branches
- * stay identical) but the CSS collapses every duration to ~1ms.
+ * [data-fade] reveal system. Visible by default; `.js-anim` (set in <head>)
+ * opts elements into the pre-reveal state, and this only decides WHEN `.in`
+ * is added back. Missing IntersectionObserver or reduced motion: everything
+ * is marked `.in` immediately.
  * ---------------------------------------------------------------------- */
-export function initEntrance(): void {
-  const els = document.querySelectorAll<HTMLElement>("[data-entrance]");
+export function initFade(): void {
+  const els = document.querySelectorAll<HTMLElement>("[data-fade]");
   if (els.length === 0) return;
-  const run = () => els.forEach((el) => el.setAttribute("data-entrance", "run"));
-  if (document.readyState === "complete") run();
-  else window.addEventListener("load", run, { once: true });
+
+  if ("IntersectionObserver" in window && !prefersReducedMotion()) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add("in");
+          io.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.15 },
+    );
+    els.forEach((el) => io.observe(el));
+  } else {
+    els.forEach((el) => el.classList.add("in"));
+  }
 }
 
 /* -------------------------------------------------------------------------
- * Scroll-driven reveals: direction-aware, per content type, fires once.
- * CSS keys the motion off [data-revealed]; this only toggles the attribute.
+ * Hero entrance flag: `.js-anim` gates hero CSS keyframes on `<html>` by
+ * default already (animation:...both), so no class flip is needed there.
+ * This function only exists for parity with the reduced-motion contract —
+ * kept as a no-op hook in case future hero pieces need JS-timed staging.
  * ---------------------------------------------------------------------- */
-export function initReveals(): void {
-  const els = document.querySelectorAll<HTMLElement>("[data-reveal]");
-  if (els.length === 0) return;
-
-  if (prefersReducedMotion() || typeof IntersectionObserver === "undefined") {
-    els.forEach((el) => el.setAttribute("data-revealed", ""));
-    return;
-  }
-
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        entry.target.setAttribute("data-revealed", "");
-        io.unobserve(entry.target);
-      }
-    },
-    { threshold: 0.15, rootMargin: "0px 0px -10% 0px" },
-  );
-
-  els.forEach((el) => io.observe(el));
-}
 
 /* -------------------------------------------------------------------------
- * Count-up on metric figures. Fires once per element, 900ms flat regardless
- * of magnitude, expo-out easing, snaps to the exact integer target on
- * completion (no float jitter in the final frames).
+ * Hero panel "Live figures" count-up. Markup already holds the correct
+ * final value; never zeroed up front (a stalled rAF must never leave a
+ * wrong number on screen — countUp zeroes it on its own first frame).
  * ---------------------------------------------------------------------- */
-const COUNT_DURATION = 900;
-const COUNT_STAGGER = 80;
-
-function easeExpoOut(t: number): number {
-  // cubic-bezier(0.16, 1, 0.3, 1) approximated with a closed-form expo-out;
-  // visually indistinguishable at this duration and avoids shipping a
-  // bezier solver for one micro-interaction.
-  return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+function countUp(el: HTMLElement, to: number, suffix: string, duration: number): void {
+  if (prefersReducedMotion()) return;
+  let start: number | null = null;
+  function step(ts: number) {
+    if (start === null) start = ts;
+    const p = Math.min(1, (ts - start) / duration);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const n = Math.round(0 + to * eased);
+    el.textContent = `${n}${suffix}`;
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = `${to}${suffix}`; // exact final value, always
+  }
+  requestAnimationFrame(step);
 }
 
-export function initCountUp(): void {
-  const rows = document.querySelectorAll<HTMLElement>(".figures-grid .metrics-row");
-  if (rows.length === 0) return;
-
-  const reduced = prefersReducedMotion();
-
-  function animate(el: HTMLElement, target: number, suffix: string, delay: number) {
-    if (reduced) {
-      el.textContent = `${target}${suffix}`;
-      return;
-    }
-    const start = performance.now() + delay;
-    function frame(now: number) {
-      if (now < start) {
-        requestAnimationFrame(frame);
-        return;
-      }
-      const t = Math.min((now - start) / COUNT_DURATION, 1);
-      const eased = easeExpoOut(t);
-      const value = t >= 1 ? target : Math.round(eased * target);
-      el.textContent = `${value}${suffix}`;
-      if (t < 1) requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
-  }
-
-  if (typeof IntersectionObserver === "undefined") {
-    rows.forEach((row, i) => {
-      const el = row.querySelector<HTMLElement>("[data-count]");
-      if (!el) return;
-      const target = Number(el.dataset.count);
-      animate(el, target, el.dataset.countSuffix ?? "", i * COUNT_STAGGER);
-    });
-    return;
-  }
-
-  const groups = new Map<Element, HTMLElement[]>();
-  rows.forEach((row) => {
-    const el = row.querySelector<HTMLElement>("[data-count]");
-    if (!el) return;
-    const parent = row.closest(".figures-grid");
-    if (!parent) return;
-    const list = groups.get(parent) ?? [];
-    list.push(el);
-    groups.set(parent, list);
-  });
-
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const els = groups.get(entry.target) ?? [];
-        els.forEach((el, i) => {
-          const target = Number(el.dataset.count);
-          animate(el, target, el.dataset.countSuffix ?? "", i * COUNT_STAGGER);
-        });
-        io.unobserve(entry.target);
-      }
-    },
-    { threshold: 0.6 },
-  );
-
-  groups.forEach((_els, parent) => io.observe(parent));
-}
-
-/* -------------------------------------------------------------------------
- * Basis-marker hover: flashes the linked rail note once, decays over 240ms.
- * ---------------------------------------------------------------------- */
-export function initBasisFlash(): void {
-  const markers = document.querySelectorAll<HTMLAnchorElement>(".basis-marker");
-  markers.forEach((marker) => {
-    marker.addEventListener("mouseenter", () => {
-      const id = marker.getAttribute("href")?.slice(1);
-      if (!id) return;
-      const note = document.getElementById(id);
-      if (!note) return;
-      note.classList.remove("basis-note--flash");
-      // Force reflow so re-triggering restarts the transition.
-      void note.offsetWidth;
-      note.classList.add("basis-note--flash");
-      window.setTimeout(() => note.classList.remove("basis-note--flash"), 260);
-    });
+export function initHeroFigures(): void {
+  if (prefersReducedMotion()) return;
+  const rows = document.querySelectorAll<HTMLElement>(".hero-panel [data-final]");
+  rows.forEach((el) => {
+    const num = el.dataset.num;
+    if (num === undefined) return; // range/currency values (e.g. cost/query) stay as printed
+    const to = Number(num);
+    const suffix = el.dataset.suffix ?? "";
+    window.setTimeout(() => countUp(el, to, suffix, 700), 520);
   });
 }
 
 export function initMotion(): void {
-  initEntrance();
-  initReveals();
-  initCountUp();
-  initBasisFlash();
+  initKickers();
+  initFade();
+  initHeroFigures();
 }

@@ -1,23 +1,15 @@
 ---
 /**
- * The grid wrapper. Replaces the old Base.astro decorative grid overlay
- * entirely - the overlay is deleted, decorative hairlines are a named tell.
- *
- * `rail` - opt-in. Default `.sheet` reserves no rail column and centres the
- * measure; pass `rail` on sections that actually carry rail content (a
- * `Figures` results table, the case-study meta block) to bring the 15rem
- * apparatus rail back (`.sheet--rail`). Most sections have no rail content,
- * so defaulting to false avoids the dead-column bug instead of requiring
- * every section to opt out.
+ * Thin wrap around the mockup's `.wrap` max-width column. Kept as a
+ * component (rather than inlining the class everywhere) so page markup
+ * reads the same as before the port.
  */
 interface Props {
-  rail?: boolean;
   class?: string;
 }
-
-const { rail = false, class: className = "" } = Astro.props;
+const { class: className = "" } = Astro.props;
 ---
 
-<div class:list={["sheet", rail && "sheet--rail", className]}>
+<div class:list={["wrap", className]}>
   <slot />
 </div>

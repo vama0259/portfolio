@@ -7,102 +7,157 @@ import Entry from "../components/Entry.astro";
 import { profile } from "../data/profile";
 
 const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order);
+
+const talkToData = work.find((w) => w.id === "talk-to-data");
+const costMetric = talkToData?.data.metrics.find((m) => /cost/i.test(m.label));
+
+// Hero panel — the mockup's "Live figures" strip. Headline numbers come
+// straight from profile.ts; the fourth row (cost/query) is pulled from the
+// Talk to Data case study rather than hardcoded, per the same rule.
+const liveFigures = [...profile.headline, ...(costMetric ? [costMetric] : [])];
+
+// Results, plotted — the three charts the mockup ships, sourced from the
+// case studies that actually produced them rather than restated by hand.
+const plottedLabels = ["Accuracy", "Consistency", "Component ID"];
+const plotted = work
+  .flatMap((w) => w.data.metrics)
+  .filter((m) => plottedLabels.includes(m.label));
 ---
 
 <Base>
-  <!-- Masthead + abstract + results table: the whole first viewport.
-       `data-entrance` on the wrapper drives the 820ms hero choreography
-       (title, subtitle, lede, figures, then the divider) — see
-       .design/MOTION.md #2. JS flips it to "run" once, after checking
-       prefers-reduced-motion; first paint already shows the full text. -->
-  <div data-entrance>
-    <Sheet>
-      <div class="home-masthead">
-        <h1
-          class="u-display home-title"
-        >
-          {profile.name}
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="hero-tag"><span class="sw"></span> {profile.title}</div>
+        <h1 class="display hero-title">
+          <span class="line"><span>Systems that go to <span class="accent">production</span></span></span>
+          <span class="line"><span>and stay there.</span></span>
         </h1>
-        <p class="home-subtitle">
-          Data scientist, generative AI and LLM engineering. {profile.roles[0].company}, Pune.
-        </p>
+        <p class="hero-sub">{profile.positioning}</p>
+        <div class="hero-role">
+          {profile.roles[0].company} <span class="sep">/</span> {profile.location} <span class="sep">/</span>{" "}
+          <a href={`mailto:${profile.email}`}>{profile.email}</a>
+        </div>
       </div>
-    </Sheet>
 
-    <Sheet>
-      <p class="lede">
-        {profile.positioning}
-      </p>
-    </Sheet>
-
-    <Sheet rail>
-      <Figures metrics={profile.headline} prefix="home" />
-    </Sheet>
-
-    <hr class="rule full section-divider" />
-  </div>
-
-  <!-- SS1 Selected work -->
-  <Sheet>
-    <h2
-      class="u-label section-heading"
-      data-reveal="heading"
-    >
-      Selected work
-    </h2>
-    <div>
-      {
-        work.map((entry, i) => (
-          <Entry
-            slug={entry.id}
-            title={entry.data.title}
-            tagline={entry.data.tagline}
-            status={entry.data.status}
-            period={entry.data.period}
-            stack={entry.data.stack}
-            revealIndex={i}
-          />
-        ))
-      }
-    </div>
-    <p class="section-footer-link">
-      <a href="/work" class="link-underline">
-        All work
-      </a>
-    </p>
-  </Sheet>
-
-  <hr class="rule full section-divider" data-reveal="rule" />
-
-  <!-- SS2 Publications -->
-  <Sheet>
-    <h2
-      class="u-label section-heading"
-      data-reveal="heading"
-    >
-      Publications
-    </h2>
-    <div>
-      {
-        profile.publications.map((p, i) => (
-          <div class="pub-row" data-reveal="pub" style={`transition-delay: ${i * 90}ms`}>
-            <p class="fig pub-venue">
-              {p.venue}
-              {p.note.includes("First author") && (
-                <span class="u-label pub-badge">
-                  First author
+      <div class="hero-panel">
+        <div class="head">Live figures &mdash; basis logged</div>
+        {
+          liveFigures.map((f) => {
+            const numMatch = f.value.match(/^(\d+(?:\.\d+)?)/);
+            const num = numMatch && !/[–—]/.test(f.value) ? numMatch[1] : undefined;
+            const suffix = num ? f.value.slice(num.length) : "";
+            return (
+              <div class="row">
+                <span class="k">{f.label}</span>
+                <span class="v mono" data-final={f.value} data-num={num} data-suffix={suffix}>
+                  {f.value}
                 </span>
-              )}
-            </p>
-            <h3 class="pub-title">
-              {p.title}
-            </h3>
-            <p class="pub-note">
-              {p.note.replace(/^First author\s*[·-]\s*/, "")}
-            </p>
+              </div>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+
+  <section id="metrics">
+    <div class="wrap">
+      <div class="kicker">
+        <span class="idx">01</span>
+        <h2>Results, plotted</h2>
+        <span class="rule"></span>
+        <span class="meta">n = 500-question benchmark unless noted</span>
+      </div>
+      <Figures metrics={plotted} prefix="home" />
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="wrap">
+      <div class="kicker">
+        <span class="idx">02</span>
+        <h2>Selected work</h2>
+        <span class="rule"></span>
+      </div>
+      <div class="work-list">
+        {
+          work.map((entry, i) => (
+            <Entry
+              slug={entry.id}
+              index={i + 1}
+              title={entry.data.title}
+              tagline={entry.data.tagline}
+              status={entry.data.status}
+              period={entry.data.period}
+              stack={entry.data.stack}
+              metrics={entry.data.metrics}
+              revealIndex={i}
+            />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section id="publications">
+    <div class="wrap">
+      <div class="kicker">
+        <span class="idx">03</span>
+        <h2>Publications</h2>
+        <span class="rule"></span>
+      </div>
+      {
+        profile.publications.map((p) => (
+          <div class="pub-row" data-fade="row">
+            <div class="venue mono">{p.venue}</div>
+            <div>
+              <h3>{p.title}</h3>
+              <p>{p.note}</p>
+            </div>
+            <div class="tag">{p.note.includes("peer-reviewed") ? "Peer-reviewed" : ""}</div>
           </div>
         ))
       }
     </div>
-  </Sheet>
+  </section>
+
+  <section id="about">
+    <div class="wrap about-grid">
+      <div class="about-copy" data-fade="panel">
+        <div class="kicker">
+          <span class="idx">04</span>
+          <h2>About</h2>
+          <span class="rule"></span>
+        </div>
+        <p>
+          I'm <strong>{profile.name}</strong>, a {profile.title} at <strong>{profile.roles[0].company}</strong> in{" "}
+          {profile.location}. My work sits across three layers of the same problem:{" "}
+          <strong>agent architecture</strong> &mdash; deciding what an LLM system is allowed to do and when it
+          should stop and ask; <strong>evaluation</strong> &mdash; building the benchmarks that prove a system
+          works before a user finds out it doesn't; and <strong>guardrails</strong> &mdash; the read-only
+          boundaries and human-in-the-loop gates that keep an autonomous system honest in production.
+        </p>
+        <p>
+          On Talk to Data I own the agent architecture, LLMOps, security and frontend workstreams &mdash; I
+          architect, build, and engineer the system end to end.
+        </p>
+        <div class="edu-panel">
+          <div class="k">Education</div>
+          <div class="v">{profile.education.degree}</div>
+          <div class="g">
+            {profile.education.school} &middot; {profile.education.gpa} GPA &middot; {profile.education.dates}
+          </div>
+        </div>
+      </div>
+
+      <div data-fade="panel" id="contact">
+        <div class="contact-panel">
+          <h3>Let's talk shop.</h3>
+          <a class="email" href={`mailto:${profile.email}`}>{profile.email}</a>
+          <div class="loc">{profile.roles[0].company} &middot; {profile.location}</div>
+        </div>
+      </div>
+    </div>
+  </section>
 </Base>

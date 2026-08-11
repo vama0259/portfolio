@@ -1,9 +1,14 @@
 ---
-import "@fontsource/spectral/400.css";
-import "@fontsource/spectral/400-italic.css";
-import "@fontsource/spectral/600.css";
-import "@fontsource-variable/archivo";
-import "@fontsource-variable/martian-mono";
+import "@fontsource/space-grotesk/400.css";
+import "@fontsource/space-grotesk/500.css";
+import "@fontsource/space-grotesk/600.css";
+import "@fontsource/space-grotesk/700.css";
+import "@fontsource/source-sans-3/400.css";
+import "@fontsource/source-sans-3/400-italic.css";
+import "@fontsource/source-sans-3/500.css";
+import "@fontsource/source-sans-3/600.css";
+import "@fontsource/source-sans-3/700.css";
+import "@fontsource-variable/jetbrains-mono";
 import "../styles/global.css";
 import Nav from "../components/Nav.astro";
 import Colophon from "../components/Colophon.astro";
@@ -27,13 +32,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://example.com
 <!doctype html>
 <html lang="en">
   <head>
+    <script>document.documentElement.classList.add("js-anim");</script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#0A2A33" />
+    <meta name="theme-color" content="#EEF0EC" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
@@ -41,29 +47,26 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://example.com
     <meta property="og:url" content={canonical} />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
-  <body class="min-h-screen antialiased">
+  <body>
     <!--
-    THESIS: This is a peer-reviewed artefact, not a landing page. It refuses the dark
-      instrument-panel with one neon accent and the numbered three-principle grid.
-    OWN-WORLD: Cool blue-grey ledger paper #E8ECEF, navy-black ink, one proof-correction
-      red used only for errata, live status and focus. Spectral text, Archivo utility,
-      Martian Mono for figures only. Zero radius, zero shadow, zero cards. A 15rem
-      apparatus rail carries every metric's basis as a margin note.
-    STORY: A hiring manager reads a positioning line, three measured results with their
-      bases visible, and two peer-reviewed papers, inside 90 seconds, then opens one
-      case study and finds the trade-off and the errata stated without being asked.
-    FIRST VIEWPORT: Masthead name at clamp(2.25,4rem). One-line role. Abstract on a 62ch
-      measure. Results table of three figures in tabular mono, bases in the left rail.
-      No button, no image, no motion.
-    FORM: The Offprint. Chosen over The Legend and The Field on mobile survivability,
-      90-second legibility, and because the schema already enforces the apparatus.
-    FINISH: unreviewed and undocumented is unfinished; this build ends with the finish
-      review, the verdict, and DESIGN.md.
+    THESIS: Swiss technical — a light ledger-paper offprint that reads as engineering
+      documentation, not a landing page. It refuses the dark instrument-panel with one
+      neon accent.
+    OWN-WORLD: Light ledger paper #EEF0EC, near-black ink, one signal blue #2453D9
+      rationed to links/active state/bars/critical flags, proof-correction red reserved
+      for the guardrail rejection. Space Grotesk display, Source Sans 3 body,
+      JetBrains Mono for data and labels. Zero radius. A 64px technical grid sits behind
+      everything.
+    STORY: A hiring manager reads a positioning line, a live-figures panel, three
+      plotted results with their bases printed under each chart, drives Fig. 1's ReAct
+      loop and bounces a write off the guardrail, then opens a case study and finds the
+      trade-off and the errata stated without being asked.
+    FORM: content is driven entirely by src/data/profile.ts and src/content/work — the
+      mockup's hardcoded copy is a skin, not a source of truth.
     -->
-    <a
-      href="#main"
-      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 skip-link"
-    >
+    <div class="grid-bg" aria-hidden="true"></div>
+
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 skip-link">
       Skip to content
     </a>
 

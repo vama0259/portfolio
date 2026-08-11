@@ -1,7 +1,6 @@
 ---
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
-import Sheet from "../../components/Sheet.astro";
 import Figures from "../../components/Figures.astro";
 import Figure1 from "../../components/Figure1.astro";
 
@@ -24,85 +23,75 @@ const next = all[(idx + 1) % all.length];
 
 <Base title={`${d.title} - Varun Malhotra`} description={d.tagline} navSticky>
   <article>
-    <Sheet rail>
-      <p class="rail u-label case-meta">
+    <div class="wrap" style="padding-top: 3.2rem;">
+      <p class="mono" style="font-size:0.72rem; color: var(--color-muted);">
         <a href="/work" class="text-muted">Work</a><br />
-        <span class="fig case-period">{d.period}</span><br />
-        {
-          d.status === "production" ? (
-            <span class="status-live">● production</span>
-          ) : (
-            <span>{d.status}</span>
-          )
-        }
+        <span class="mono">{d.period}</span><br />
+        {d.status === "production" ? <span class="status-live">&#9679; production</span> : <span>{d.status}</span>}
       </p>
 
-      <div class="case-header">
-        <h1
-          class="u-display display-title"
-        >
-          {d.title}
-        </h1>
-        <p class="case-tagline">
-          {d.tagline}
-        </p>
-
-        {
-          entry.id === "talk-to-data" && (
-            <p class="u-label case-owned">
-              Owned: agent architecture, LLMOps stack, security model, frontend.
-            </p>
-          )
-        }
-
-        <p class="case-problem">
-          {d.problem}
-        </p>
-      </div>
-
-      <Figures metrics={d.metrics} prefix={entry.id} />
-
-      <ul class="breakout stack-list">
-        {
-          d.stack.map((s) => (
-            <li class="u-label stack-item">
-              {s}
-            </li>
-          ))
-        }
-      </ul>
+      <h1 class="display page-title" style="margin-top: 1rem;">{d.title}</h1>
+      <p class="case-tagline">{d.tagline}</p>
 
       {
-        d.trace && (
-          <Figure1 steps={d.trace} caption={`ReAct loop, ${d.title}. Guarded steps marked.`} />
+        entry.id === "talk-to-data" && (
+          <p class="case-owned">Owned: agent architecture, LLMOps stack, security model, frontend.</p>
         )
       }
 
-      <div class="prose prose-spaced">
+      <p class="case-problem">{d.problem}</p>
+
+      <ul class="stack-list">
+        {d.stack.map((s) => <li class="mono stack-item">{s}</li>)}
+      </ul>
+    </div>
+
+    <section style="border-top: 1px solid var(--color-line); margin-top: 2.5rem;">
+      <div class="wrap">
+        <div class="kicker">
+          <span class="idx">01</span>
+          <h2>Results, plotted</h2>
+          <span class="rule"></span>
+        </div>
+        <Figures metrics={d.metrics} prefix={entry.id} />
+      </div>
+    </section>
+
+    {
+      d.trace && (
+        <section id="diagram">
+          <div class="wrap">
+            <div class="kicker">
+              <span class="idx">02</span>
+              <h2>Fig. 1 &mdash; the ReAct loop, operated</h2>
+              <span class="rule"></span>
+            </div>
+            <Figure1 steps={d.trace} caption={`${d.title}, ${d.status}. Guarded steps marked.`} />
+          </div>
+        </section>
+      )
+    }
+
+    <div class="wrap">
+      <div class="prose">
         <Content />
 
         <h2>Trade-off</h2>
         <p>{d.tradeoff}</p>
 
-        <h2>
-          <span class="accent-mark">&#9670;</span> What I would build differently
-        </h2>
+        <h2><span class="accent-mark">&#9670;</span> What I would build differently</h2>
         <p>{d.wouldChange}</p>
       </div>
 
       <nav class="case-nav">
         <a href={`/work/${next.id}`} class="case-nav-link">
           <span>
-            <span class="u-label case-nav-eyebrow">
-              Next case study
-            </span>
-            <span class="case-nav-title">
-              {next.data.title}
-            </span>
+            <span class="case-nav-eyebrow">Next case study</span>
+            <span class="case-nav-title">{next.data.title}</span>
           </span>
-          <span aria-hidden="true" class="fig case-nav-arrow">-&gt;</span>
+          <span aria-hidden="true" class="case-nav-arrow">&rarr;</span>
         </a>
       </nav>
-    </Sheet>
+    </div>
   </article>
 </Base>
