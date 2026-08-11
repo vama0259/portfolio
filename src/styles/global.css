@@ -41,19 +41,19 @@
   --text-display:   clamp(2.25rem, 1.6rem + 3.2vw, 4rem);
   --text-display--line-height: 1.02;
 
-  --measure:      62ch;
-  --rail:         15rem;
+  --measure:      66ch;
+  --rail:         13rem;
   --rail-md:      8rem;
   --gutter:       2.5rem;
-  --page-max:     1180px;
+  --page-max:     1320px;
 
   --space-hair:   0.25rem;
   --space-tight:  0.5rem;
   --space-note:   0.875rem;
   --space-para:   1.25rem;
-  --space-block:  2.5rem;
-  --space-section:4.5rem;
-  --space-page:   7rem;
+  --space-block:  2rem;
+  --space-section:3.25rem;
+  --space-page:   3.5rem;
 
   --radius-none:  0px;
 
@@ -168,24 +168,23 @@
    * the case-study meta block) render inside a `.sheet--rail` (via
    * `<Sheet rail>`), which brings the rail tracks back.
    */
+  /* Content fills the sheet. There is no trailing dead column: the measure
+     track is `1fr` and grows, and reading length is capped on the prose
+     elements themselves (see `.sheet :is(p, li)` below) rather than by
+     starving the grid. Structural blocks -- the results table, work entries --
+     are meant to span the full width and now do. */
   .sheet {
     max-width: var(--page-max);
     margin-inline: auto;
     padding-inline: 1.25rem;
     display: grid;
     grid-template-columns:
-      [full-start] minmax(0, 1fr)
-      [measure-start] minmax(0, var(--measure))
-      [measure-end] minmax(0, 1fr)
-      [full-end];
+      [full-start measure-start] minmax(0, 1fr) [measure-end full-end];
   }
 
   .sheet--rail {
     grid-template-columns:
-      [full-start] minmax(0, 1fr)
-      [measure-start] minmax(0, var(--measure))
-      [measure-end] minmax(0, 1fr)
-      [full-end];
+      [full-start measure-start] minmax(0, 1fr) [measure-end full-end];
   }
 
   @media (min-width: 48rem) {
@@ -193,8 +192,7 @@
       padding-inline: 2rem;
       grid-template-columns:
         [full-start rail-start] var(--rail-md) [rail-end] var(--gutter)
-        [measure-start] minmax(0, var(--measure)) [measure-end]
-        minmax(0, 1fr) [full-end];
+        [measure-start] minmax(0, 1fr) [measure-end full-end];
     }
   }
 
@@ -202,9 +200,14 @@
     .sheet--rail {
       grid-template-columns:
         [full-start rail-start] var(--rail) [rail-end] var(--gutter)
-        [measure-start] minmax(0, var(--measure)) [measure-end]
-        minmax(0, 1fr) [full-end];
+        [measure-start] minmax(0, 1fr) [measure-end full-end];
     }
+  }
+
+  /* Reading length is capped here, not by the grid, so paragraphs stay
+     comfortable while tables and rows use the whole width. */
+  .sheet :is(p, li) {
+    max-width: var(--measure);
   }
 
   .sheet > * {
