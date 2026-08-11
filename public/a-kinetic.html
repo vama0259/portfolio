@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Varun Malhotra — LLM Systems Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,600&family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#F2EEE3;
+    --paper-2:#E9E3D4;
+    --ink:#17140F;
+    --ink-soft:#4A443A;
+    --muted:#847C6C;
+    --rust:#C4402A;
+    --rust-dim:#A9391F;
+    --forest:#2E4034;
+    --forest-2:#3E5747;
+    --line: rgba(23,20,15,0.14);
+    --paper-rgb: 242,238,227;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Archivo', sans-serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--rust); color:var(--paper); }
+
+  /* subtle paper grain */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index:1000;
+    opacity:0.035;
+    mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .display{ font-family:'Fraunces', serif; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+
+  a{ color:inherit; text-decoration:none; }
+
+  .wrap{ max-width:1400px; margin:0 auto; padding:0 6vw; }
+
+  /* ---------- CURSOR / SIGNATURE INTERACTION LAYER ---------- */
+  #ink-cursor{
+    position:fixed; top:0; left:0; width:26px; height:26px;
+    border-radius:50%;
+    border:1.5px solid var(--rust);
+    pointer-events:none; z-index:9999;
+    transform:translate(-50%,-50%);
+    mix-blend-mode:multiply;
+    transition:width .25s cubic-bezier(.2,.8,.2,1), height .25s cubic-bezier(.2,.8,.2,1), border-color .25s, background .25s;
+  }
+  #ink-cursor.magnet{ width:64px; height:64px; background:rgba(196,64,42,0.08); }
+  @media (hover:none), (pointer:coarse){ #ink-cursor{ display:none !important; } }
+
+  /* ---------- NAV ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:1000;
+    padding:1.4rem 6vw;
+    display:flex; justify-content:space-between; align-items:center;
+    background:transparent;
+    border-bottom:1px solid transparent;
+    transition:background-color .35s ease, border-color .35s ease, padding .35s ease, backdrop-filter .35s ease;
+  }
+  header .brand, header nav{ pointer-events:auto; }
+  header.scrolled{
+    background:rgba(var(--paper-rgb),0.92);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    border-bottom-color:var(--line);
+    padding:1.05rem 6vw;
+  }
+  header .brand{
+    font-family:'Fraunces', serif; font-weight:600; font-size:1.05rem;
+    letter-spacing:0.01em;
+    pointer-events:auto;
+  }
+  header nav{ display:flex; gap:2.2rem; pointer-events:auto; }
+  header nav a{
+    font-size:0.72rem; text-transform:uppercase; letter-spacing:0.14em;
+    font-weight:600; color:var(--ink-soft);
+    position:relative; padding-bottom:2px;
+  }
+  header nav a::after{
+    content:""; position:absolute; left:0; bottom:0; width:100%; height:1px;
+    background:var(--rust); transform:scaleX(0); transform-origin:left;
+    transition:transform .35s cubic-bezier(.22,1,.36,1);
+  }
+  header nav a:hover::after{ transform:scaleX(1); }
+  @media (max-width:720px){ header nav{ display:none; } }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:92svh;
+    display:flex; flex-direction:column; justify-content:center;
+    position:relative;
+    padding-top:7rem; padding-bottom:2.5rem;
+  }
+  .hero-eyebrow{
+    display:flex; align-items:center; gap:0.8rem;
+    font-size:0.72rem; text-transform:uppercase; letter-spacing:0.18em; font-weight:600;
+    color:var(--rust); margin-bottom:1.6rem;
+    opacity:0; transform:translateY(14px);
+  }
+  .hero-eyebrow .dot{
+    width:7px; height:7px; border-radius:50%; background:var(--rust);
+    animation:pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+
+  h1.hero-title{
+    margin:0;
+    font-family:'Fraunces', serif;
+    font-weight:400;
+    font-size:clamp(3.2rem, 10vw, 9.2rem);
+    line-height:0.94;
+    letter-spacing:-0.02em;
+    max-width:16ch;
+  }
+  h1.hero-title .line{ display:block; overflow:hidden; }
+  h1.hero-title .line span{ display:inline-block; transform:translateY(115%); }
+  h1.hero-title em{
+    font-style:italic; font-weight:300; color:var(--rust);
+  }
+
+  .hero-sub{
+    margin-top:2.6rem;
+    display:grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap:3rem;
+    align-items:end;
+  }
+  @media (max-width:900px){ .hero-sub{ grid-template-columns:1fr; gap:1.6rem; } }
+
+  .hero-positioning{
+    font-size:clamp(1.05rem, 1.6vw, 1.35rem);
+    line-height:1.5;
+    color:var(--ink-soft);
+    max-width:44ch;
+    opacity:0; transform:translateY(16px);
+  }
+  .hero-meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.82rem;
+    color:var(--muted);
+    line-height:1.9;
+    text-align:right;
+    opacity:0; transform:translateY(16px);
+  }
+  @media (max-width:900px){ .hero-meta{ text-align:left; } }
+  .hero-meta strong{ color:var(--ink); font-weight:500; }
+
+  .hero-scroll{
+    position:absolute; bottom:2.4rem; left:6vw;
+    display:flex; align-items:center; gap:0.7rem;
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem;
+    text-transform:uppercase; letter-spacing:0.16em; color:var(--muted);
+    opacity:0;
+    transition:opacity .4s ease;
+  }
+  .hero-scroll.faded{ opacity:0 !important; }
+  .hero-scroll .stem{ width:1px; height:34px; background:linear-gradient(var(--muted), transparent); position:relative; overflow:hidden; }
+  .hero-scroll .stem::after{
+    content:""; position:absolute; top:-100%; left:0; width:100%; height:100%;
+    background:var(--rust);
+    animation:scrollstem 1.8s ease-in-out infinite;
+  }
+  @keyframes scrollstem{ 0%{ top:-100%; } 60%{ top:100%; } 100%{ top:100%; } }
+
+  /* giant background numeral, kinetic parallax */
+  .hero-bignum{
+    position:absolute; right:-2vw; top:6vw;
+    font-family:'Fraunces', serif; font-weight:300; font-style:italic;
+    font-size:clamp(8rem, 22vw, 22rem);
+    color:transparent;
+    -webkit-text-stroke:1px var(--line);
+    line-height:1; z-index:-1; pointer-events:none;
+    user-select:none;
+  }
+
+  /* ---------- SECTION LABELS ---------- */
+  .sec-label{
+    display:flex; align-items:baseline; gap:1rem;
+    margin-bottom:3.2rem;
+  }
+  .sec-label .num{ font-family:'IBM Plex Mono', monospace; color:var(--rust); font-size:0.85rem; }
+  .sec-label h2{
+    font-family:'Archivo', sans-serif; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.1em; font-size:0.82rem; color:var(--ink-soft); margin:0;
+  }
+  .sec-label .rule{ flex:1; height:1px; background:var(--line); }
+
+  section{ padding:5rem 0; position:relative; }
+  section.tight{ padding-top:3rem; }
+
+  /* ---------- METRICS ---------- */
+  .metrics{ padding:0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .metric-grid{
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:0;
+  }
+  @media (max-width:800px){ .metric-grid{ grid-template-columns:1fr; } }
+  .metric{
+    padding:2.6rem 2.4rem;
+    border-right:1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .metric:last-child{ border-right:none; }
+  @media (max-width:800px){
+    .metric{ border-right:none; border-bottom:1px solid var(--line); padding:2.2rem 0; }
+    .metric:last-child{ border-bottom:none; }
+  }
+  .metric .num{
+    font-family:'Fraunces', serif; font-weight:500;
+    font-size:clamp(3rem, 5.4vw, 5rem);
+    line-height:1; display:flex; align-items:baseline; gap:0.2rem;
+    color:var(--ink);
+  }
+  .metric .num .unit{ font-size:0.4em; font-weight:400; color:var(--rust); }
+  .metric .label{ margin-top:1rem; font-size:1rem; color:var(--ink-soft); font-weight:500; }
+  .metric .basis{
+    margin-top:0.7rem; font-family:'IBM Plex Mono', monospace; font-size:0.72rem;
+    color:var(--muted); text-transform:uppercase; letter-spacing:0.04em;
+  }
+  .metric::before{
+    content:""; position:absolute; left:0; bottom:0; width:100%; height:2px;
+    background:var(--rust); transform:scaleX(0); transform-origin:left;
+    transition:transform .5s cubic-bezier(.22,1,.36,1);
+  }
+  .metric.in::before{ transform:scaleX(1); }
+
+  /* ---------- WORK ---------- */
+  .work-item{
+    border-top:1px solid var(--line);
+    padding:4.5rem 0;
+    display:grid;
+    grid-template-columns: 0.5fr 2fr 1.3fr;
+    gap:3rem;
+    cursor:pointer;
+  }
+  .work-item:last-of-type{ border-bottom:1px solid var(--line); }
+  @media (max-width:960px){ .work-item{ grid-template-columns:1fr; gap:1.4rem; } }
+
+  .work-index{ font-family:'IBM Plex Mono', monospace; font-size:0.85rem; color:var(--muted); padding-top:0.5rem; }
+
+  .work-main .status{
+    display:inline-flex; align-items:center; gap:0.5rem;
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.12em;
+    color:var(--forest); border:1px solid var(--forest); padding:0.25rem 0.7rem;
+    margin-bottom:1.4rem;
+  }
+  .work-main .status.research{ color:var(--rust-dim); border-color:var(--rust-dim); }
+  .work-main .status.shipped{ color:var(--ink-soft); border-color:var(--ink-soft); }
+
+  .work-title{
+    font-family:'Fraunces', serif; font-weight:500;
+    font-size:clamp(2rem, 4.2vw, 3.4rem);
+    line-height:1.02; margin:0 0 1.3rem 0;
+    overflow:hidden;
+  }
+  .work-title span{ display:block; transform:translateY(100%); transition:transform .6s cubic-bezier(.22,1,.36,1); }
+  .work-item:hover .work-title span, .work-item.touch .work-title span{ transform:translateY(0); }
+  .work-item .work-title .base{ transform:translateY(0); }
+
+  .work-quote{
+    font-style:italic; color:var(--ink-soft); font-size:1.15rem; line-height:1.55; max-width:46ch;
+    font-family:'Fraunces', serif; font-weight:400;
+  }
+  .work-stack{
+    margin-top:1.6rem; display:flex; flex-wrap:wrap; gap:0.5rem;
+  }
+  .work-stack span{
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; color:var(--muted);
+    border:1px solid var(--line); padding:0.28rem 0.6rem;
+  }
+
+  .work-metrics{ display:flex; flex-direction:column; gap:1.1rem; justify-content:center; }
+  .work-metrics .wm{ border-left:2px solid var(--line); padding-left:1rem; transition:border-color .3s; }
+  .work-item:hover .work-metrics .wm{ border-color:var(--rust); }
+  .work-metrics .wm .v{ font-family:'IBM Plex Mono', monospace; font-size:1.3rem; color:var(--ink); }
+  .work-metrics .wm .k{ font-size:0.74rem; color:var(--muted); margin-top:0.15rem; }
+
+  /* ---------- PUBLICATIONS ---------- */
+  .pub{
+    display:grid; grid-template-columns:1fr auto; gap:1.2rem; align-items:baseline;
+    padding:1.8rem 0; border-top:1px solid var(--line);
+  }
+  .pub:last-child{ border-bottom:1px solid var(--line); }
+  .pub h3{ font-family:'Fraunces', serif; font-weight:500; font-size:1.35rem; margin:0 0 0.4rem 0; }
+  .pub p{ margin:0; color:var(--ink-soft); font-size:0.92rem; }
+  .pub .venue{ font-family:'IBM Plex Mono', monospace; font-size:0.75rem; color:var(--muted); white-space:nowrap; text-align:right; }
+
+  /* ---------- ABOUT / CONTACT ---------- */
+  .about-grid{
+    display:grid; grid-template-columns:1.3fr 1fr; gap:4rem;
+  }
+  @media (max-width:900px){ .about-grid{ grid-template-columns:1fr; } }
+  .about-copy p{ font-size:1.1rem; line-height:1.65; color:var(--ink-soft); max-width:52ch; }
+  .about-copy strong{ color:var(--ink); font-weight:600; }
+
+  .edu-block{ margin-top:2.2rem; font-family:'IBM Plex Mono', monospace; font-size:0.8rem; color:var(--muted); }
+  .edu-block strong{ color:var(--ink); font-weight:500; display:block; margin-bottom:0.3rem; }
+
+  .contact-card{
+    background:var(--forest); color:var(--paper);
+    padding:2.6rem; position:relative; overflow:hidden;
+  }
+  .contact-card h3{ font-family:'Fraunces', serif; font-weight:400; font-style:italic; font-size:1.8rem; margin:0 0 1.4rem 0; }
+  .contact-card a.email{
+    display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:1.05rem;
+    border-bottom:1px solid rgba(242,238,227,0.4); padding-bottom:0.3rem;
+    transition:border-color .3s, letter-spacing .3s;
+  }
+  .contact-card a.email:hover{ border-color:var(--paper); letter-spacing:0.02em; }
+  .contact-card .loc{ margin-top:2rem; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.1em; opacity:0.7; }
+
+  footer{
+    padding:3rem 6vw; display:flex; justify-content:space-between; align-items:center;
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; color:var(--muted);
+    border-top:1px solid var(--line);
+  }
+
+  /* reveal utility (non-uniform — different transforms per data-reveal type) */
+  [data-reveal]{ opacity:0; }
+  [data-reveal="rise"]{ transform:translateY(38px); }
+  [data-reveal="mask"]{ }
+  [data-reveal="wipe"]{ clip-path:inset(0 100% 0 0); opacity:1; }
+  [data-reveal="scale"]{ transform:scale(0.92); }
+  [data-reveal].in{
+    opacity:1; transform:none; clip-path:inset(0 0% 0 0);
+    transition:opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1), clip-path .9s cubic-bezier(.22,1,.36,1);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+    [data-reveal]{ opacity:1 !important; transform:none !important; clip-path:none !important; }
+    h1.hero-title .line span{ transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="ink-cursor"></div>
+
+<header>
+  <a class="brand" href="#top">Varun Malhotra</a>
+  <nav>
+    <a href="#work">Work</a>
+    <a href="#publications">Papers</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero wrap">
+    <div class="hero-bignum" aria-hidden="true" id="bignum">01</div>
+
+    <div class="hero-eyebrow" data-hero>
+      <span class="dot"></span> Data Scientist — Generative AI &amp; LLM Engineer
+    </div>
+
+    <h1 class="hero-title">
+      <span class="line"><span>Systems that</span></span>
+      <span class="line"><span>go to <em>production</em></span></span>
+      <span class="line"><span>and stay there.</span></span>
+    </h1>
+
+    <div class="hero-sub">
+      <p class="hero-positioning" data-hero>
+        I build LLM systems that go to production and stay there — agent architectures, the evaluation stacks that prove they work, and the guardrails that keep them honest.
+      </p>
+      <div class="hero-meta" data-hero>
+        <div>Michelin · Pune, India</div>
+        <div><strong>50+</strong> analysts served daily</div>
+        <div><strong>95%</strong> benchmark accuracy</div>
+        <div><strong>27</strong> hrs/wk saved</div>
+      </div>
+    </div>
+
+    <div class="hero-scroll" data-hero>
+      <div class="stem"></div> Scroll
+    </div>
+  </section>
+
+  <!-- ============ METRICS ============ -->
+  <section class="metrics">
+    <div class="wrap">
+      <div class="metric-grid">
+        <div class="metric" data-metric>
+          <div class="num"><span class="count" data-target="50" data-suffix="+">0</span></div>
+          <div class="label">Analysts served</div>
+          <div class="basis">Basis — US &amp; Europe, daily active use</div>
+        </div>
+        <div class="metric" data-metric>
+          <div class="num"><span class="count" data-target="95" data-suffix="%">0</span></div>
+          <div class="label">Benchmark accuracy</div>
+          <div class="basis">Basis — 500-question internal benchmark</div>
+        </div>
+        <div class="metric" data-metric>
+          <div class="num"><span class="count" data-target="27" data-suffix="">0</span><span class="unit">hrs/wk</span></div>
+          <div class="label">Analyst time saved</div>
+          <div class="basis">Basis — stakeholder-reported</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WORK ============ -->
+  <section id="work">
+    <div class="wrap">
+      <div class="sec-label" data-reveal="wipe">
+        <span class="num">02</span>
+        <h2>Selected Work</h2>
+        <span class="rule"></span>
+      </div>
+
+      <div class="work-item" data-reveal="rise">
+        <div class="work-index">/ 01</div>
+        <div class="work-main">
+          <span class="status">Production · 2024–present</span>
+          <h3 class="work-title"><span class="base">Talk to Data</span></h3>
+          <p class="work-quote">"Fifty analysts were filing tickets to ask questions about their own data."</p>
+          <div class="work-stack">
+            <span>LangGraph</span><span>ReAct agents</span><span>Dremio MCP</span><span>mem0</span>
+            <span>PostgreSQL</span><span>MLflow</span><span>Azure ML</span><span>Kubernetes</span><span>React / TS</span>
+          </div>
+        </div>
+        <div class="work-metrics">
+          <div class="wm"><div class="v">50+</div><div class="k">analysts on the system</div></div>
+          <div class="wm"><div class="v">95%</div><div class="k">accuracy, 500-question benchmark</div></div>
+          <div class="wm"><div class="v">$0.05–0.20</div><div class="k">cost / query, tracked in MLflow</div></div>
+          <div class="wm"><div class="v">85%</div><div class="k">run-to-run consistency</div></div>
+        </div>
+      </div>
+
+      <div class="work-item" data-reveal="rise">
+        <div class="work-index">/ 02</div>
+        <div class="work-main">
+          <span class="status research">Research · 2024–2025</span>
+          <h3 class="work-title"><span class="base">Autonomous Web Agent</span></h3>
+          <p class="work-quote">"The model could see the page. It could not tell you which box was the submit button."</p>
+          <div class="work-stack">
+            <span>GPT-4-mini</span><span>DOM grounding</span><span>Component ID</span><span>Evaluation harness</span>
+          </div>
+        </div>
+        <div class="work-metrics">
+          <div class="wm"><div class="v">30% → 59–68%</div><div class="k">component identification, GPT-4-mini</div></div>
+          <div class="wm"><div class="v">MLDS 2025</div><div class="k">first author, peer-reviewed</div></div>
+        </div>
+      </div>
+
+      <div class="work-item" data-reveal="rise">
+        <div class="work-index">/ 03</div>
+        <div class="work-main">
+          <span class="status shipped">Shipped · 2024</span>
+          <h3 class="work-title"><span class="base">Stratified Anomaly Detection</span></h3>
+          <p class="work-quote">"Compare every market to every other market and the small ones all look like errors."</p>
+          <div class="work-stack">
+            <span>Stratified sampling</span><span>Outlier detection</span><span>Sales pipeline</span>
+          </div>
+        </div>
+        <div class="work-metrics">
+          <div class="wm"><div class="v">Default</div><div class="k">cleaning stage, every sales pipeline</div></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ PUBLICATIONS ============ -->
+  <section id="publications" class="tight">
+    <div class="wrap">
+      <div class="sec-label" data-reveal="wipe">
+        <span class="num">03</span>
+        <h2>Publications</h2>
+        <span class="rule"></span>
+      </div>
+
+      <div class="pub" data-reveal="rise">
+        <div>
+          <h3>Autonomous web agent for enterprise workflows</h3>
+          <p>First author · peer-reviewed</p>
+        </div>
+        <div class="venue">MLDS 2025</div>
+      </div>
+      <div class="pub" data-reveal="rise">
+        <div>
+          <h3>VAE and GAN models for 3D reconstruction of mechanical parts</h3>
+          <p>Peer-reviewed</p>
+        </div>
+        <div class="venue">MLDS 2024</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT / CONTACT ============ -->
+  <section id="about">
+    <div class="wrap about-grid">
+      <div class="about-copy" data-reveal="rise">
+        <div class="sec-label">
+          <span class="num">04</span>
+          <h2>About</h2>
+          <span class="rule"></span>
+        </div>
+        <p>
+          I'm <strong>Varun Malhotra</strong>, a Data Scientist working on generative AI and LLM
+          engineering at <strong>Michelin</strong> in Pune, India. My work sits across three
+          layers of the same problem: <strong>agent architecture</strong> — deciding what an
+          LLM system is allowed to do and when it should stop and ask; <strong>evaluation</strong>
+          — building the benchmarks that prove a system works before a user finds out it
+          doesn't; and <strong>guardrails</strong> — the read-only boundaries and human-in-the-loop
+          gates that keep an autonomous system honest in production.
+        </p>
+        <p>
+          On Talk to Data I own the agent architecture, LLMOps, security and frontend
+          workstreams — I architect, build, and engineer the system end to end.
+        </p>
+        <div class="edu-block">
+          <strong>Education</strong>
+          B.Tech, Computer Science (Big Data Analytics) — SRM Institute<br />
+          9.25 / 10 GPA · 2020–2024
+        </div>
+      </div>
+
+      <div data-reveal="scale">
+        <div class="contact-card" id="contact">
+          <h3>Let's talk shop.</h3>
+          <a class="email" href="mailto:vama0259@gmail.com">vama0259@gmail.com</a>
+          <div class="loc">Michelin · Pune, India</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span>© 2026 Varun Malhotra</span>
+  <span>Kinetic Editorial — Direction A</span>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- custom ink cursor + magnetic hover ---------- */
+  var cursor = document.getElementById('ink-cursor');
+  if(!reduce && matchMedia('(hover:hover)').matches){
+    var cx=0, cy=0, tx=0, ty=0;
+    window.addEventListener('mousemove', function(e){ tx=e.clientX; ty=e.clientY; });
+    (function loop(){
+      cx += (tx-cx)*0.18; cy += (ty-cy)*0.18;
+      cursor.style.transform = 'translate('+cx+'px,'+cy+'px) translate(-50%,-50%)';
+      requestAnimationFrame(loop);
+    })();
+
+    var magnets = document.querySelectorAll('a, .work-item, .metric');
+    magnets.forEach(function(el){
+      el.addEventListener('mouseenter', function(){ cursor.classList.add('magnet'); });
+      el.addEventListener('mouseleave', function(){ cursor.classList.remove('magnet'); el.style.transform=''; });
+    });
+
+    // magnetic pull for nav links & contact email (signature micro-interaction)
+    var pulls = document.querySelectorAll('header nav a, .contact-card a.email');
+    pulls.forEach(function(el){
+      el.addEventListener('mousemove', function(e){
+        var r = el.getBoundingClientRect();
+        var mx = e.clientX - (r.left + r.width/2);
+        var my = e.clientY - (r.top + r.height/2);
+        el.style.transform = 'translate('+mx*0.25+'px,'+my*0.4+'px)';
+      });
+      el.addEventListener('mouseleave', function(){
+        el.style.transition = 'transform .4s cubic-bezier(.34,1.2,.4,1)';
+        el.style.transform = 'translate(0,0)';
+        setTimeout(function(){ el.style.transition=''; }, 400);
+      });
+    });
+  } else if(cursor){
+    cursor.style.display = 'none';
+  }
+
+  /* ---------- hero entrance choreography ---------- */
+  function runHero(){
+    var titleSpans = document.querySelectorAll('h1.hero-title .line span');
+    var heroBits = document.querySelectorAll('[data-hero]');
+    var bignum = document.getElementById('bignum');
+
+    if(reduce){
+      titleSpans.forEach(function(s){ s.style.transform='none'; });
+      heroBits.forEach(function(s){ s.style.opacity=1; s.style.transform='none'; });
+      if(bignum) bignum.style.opacity = 1;
+      return;
+    }
+
+    titleSpans.forEach(function(s, i){
+      s.style.transition = 'transform 1.05s cubic-bezier(.16,1,.3,1)';
+      s.style.transitionDelay = (0.15 + i*0.11) + 's';
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){ s.style.transform = 'translateY(0)'; });
+      });
+    });
+
+    heroBits.forEach(function(s, i){
+      s.style.transition = 'opacity .9s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1)';
+      s.style.transitionDelay = (0.65 + i*0.1) + 's';
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){ s.style.opacity = 1; s.style.transform = 'translateY(0)'; });
+      });
+    });
+
+    if(bignum){
+      bignum.style.transition = 'opacity 1.4s ease .4s';
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ bignum.style.opacity = 0.5; }); });
+    }
+  }
+  runHero();
+
+  /* ---------- parallax on the giant background numeral ---------- */
+  var bignum = document.getElementById('bignum');
+  if(!reduce && bignum){
+    window.addEventListener('scroll', function(){
+      var y = window.scrollY;
+      bignum.style.transform = 'translateY(' + (y*0.18) + 'px)';
+      bignum.style.opacity = Math.max(0, 0.5 - y/900);
+    }, {passive:true});
+  }
+
+  /* ---------- nav background on scroll + scroll-indicator fade ---------- */
+  var siteHeader = document.querySelector('header');
+  var scrollHint = document.querySelector('.hero-scroll');
+  function onScrollChrome(){
+    var y = window.scrollY || document.documentElement.scrollTop;
+    if(siteHeader){
+      if(y > 8) siteHeader.classList.add('scrolled');
+      else siteHeader.classList.remove('scrolled');
+    }
+    if(scrollHint){
+      if(y > 80) scrollHint.classList.add('faded');
+      else scrollHint.classList.remove('faded');
+    }
+  }
+  onScrollChrome();
+  window.addEventListener('scroll', onScrollChrome, {passive:true});
+
+  /* ---------- scroll reveals: type-differentiated, IntersectionObserver ---------- */
+  var revealEls = document.querySelectorAll('[data-reveal]');
+  if('IntersectionObserver' in window && !reduce){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  /* ---------- metric underline-in on view ---------- */
+  var metricEls = document.querySelectorAll('[data-metric]');
+  if('IntersectionObserver' in window){
+    var mio = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){ entry.target.classList.add('in'); mio.unobserve(entry.target); }
+      });
+    }, { threshold: 0.4 });
+    metricEls.forEach(function(el){ mio.observe(el); });
+  }
+
+  /* ---------- count-up on metric numbers ---------- */
+  function countUp(el){
+    var target = parseFloat(el.getAttribute('data-target'));
+    var suffix = el.getAttribute('data-suffix') || '';
+    var isDecimal = target % 1 !== 0;
+    var start = null;
+    var dur = reduce ? 1 : 1600;
+    function step(ts){
+      if(!start) start = ts;
+      var p = Math.min(1, (ts-start)/dur);
+      var eased = 1 - Math.pow(1-p, 3);
+      var val = target * eased;
+      el.textContent = (isDecimal ? val.toFixed(2) : Math.round(val)) + suffix;
+      if(p < 1) requestAnimationFrame(step);
+      else el.textContent = (isDecimal ? target.toFixed(2) : target) + suffix;
+    }
+    requestAnimationFrame(step);
+  }
+  var countEls = document.querySelectorAll('.count');
+  if('IntersectionObserver' in window){
+    var cio = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){ countUp(entry.target); cio.unobserve(entry.target); }
+      });
+    }, { threshold: 0.6 });
+    countEls.forEach(function(el){ cio.observe(el); });
+  } else {
+    countEls.forEach(countUp);
+  }
+
+  /* ---------- touch fallback: reveal work-title underline state ---------- */
+  document.querySelectorAll('.work-item').forEach(function(el){
+    el.addEventListener('touchstart', function(){ el.classList.add('touch'); }, {passive:true});
+  });
+
+})();
+</script>
+
+</body>
+</html>
