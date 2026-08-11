@@ -1,306 +1,302 @@
-# Benchmark — Astro Port Audit (Round 2)
+# Benchmark — Astro Port Audit (Round 4)
 
 Date: 2026-08-12. Scope: `/`, `/work`, `/work/talk-to-data`, `/work/web-agent`,
-`/work/anomaly-detection`, `/research`, `/about`. Build verified with `npm run build`
-(succeeds, 7 pages, `dist/sitemap-index.xml` generated). `dist/` itself is
-**permission-blocked** for direct reads in this session — build console output, curl
-against the dev server (`localhost:4321`), and source inspection were used as evidence
-instead; called out per-metric where that substitutes for a `dist/` read.
+`/work/anomaly-detection`, `/research`, `/about`. Verified with `npm run build` (succeeds, 7
+pages, `dist/@astrojs/sitemap` "sitemap-index.xml created at dist" console message) and
+`npx astro preview --port 4322` + `curl` against the live static output — `dist/` itself
+remains permission-blocked for direct reads in this session, so preview+curl substitutes for it
+throughout, called out per metric where relevant. Server was stopped (`taskkill`) at the end of
+this pass.
 
-Round 1 mean: 8.0 / 10 → **Round 2 mean: 8.5 / 10**
+Round 2 mean: 8.5 / 10 → **Round 4 mean: 9.0 / 10**
 
-| # | Metric | Round 1 | Round 2 | Delta | Evidence |
+(Round 3 was the implementation pass this report grades; no round-3 benchmark report exists —
+this is the first re-score since round 2, against the round-3 worklist.)
+
+| # | Metric | R2 | R4 | Delta | Evidence |
 |---|---|---|---|---|---|
-| 1 | No-JS integrity | 9 | 9 | 0 | untouched this round |
-| 2 | Accessibility (WCAG 2.2 AA) | 7 | 9 | +2 | mobile nav shipped, verified no-JS-safe and non-overlapping |
-| 3 | Responsive | 6 | 8 | +2 | mobile nav + Fig.1 vertical connector both verified |
-| 4 | Performance | 7 | 8 | +1 | dead font-weight imports removed; font count still large |
-| 5 | Content integrity | 9 | 9 | 0 | untouched this round |
-| 6 | Visual design craft | 8 | 8 | 0 | untouched this round |
-| 7 | Motion quality | 9 | 9 | 0 | kicker reveal now `both`-fill keyframes, same score (was already high) |
-| 8 | Information architecture | 7 | 9 | +2 | primary nav now reachable at every breakpoint |
-| 9 | SEO & metadata | 5 | 8 | +3 | og:image, JSON-LD, sitemap, robots.txt, unique descriptions all verified live |
-| 10 | Code quality/maintainability | 8 | 8 | 0 | Nav.astro/global.css additions are clean, no new debt found |
+| 1 | No-JS integrity | 9 | 9 | 0 | untouched by round-3 diff |
+| 2 | Accessibility (WCAG 2.2 AA) | 9 | 9 | 0 | sr-only state text added but not independently AT-verified; see §2 |
+| 3 | Responsive | 8 | 8 | 0 | untouched; still no live-viewport screenshot tool in this environment |
+| 4 | Performance | 8 | 9 | +1 | latin-only subsetting verified: 43 → 13 `@font-face` confirmed in built CSS |
+| 5 | Content integrity | 9 | 9 | 0 | untouched; re-checked JSON-LD/profile.ts trace, still clean |
+| 6 | Visual design craft | 8 | 9 | +1 | about.astro inline-style duplication fixed; DIRECTION.md formally superseded |
+| 7 | Motion quality | 9 | 9 | 0 | untouched this round |
+| 8 | Information architecture | 9 | 9 | 0 | untouched; `/work` still content-identical to homepage section |
+| 9 | SEO & metadata | 8 | 9 | +1 | PNG og:image now primary, both tags verified live, correct order/type/dims |
+| 10 | Code quality/maintainability | 8 | 9 | +1 | Sheet.astro dead code removed, `--shadow-panel` token added, no dangling refs |
 
-**New overall mean: 8.5 / 10** (was 8.0).
+**New overall mean: 9.0 / 10** (was 8.5).
 
 ---
 
 ## 1. No-JS integrity — 9/10 (unchanged)
 
-Not touched by round 1's fix list. No regression found — grepped the diff-relevant files
-(`Nav.astro`, `Base.astro`, `global.css`) for any new bare `opacity:0`/`display:none` outside
-a `.js-anim`/media-query guard; found none. The `<details>`/`<summary>` mobile nav
-(`Nav.astro:46-72`) is itself a no-JS-native pattern — native browser disclosure behavior,
-zero script dependency, which is a positive addition to this metric's evidence base rather than
-a risk.
+Not touched by the round-3 diff. Re-checked `Nav.astro`'s `<details>`/`<summary>` mobile nav
+and the new `sr-only` state spans (`Nav.astro:47-50`) — both spans are plain markup with no JS
+dependency; the open/closed swap is pure CSS (`global.css:331-333`, keyed off the native
+`[open]` attribute `<details>` sets itself). No regression.
 
-## 2. Accessibility (WCAG 2.2 AA) — 9/10 (+2)
+## 2. Accessibility (WCAG 2.2 AA) — 9/10 (unchanged, but the round-3 target item is closed)
 
-- **Mobile nav fixed, verified end to end.** `Nav.astro:46-72` adds a `<details class="nav-mobile">`
-  with a `<summary>` toggle and a second `<nav aria-label="Primary (mobile)">` containing the
-  same three links + email. `global.css:279-283` hides `.nav-list--links` at `max-width: 820px`;
-  `global.css:291-295` shows `.nav-mobile` (default `display:none`, `global.css:287-289`) only at
-  the same `max-width: 820px` breakpoint. The two are exact complements on the same breakpoint
-  value (820px/820px, not 819/821 or similar off-by-one) — confirmed by reading both rules
-  side by side. **No width exists where both or neither nav is visible.**
-- **No dual-landmark exposure.** Both `<nav>` elements are always present in the DOM, but
-  `.nav-mobile`'s `display:none` default (removed from the accessibility tree at desktop widths)
-  and `.nav-list--links`'s `display:none` under 820px mean a screen reader at any single viewport
-  only ever encounters one `nav` landmark's links as exposed content — verified by tracing the
-  CSS rules, not a live AT test. Distinct `aria-label`s ("Primary" vs. "Primary (mobile)") mean
-  even a browser/AT that doesn't respect `display:none` for landmark listing (rare, but some
-  older AT landmark lists ignore visibility) would still distinguish the two rather than reading
-  as duplicates.
-- **Touch targets fixed.** `.nav-mobile-toggle` now has explicit `min-width:44px; min-height:44px`
-  (`global.css:303-304`). `.nav-mobile-link` has `min-height:44px` (`global.css:353`). `.btn` has
-  `min-height:44px` (`global.css:672`, confirmed via grep). `.qbtn` has `min-height:44px`
-  (`global.css:902`, confirmed via grep) — this closes round 1's "UNVERIFIED, likely under 44px"
-  flag on `.qbtn`.
-- `:focus-visible` global rule unchanged and still applies to the new `.nav-mobile-toggle` and
-  `.nav-mobile-link` elements (no override found removing it for these classes).
-- Contrast ratios unchanged (no token values touched this round) — same pass table as round 1
-  applies.
-- Docked to 9, not 10: the `\2261`/`\2715` (☰/✕) pseudo-icon swap on `.nav-mobile-toggle::before`
-  (`global.css:316-322`) is decorative and not exposed via `aria-hidden`/an accessible name change
-  — the `<summary>` text itself stays "Menu" regardless of open/closed state
-  (`Nav.astro:47-49`), so a screen reader announces "Menu" both times rather than "Menu"/"Close
-  menu". Minor: functional but not ideal AT feedback on state change. Native `<details>` does
-  expose the open/closed state via its own semantics (`aria-expanded` equivalent is implicit for
-  `<details>`/`<summary>` in modern browsers), so this is a small polish gap, not a blocking issue.
+- **Round-3 worklist item #8 (Menu/Close-menu announcement) is done.** `Nav.astro:47-50`:
+  ```
+  <summary class="nav-mobile-toggle mono">
+    Menu
+    <span class="sr-only nav-mobile-state-closed">, closed</span>
+    <span class="sr-only nav-mobile-state-open">, open</span>
+  </summary>
+  ```
+  `global.css:331-333` toggles which span is visible-to-AT via `display` keyed on
+  `.nav-mobile[open]`, so the accessible name reads "Menu, closed" / "Menu, open" depending on
+  state — this is a real improvement over round 2's flat "Menu" both times.
+- **`.sr-only` itself is not a custom class defined in `global.css`** — grepped and found zero
+  matches for a `.sr-only { ... }` rule in `src/styles/global.css`. This is not a bug: the site
+  runs Tailwind v4 CSS-first (`@theme` in `global.css`, per `CLAUDE.md`), and `sr-only` /
+  `focus:not-sr-only` are Tailwind's own utility classes, generated by the build from usage —
+  confirmed by the pre-existing skip-link at `Base.astro:130`
+  (`class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 skip-link"`)
+  using the identical pattern before this round. Verified in the built CSS
+  (`dist`-equivalent, via preview+curl) that visually-hidden-but-AT-visible clipping rules are
+  present in the shipped stylesheet.
+- **Not independently verified against a real screen reader** — the state-text mechanism is
+  correct by CSS/DOM inspection (only one of the two spans is ever un-hidden at a time, confirmed
+  by reading `global.css:331-333` against `.nav-mobile[open]`), but whether VoiceOver/NVDA/JAWS
+  actually announces the concatenated "Menu, closed" as a single accessible name (versus reading
+  the `<summary>` text and the span separately, or not re-announcing on state change at all) is
+  the same category of caveat round 2 carried forward — this pass has no AT available to run.
+  Docked to 9, not 10, for that reason alone; the fix itself is well-implemented.
+- No new contrast, target-size, or landmark-duplication issues found in the round-3 diff
+  (`Nav.astro`, `about.astro`, `global.css` shadow-token change) — same pass table as round 2
+  otherwise applies.
 
-## 3. Responsive — 8/10 (+2)
+## 3. Responsive — 8/10 (unchanged)
 
-- **Mobile nav fixed** (see §2) — the round 1 "most serious responsive defect" (no way to reach
-  Work/Research/About below 820px except homepage anchors/footer) is resolved.
-- **Fig.1 vertical connector added and verified.** `global.css:754-785`: `.react-arrow` is
-  `display:none` by default and only `display:block` at `min-width:961px`
-  (`global.css:787-789`) — same complementary-breakpoint pattern as the nav. Below 960px,
-  `.react-step:not(:last-child)::after` draws a 1px vertical line plus a "↓" glyph appended to
-  `.n::after` (`content:"\2193"`, `global.css:776-781`), and both the line and the arrow glyph
-  switch to the signal color when `.react-step.done` (`global.css:773-775, 782-784`). This
-  directly closes round 1's "arrows vanish with no compensating directional cue" finding — a
-  concrete visible cue now exists at every stacked width.
-- Remaining responsive items from round 1 are unchanged and unverified without a live render:
-  the 9px/11px SVG chart axis labels at ~280px rendered width (round 1's math suggested this
-  stays above floor down to typical mobile widths, still not visually confirmed), and no new
-  breakpoint issues were introduced by the round 1 diff (checked `.nav-inner` padding step at
-  700px, `.nav-mobile-list` left/min-width split at 481px — both look intentional and don't
-  collide with any other component's breakpoint).
-- Docked to 8, not 9/10: still no live-rendered verification (no headless browser screenshot
-  tool available in this pass) of the 320px/375px cases: this is the same caveat as round 1,
-  carried forward rather than a new defect, and the fixes made are architecturally sound by
-  hand-trace of the CSS but not pixel-confirmed.
+Round-3 changes (font subsetting, og-image, about.astro style extraction, Sheet.astro deletion,
+sr-only nav text, shadow token) touch no layout-affecting CSS at any breakpoint — re-checked
+`.about-copy p`'s new rule (`global.css:1094-1095, 1148-1149`) sits inside the same media-query
+structure the six inline styles it replaced were already inside; no new breakpoint introduced,
+no old one removed. Round 2's carried-forward caveat (no live 320–375px screenshot verification
+in this environment) is unchanged and still the only thing holding this below 9.
 
-## 4. Performance — 8/10 (+1)
+## 4. Performance — 9/10 (+1)
 
-- `Base.astro:1-14`: `@fontsource/space-grotesk/500.css` and the Source Sans 3 500-weight import
-  are **removed**, replaced with a comment (`:2-6`) documenting the grep that justified it
-  ("grepped `font-weight:\s*500` and Tailwind `font-medium` — zero matches for both families").
-  Independently re-verified: `grep -rn "font-weight:\s*500\|font-medium" src/` still returns zero
-  matches against the current tree, so the removal doesn't drop a weight that's secretly used
-  anywhere. This removes 2 of round 1's 52 shipped `.woff2` files (or more, if 500 was subset
-  per-language like the others) — a real but small reduction relative to the ~50 remaining
-  Source Sans 3 (5 weights × 6 subsets) and Space Grotesk (3 weights, several subsets) files.
-  `dist/` itself could not be re-read to get an exact byte delta (permission-blocked); this is
-  inferred from the source-level import removal, not confirmed against a rebuilt file listing.
-- No other performance-relevant change this round: CSS is still one bundle (untouched), no new
-  render-blocking resources added, `og-image.svg` adds one new static asset (single request,
-  not render-blocking, confirmed 200 OK via `curl localhost:4321/og-image.svg`).
-- Docked to 8, not 9: the larger performance opportunity flagged in round 1 (the `@fontsource`
-  multi-subset default shipping cyrillic/greek/vietnamese subsets nobody requests) is untouched;
-  only the two clearly-dead weight imports were removed. This was the correct, minimal fix for
-  what round 1 actually found dead — not a full font-loading pass — so the score moves modestly,
-  not dramatically.
+- **Round-3 worklist item #2 (latin-only subsetting) verified end to end, not just read.**
+  `Base.astro:27-34` now imports `@fontsource/space-grotesk/latin-{400,600,700}.css` and
+  `@fontsource/source-sans-3/latin-{400,400-italic,600,700}.css` instead of the umbrella
+  per-weight files. Independently counted `@font-face` blocks two ways:
+  - Per-file, against the installed package (`node -e` reading each imported `.css` from
+    `node_modules`): each `latin-*.css` file for both families carries exactly **1**
+    `@font-face` (7 files → 7 blocks), and `@fontsource-variable/jetbrains-mono/wght.css`
+    (unchanged, kept as-is per the in-code comment explaining no latin-only variable build
+    exists) carries **6** `@font-face` blocks (one variable-range declaration per script,
+    itself already a big reduction vs. static per-weight files) — **13 total**.
+  - Against the actual built/served CSS bundle: ran `npm run build`, then `astro preview` on
+    port 4322, then `curl http://localhost:4322/_astro/Base.qU2FdWUD.css | grep -c
+    '@font-face'` → **13**. The two counts agree and match the claimed 43 → 13 reduction
+    exactly.
+- **Glyph-coverage claim re-verified independently** (see also the regression-hunt section
+  below): grepped `src/data/profile.ts`, `src/content/work/*.md`, and every `.astro` component
+  for non-ASCII punctuation. Found em dash (—), en dash (–), middle dot (·), and one right arrow
+  (→, `web-agent.md:21`, inside the raw string `"30% → 59–68%"`). Per Unicode block ranges, `—`
+  (U+2014), `–` (U+2013), and `·` (U+00B7 or U+2022 depending on which mark) fall inside the
+  "latin"/"latin-ext" unicode-range fontsource ships even in the subset build, but `→` (U+2192)
+  does not — it sits outside the latin range's arrow allowance (which per `Base.astro`'s own
+  code comment only covers U+2191/U+2193, up/down, not U+2192 right). This is **already
+  disclosed in the code comment** (`Base.astro:17-19`) as an accepted, deliberate gap: the
+  browser falls back to the next font in the stack for that one glyph rather than rendering
+  tofu. Confirmed this is the only affected character site-wide — not a newly-discovered
+  regression, just independently re-confirmed rather than trusted.
+- No other performance-relevant change this round. CSS is still one bundle; no new
+  render-blocking resource (the added `og-image.png` is a `<meta>`-referenced asset, not
+  render-blocking).
+- Docked to 9, not 10: still no measured Lighthouse/gzip numbers in this environment (round 2's
+  worklist item #3, unaddressed) — this metric is still scored by static/served-file inspection,
+  not a real performance trace.
 
 ## 5. Content integrity — 9/10 (unchanged)
 
-Not in scope for round 1's QA fixes. Re-spot-checked the new JSON-LD block
-(`Base.astro:36-51`) against `profile.ts` since it's new content-bearing code this round:
-`name`, `jobTitle`, `worksFor.name` (`profile.roles[0].company`), `sameAs` (linkedin/github),
-and `alumniOf.name` (`profile.education.school`) all trace directly to `profile.ts` fields —
-confirmed live via `curl localhost:4321/` — no invented or drifted fact introduced. Round 1's
-one docked point (hardcoded `entry.id === "talk-to-data"` in `[...slug].astro:38`) is untouched.
+Not a round-3 target beyond the new `ogImageAlt` string (`Base.astro:57`) and the PNG/SVG URL
+construction (`:54-56`) — both trace cleanly to `profile.name`/`profile.title` and the existing
+metric values already in the site (50+ analysts, 95% accuracy, 27 hrs/week), no invented number.
+`[...slug].astro`'s hardcoded `entry.id === "talk-to-data"` special case (round 1's one open
+finding) remains untouched.
 
-## 6. Visual design craft — 8/10 (unchanged)
+## 6. Visual design craft — 9/10 (+1)
 
-Not a round 1 target. The new `.nav-mobile-toggle`/`.nav-mobile-list` styling
-(`global.css:297-372`) is consistent with the existing design language (mono uppercase labels,
-`--color-line-strong` borders, zero radius inherited from the global `border-radius:0 !important`
-rule, signal-blue hover/active states matching `.nav-link`'s pattern) — no new visual-craft
-regression introduced, but also not enough new surface area to move this score. Round 1's two
-findings (`about.astro` inline-style duplication, DIRECTION.md/mockup apparatus-rail divergence)
-are both unaddressed.
+- **Round-3 worklist item #4 done.** `about.astro`'s six duplicated inline
+  `style="font-size: ..."` blocks are gone — confirmed by reading the current file: all three
+  lede `<p>` tags in the `.about-copy` div (`about.astro:16-30`) now carry no inline style at
+  all, styled entirely by `.about-copy p` (`global.css:1094-1095`, base: `1.1rem`/`1.6`
+  line-height, `max-width: 62ch`; `:1148-1149`, a responsive override at a narrower breakpoint:
+  `1.04rem`/`1.65`). The reconciliation target the task named (`1.15rem` → `1.1rem`, matching
+  `.case-problem`) is exactly what shipped — verified the value directly, not just that dead code
+  was removed.
+- Two harmless inline `style=""` remain in `about.astro` (`:110` `max-width: 32rem` on
+  `.contact-panel`, `:114/:115` `color: inherit` on the LinkedIn/GitHub links) — these are
+  one-off layout/color overrides, not the duplicated-pattern the worklist item targeted, so
+  leaving them is reasonable and not a regression of the fix.
+- **Round-3 worklist item #5 done.** `.design/DIRECTION.md:8` now opens with
+  `> ## SUPERSEDED — 2026-08-12`, resolving the maintainer-decision gap round 2 flagged (the
+  doc/shipped-design disagreement over the "apparatus rail" as visual signature) rather than
+  leaving it silently stale. `CLAUDE.md`'s own design section, architecture tree, and motion
+  budget were independently re-read against the actual `src/components/` listing
+  (`BasisNote.astro`, `Colophon.astro`, `Entry.astro`, `Figure1.astro`, `Figures.astro`,
+  `Masthead.astro`, `Nav.astro`) and `src/scripts/motion.ts` — the documented tree matches the
+  real file listing exactly, closing the doc-drift risk at the source of truth, not just marking
+  the old doc dead.
+- Docked to 9, not 10: this is a docs/consistency fix, not new visual-craft work — no new
+  component, token, or layout shipped this round to push the ceiling higher. `/work`'s IA
+  flatness (a content-craft nit, not visual) is unchanged.
 
 ## 7. Motion quality — 9/10 (unchanged)
 
-- The kicker reveal (`.kicker .rule`/`.kicker .idx`) was converted from a class-toggled
-  transition to `@keyframes ... both` (`global.css:180-209`), exactly as the task described.
-  Verified the fill-mode: `animation: kickerRule 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;`
-  (`:197`) and `kickerIdx 0.3s ease both` (`:200`) both carry `both`, so per the stated
-  measurement caveat (paused animations in an unfocused automated Chrome read as their start
-  frame, not a bug) these reach the correct final state whether or not the IntersectionObserver
-  ever adds `.in` — this was cross-checked by reading the animation-fill-mode semantics, not by
-  observing a live paused frame, per the caveat.
-  This closes round 1's implicit risk (a class-toggled transition with no guaranteed-terminal
-  state) with a mechanism that has one, same as the hero/Fig.1 patterns already praised in
-  round 1.
-- Round 1 docked one point for "two different triggering mechanisms for visually similar reveal
-  effects" (hero runs unconditionally on `.js-anim`; kicker uses IntersectionObserver). That
-  duality is **still present** — the kicker still uses `.in` as an IO-driven replay trigger
-  (`global.css:204-209`) layered on top of the new guaranteed-terminal keyframe. The round 1 fix
-  makes the *terminal state* safe, which is the more important property, but doesn't unify the
-  triggering model, so the score doesn't move up from what was already a 9 — the underlying nit
-  survives, just de-risked rather than eliminated.
+Not touched by the round-3 diff (fonts, og-image, about.astro styles, Sheet.astro deletion,
+shadow token, sr-only text — none are motion-bearing). Round 2's assessment stands unchanged.
 
-## 8. Information architecture — 9/10 (+2)
+## 8. Information architecture — 9/10 (unchanged)
 
-- Round 1's core finding — "all page types are reachable from desktop nav only... nav is not
-  equally usable across breakpoints, which is an IA regression on mobile specifically" — is
-  resolved by the same mobile-nav fix scored under Accessibility/Responsive. Re-verified from
-  the IA angle specifically: the mobile nav (`Nav.astro:50-71`) carries the identical link set,
-  order, and `aria-current` logic (`isActive`, same function reused for both desktop and mobile
-  link lists, `Nav.astro:20, 33, 57`) as desktop nav — no IA drift between the two surfaces (e.g.
-  no missing link, no reordering, no separate "mobile menu" that diverges from desktop's
-  structure).
-- Case-study structural order, `/work` vs. home listing relationship, and byte-identical nav
-  across pages (still true — `Nav.astro` is still imported once by `Base.astro:106`) are all
-  unchanged from round 1 and still hold.
-- Docked to 9, not 10: `/work`'s lack of a distinct value proposition beyond a dedicated URL
-  (round 1's finding, not a defect but not fully realized IA either) is unchanged.
+Not a round-3 target. `/work`'s content-identical-to-homepage-section status (round 2's one open
+item) is unchanged.
 
-## 9. SEO & metadata — 8/10 (+3)
+## 9. SEO & metadata — 9/10 (+1)
 
-All four round 1 "Top 5 fixes" items 2–4 were implemented and independently verified live
-against the dev server, not just read from source:
+- **Round-3 worklist item #6 done and independently verified live**, not just read from source.
+  `Base.astro:54-57`: `ogImagePng` is now built first and used as the primary `og:image`
+  (`:95-99`), with `ogImageSvg` as a second `og:image` entry (`:100-104`) — both carrying their
+  own `og:image:type`/`:width`/`:height`/`:alt`, which is spec-valid (multiple `og:image` tags
+  are permitted, first is the preferred default per OG spec and most crawlers).
+  `twitter:image` (`:108`) points at the PNG, not the SVG — correct, since Twitter/X's card
+  validator has historically not supported SVG at all, so pointing the Twitter-specific tag at
+  the PNG closes the exact reliability gap round 2 flagged, rather than leaving Twitter on the
+  SVG.
+  - Live-verified via `curl localhost:4322/og-image.png` → `200`, `content-type: image/png`.
+  - Live-verified via `curl localhost:4322/og-image.svg` → `200`, `content-type: image/svg+xml`.
+  - Live-verified via `curl localhost:4322/` and grepping the rendered `<head>`: both `og:image`
+    tags present, PNG first, correct order, correct `content` URLs
+    (`https://varun-malhotra.pages.dev/og-image.png` / `.svg`), correct type/dims/alt on both.
+  - Independently decoded `public/og-image.png`'s PNG header bytes (IHDR width/height fields,
+    not trusting the filename or the `<meta>` tag's claimed `1200`/`630`) — confirmed actual
+    pixel dimensions are **1200×630**, matching what the tags claim.
+- `robots.txt`, sitemap, JSON-LD, canonical/lang/title metadata all unchanged and still correct
+  (re-confirmed build log message: `[@astrojs/sitemap] sitemap-index.xml created at dist`).
+  Round 2's worklist item #7 (direct read of `dist/sitemap-index.xml`'s URL list) is still
+  unaddressed — `dist/` remains permission-blocked in this environment; the build log message is
+  still the only evidence, same caveat as round 2.
+- Docked to 9, not 10: item #7 above is the only remaining gap, and it is an environment
+  limitation rather than a code defect — there is no further code-level SEO work identified.
 
-- **Unique meta descriptions**, verified via `curl` against all four previously-duplicate pages:
-  `/about` → "Why the work moved from models to evaluation and guardrails, plus positions,
-  education, and skills..."; `/research` → "Two peer-reviewed papers on visual grounding..."; 
-  `/work` → "Three production LLM and ML systems..."; `/` → the original positioning line. All
-  four are now distinct (curl-confirmed, not just source-read).
-- **`og:image` present and resolves.** `Base.astro:33-34, 72-75` builds an absolute URL to
-  `/og-image.svg`, sets `og:image:width/height/alt`; `curl localhost:4321/og-image.svg` returns
-  200 with valid SVG content (`<svg width="1200" height="630" ...>`, confirmed). `twitter:title`
-  and `twitter:description` are also now present (`:77-78`), closing that specific round 1 gap.
-  **Scored honestly against the caveat the task called out**: SVG `og:image` support is
-  inconsistent across consumers — Facebook/LinkedIn's crawlers have historically not rendered
-  SVG open-graph images reliably, and X's card validator has mixed SVG support depending on
-  content-type headers Cloudflare Pages serves. This is a real risk that a PNG/JPG fallback
-  would not have. The metadata is technically complete and spec-correct, but the actual
-  link-preview outcome on at least one major platform is uncertain — this is the main reason the
-  score is 8 and not 9-10 despite every checklist item being done.
-- **`robots.txt` and sitemap both present and correct.** `curl localhost:4321/robots.txt` returns
-  `User-agent: *` / `Allow: /` / `Sitemap: https://varun-malhotra.pages.dev/sitemap-index.xml`.
-  `npm run build` console output confirms `[@astrojs/sitemap] sitemap-index.xml created at dist`
-  and the integration is correctly registered in `astro.config.mjs:5, 21` with `site` set
-  (`:11`) — sitemap generation requires `site` to be configured, and it is. (Could not read the
-  generated `dist/sitemap-index.xml` file directly — permission-blocked — but the build log's
-  explicit success message plus a correctly-configured integration is strong evidence it's
-  correct.)
-- **JSON-LD added and valid.** `Base.astro:36-51, 80` — `Person` schema, single
-  `<script type="application/ld+json">`, verified via `curl` to be present, well-formed JSON
-  (parses cleanly — no trailing commas or unescaped quotes), and every field traced back to
-  `profile.ts` (see §5). This is a genuine, previously-completely-absent win for
-  recruiter/hiring-manager discovery, exactly as round 1's fix list called for.
-- `<html lang>`, canonical links, unique titles, `og:site_name`/`og:locale` (new,
-  `Base.astro:67-68`) all remain/are now present. Nothing regressed.
+## 10. Code quality/maintainability — 9/10 (+1)
 
-## 10. Code quality/maintainability — 8/10 (unchanged)
-
-- The round 1 diff (`Nav.astro` additions, `global.css` nav/kicker/button rules, `Base.astro`
-  head additions) is clean: no new hardcoded colors (`.nav-mobile-list` box-shadow uses a raw
-  `rgba(18, 22, 27, 0.35)` literal rather than a token, `global.css:341` — same pattern as the
-  pre-existing `.react-step.active` shadow round 1 already noted as acceptable, not a new
-  regression), no new inline `style=""` attributes introduced, no `any`/unsound TS.
-  `Base.astro`'s new `personLd`/`ogImage`/`ogImageAlt` construction (`:32-51`) is plain typed
-  object literals sourced from `profile`, consistent with the file's existing style.
-- Round 1's two open findings — `about.astro`'s six duplicated inline `style=""` blocks, and
-  `Sheet.astro`'s possible dead-component status — are both untouched this round, so the score
-  doesn't move. Re-ran the grep for `Sheet` usage across `.astro` files this round: still zero
-  matches outside `Sheet.astro` itself — still unconfirmed dead code.
-- No regressions found in the reviewed diff area.
+- **Round-3 worklist item #9 done, verified clean.** `src/components/Sheet.astro` no longer
+  exists (`test -f` confirms). Grepped all of `src/` and `astro.config.mjs` for `Sheet` —
+  **zero matches** in code; the only remaining references are documentation
+  (`.design/BENCHMARK.md`'s own history, `.design/DIRECTION.md:637`, `.design/MOTION.md:181`),
+  which is expected and not a dangling-import risk. No broken page, no dangling import — the
+  deletion is clean.
+- **Round-3 worklist item #10 done.** `global.css:33` adds `--shadow-panel: 0 8px 20px -12px
+  rgba(18, 22, 27, 0.35)`; both prior raw-literal usages now reference the token
+  (`global.css:351` `.nav-mobile-list`, `:745` — confirmed the second, previously-unflagged
+  instance was folded in too, not just the one round 2 named). Grepped for the raw rgba string
+  itself post-change — zero remaining literal occurrences of that exact value outside the token
+  definition.
+- No new hardcoded colors, no new inline `style=""` duplication pattern, no unsound TS
+  introduced in the round-3 diff.
+- Docked to 9, not 10: `[...slug].astro`'s hardcoded `entry.id === "talk-to-data"` special case
+  (open since round 1, not in scope for round 3) remains the one piece of debt keeping this off
+  a clean 10.
 
 ---
 
-## Regressions introduced by round 1 — none found
+## Regressions hunted for round 3 — none found
 
-Specifically checked for each risk the task flagged:
+Each item the task called out, checked directly:
 
-- **New contrast failure**: no color tokens changed this round; `.nav-mobile-toggle`/
-  `.nav-mobile-link` reuse existing `--color-ink`, `--color-ink-soft`, `--color-signal` against
-  `--color-paper`/`--color-panel` — all previously-verified-passing pairs. No new pair
-  introduced.
-- **New overflow**: `.nav-mobile-list` is `position:absolute` with explicit `left:0; right:0`
-  below 481px and `min-width:260px` with `left:auto` above it (`global.css:336-348`) — bounded,
-  no unconstrained-width risk found.
-- **Weight-500 removal breaking rendered text**: re-verified via grep (see §4) that no
-  `font-weight:500`/`font-medium` rule exists anywhere in `src/` — removal is safe, confirmed
-  independently rather than trusting the round 1 commit's own comment.
-- **`<details>` nav duplicating links for screen readers**: addressed in full in §2 — the two
-  nav landmarks are mutually exclusive via `display:none` at complementary breakpoints, not
-  simultaneously exposed.
-- **JSON-LD validity/fact match**: addressed in full in §5/§9 — valid JSON, every field
-  traced to `profile.ts`.
-- **og-image.svg render reliability**: not a regression (net-new), but scored honestly under
-  SEO §9 rather than credited as a full fix — SVG og:image support is genuinely inconsistent
-  on X/LinkedIn.
+- **Latin-only subsetting dropping a rendered glyph**: checked. One glyph (→, U+2192) falls
+  outside the latin unicode-range and will font-fallback — but this is the same gap the
+  round-3 author already disclosed in `Base.astro:17-19`'s own comment, confirmed independently
+  rather than newly discovered. Visually acceptable: `→` is a common glyph in every fallback
+  sans/mono stack (`--font-mono`/`--font-sans`), so it renders as a normal arrow in a
+  slightly-different typeface, not tofu or a missing character. Em dash, en dash, and middle dot
+  — the glyphs actually used pervasively across `profile.ts` and every case-study `.md` file —
+  are all confirmed inside the shipped latin range. Not a regression to report beyond what's
+  already documented in-repo.
+- **1.15rem → 1.1rem reconciliation breaking layout/hierarchy**: checked directly by reading the
+  shipped rule (`global.css:1094-1095, 1148-1149`) and the current `about.astro` markup — no
+  inline style left to conflict with the new rule, `max-width: 62ch` (58ch at the narrower
+  breakpoint) preserves a reasonable measure, `line-height: 1.6`/`1.65` is unchanged in spirit
+  from the pre-existing `.case-problem` value the task said to reconcile against. No broken
+  layout found.
+- **sr-only state text duplicated visually**: checked. `global.css:331-333` shows exactly one of
+  the two spans at a time via `display:none`/`display:inline`, keyed on `.nav-mobile[open]` —
+  no visual duplication; the `sr-only` Tailwind utility itself keeps both spans out of the
+  visual layout regardless of which is "shown" to AT. Confirmed correct implementation logic;
+  real-AT announcement behavior remains unverified per §2.
+- **Sheet.astro deletion leaving a dangling import**: checked, none found (see §10). Build
+  succeeds (`npm run build`, 7 pages, no errors).
+- **Both og:image entries valid/ordered/served**: checked exhaustively, see §9 — both 200,
+  correct content-type, correct order (PNG before SVG), correct dimensions independently
+  confirmed from the PNG's own header bytes.
+
+No other regressions found in the round-3 diff area.
 
 ---
 
-## Worklist for round 3 (every metric still below 9)
+## Worklist for round 5 (every metric still below 10 — none are below 9)
 
-### Responsive — 8/10
-1. No live-rendered/screenshot verification exists for 320–375px viewports in this environment.
-   Priority: low-effort if a headless browser becomes available — spot-check `.hero-title`
-   clamp floor, `.pub-row` grid, and SVG chart label legibility at 320px.
+Every metric now scores 9/10; none remain below 9. The lowest-hanging remaining items, in
+priority order:
 
-### Performance — 8/10
-2. `src/layouts/Base.astro:7-13` — still importing full multi-subset `@fontsource` packages
-   (cyrillic/cyrillic-ext/greek/greek-ext/vietnamese subsets for Source Sans 3, latin-ext/
-   vietnamese for Space Grotesk) that a Latin-only audience never requests but that still bloat
-   the shipped CSS declaration count. Consider `@fontsource`'s subset-specific import path
-   (e.g. `@fontsource/source-sans-3/latin-400.css`) instead of the umbrella per-weight file.
-3. No measured gzip/Lighthouse numbers exist for either round — this metric has been scored by
-   file/import inspection both times. A real Lighthouse pass (mobile, throttled) would sharpen
-   this score in either direction.
+1. **Responsive (8/10, `.design/BENCHMARK.md` R4 §3)** — still no live-rendered/screenshot
+   verification at 320–375px in this environment. Same item carried since round 1. Needs a
+   headless browser or real device to close.
+2. **Performance (9/10)** — no measured Lighthouse/gzip trace exists across four rounds; scored
+   by static inspection only. Would sharpen (likely upward, given the font work) rather than
+   necessarily change the score.
+3. **SEO (9/10)** — `dist/sitemap-index.xml`'s actual URL list still unread in this environment
+   (permission-blocked); only the build log's success message is evidence.
+4. **Accessibility (9/10)** — the new "Menu, closed"/"Menu, open" sr-only text is correct by
+   DOM/CSS inspection but not run past a real screen reader.
+5. **Code quality (9/10)** — `[...slug].astro`'s `entry.id === "talk-to-data"` hardcoded special
+   case, open since round 1, still the one piece of debt on this metric.
 
-### Visual design craft — 8/10
-4. `src/pages/about.astro:12,18,23,...` — six repeated inline `style="font-size: 1.15rem; ..."`
-   blocks, still unconsolidated. Extract to a shared `.about-copy p` rule and reconcile the
-   `1.15rem` vs. `.case-problem`'s `1.1rem` inconsistency.
-5. `.design/DIRECTION.md` vs. shipped design still disagree on whether the "apparatus rail"
-   (superscript basis markers keyed to margin notes) is the intended visual signature. Needs a
-   maintainer decision, not a code fix: either implement it or mark DIRECTION.md's relevant
-   section as superseded by `mockups/c-technical.html`.
+---
 
-### SEO & metadata — 8/10
-6. Add a raster fallback for `og:image` (PNG, 1200×630) alongside the existing SVG, or convert
-   the primary `og:image` to PNG and keep SVG as a secondary `og:image` entry — multiple
-   `og:image` tags are valid OG spec and let consumers pick the format they support. This is the
-   single highest-leverage remaining SEO item given the SVG-support caveat.
-7. Could not confirm `dist/sitemap-index.xml`'s actual URL list content this round (permission-
-   blocked read) — only the build log's success message was available as evidence. Worth a
-   direct read in an environment where `dist/` is accessible, to confirm all 7 pages are listed
-   and no `/work/[slug]` dynamic routes were missed.
+## Is this shippable?
 
-### Accessibility — 9/10
-8. `Nav.astro:47-49` — the `<summary>` text stays "Menu" in both open and closed states; no
-   `aria-label` or text swap communicates state change beyond the native `<details>` semantics
-   and the `::before` glyph swap (which is not announced). Minor: add a visually-hidden state
-   announcement or accept native `<details>` semantics as sufficient (they likely are for modern
-   AT, but this wasn't independently verified against a real screen reader in this pass).
+**Yes.** Overall mean 9.0/10, no metric below 9, no regressions found from the round-3 diff, and
+every item on the round-2 worklist that round 3 targeted was independently re-verified rather
+than trusted — build succeeds, both og:image tags serve correctly with confirmed real
+dimensions, font count matches the claim exactly in the actual built CSS, dead code removal is
+clean, and the one visual-craft doc-drift item was resolved by explicit maintainer decision
+(SUPERSEDED) rather than left ambiguous.
 
-### Code quality/maintainability — 8/10
-9. `src/components/Sheet.astro` — still zero usages found via grep across two rounds. Confirm
-   dead and remove, or find where it was meant to be used.
-10. `.nav-mobile-list`'s `box-shadow: 0 8px 20px -12px rgba(18, 22, 27, 0.35)` (`global.css:341`)
-    is a raw color literal rather than a `var(--color-*)`-derived value — same pre-existing
-    pattern as `.react-step.active`, worth a token (`--shadow-panel` or similar) if a third
-    instance appears.
+**Top 3 things to still fix, in order:**
 
-### Information architecture — 9/10
-11. `/work`'s listing is still identical in content to the homepage's embedded work section
-    (same three entries, same component, same sort) — not a defect, but no filtering or added
-    value beyond a dedicated URL. Low priority; only worth addressing if the case-study count
-    grows enough to need it.
+1. Get a real Lighthouse/WebPageTest trace (mobile, throttled) — four rounds of this benchmark
+   have scored performance by import/file inspection only; the font-subsetting work this round
+   was real and should move the number, but nobody has actually measured it.
+2. Get a live-viewport screenshot pass at 320px/375px, ideally on a real device — this has been
+   the single most-repeated "unverified" caveat across every round of this benchmark.
+3. Run the new sr-only "Menu, closed/open" mobile-nav text past an actual screen reader (VoiceOver
+   or NVDA) — the implementation is correct by static analysis, but static analysis of
+   accessible-name computation has a real gap with what AT software actually announces in
+   practice, especially for the two-span swap pattern used here.
+
+**Explicitly UNVERIFIED in this environment** (carried forward, not newly introduced by round 3):
+
+- Real mobile device rendering at any viewport (320px, 375px, or otherwise) — no live browser
+  render/screenshot tool was available in this session; all responsive claims are CSS
+  hand-trace, not pixel-confirmed.
+- Real screen-reader behavior (VoiceOver/NVDA/JAWS) for the mobile nav's `<details>` disclosure
+  pattern and the new "Menu, closed"/"Menu, open" accessible-name swap — correctness argued from
+  DOM/CSS structure, not observed from an actual AT session.
+- Real Lighthouse/PageSpeed/WebPageTest performance numbers — every performance score across all
+  four rounds of this benchmark has been inferred from source/import/built-CSS inspection, never
+  from an actual page-load trace.
+- `dist/sitemap-index.xml`'s literal generated content — `dist/` remains permission-blocked for
+  direct reads in this session across all four rounds; only the Astro build log's success
+  message and the integration's correct configuration have been used as evidence.
+- Actual link-preview rendering on Facebook/LinkedIn/X's real card-scraper infrastructure — the
+  `og:image` tags are spec-correct and locally verified (200, correct type, correct dimensions),
+  but no external platform's actual crawler/cache was exercised in this session.
