@@ -7,14 +7,16 @@
    `production` status glyph, and link hover/focus + basis markers.
 --------------------------------------------------------------------------- */
 @theme {
-  --color-paper:        #E8ECEF;
-  --color-paper-raised: #F2F4F6;
-  --color-ink:          #0E1620;
-  --color-ink-muted:    #424D57;
-  --color-rule:         #737F88;
-  --color-hairline:     #C3C9CD;
-  --color-accent:       #C8102E;
-  --color-accent-quiet: #F3DDE1;
+  /* Palette: "Porcelain & Sage" — warm porcelain ground, muted sage accent.
+     Replaces the cool blue-grey ledger + proof-red. See .design/PALETTE.md. */
+  --color-paper:        #FAF9F7;
+  --color-paper-raised: #F1EFEB;
+  --color-ink:          #1C1B1A;
+  --color-ink-muted:    #5C5955;
+  --color-rule:         #8A867F;
+  --color-hairline:     #DDD9D3;
+  --color-accent:       #4A6B5D;
+  --color-accent-quiet: #E4EAE6;
 
   --font-text:  "Spectral", ui-serif, Georgia, serif;
   --font-util:  "Archivo Variable", "Archivo", ui-sans-serif, system-ui, sans-serif;
@@ -50,18 +52,28 @@
 
   --dur-state:    120ms;
   --ease-state:   cubic-bezier(0.2, 0, 0, 1);
+
+  /* Entrance / reveal tier — same "fast in, no bounce, settle" character as
+     Fig. 1's spring (k=210, zeta=0.9), expressed as a cubic-bezier for
+     discrete state changes. See .design/MOTION.md #1. */
+  --dur-entrance:     480ms;
+  --ease-entrance:    cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-reveal:       420ms;
+  --ease-reveal:      cubic-bezier(0.22, 1, 0.36, 1);
+  --stagger-step:     60ms;
+  --stagger-step-lg:  90ms;
 }
 
 @media (prefers-color-scheme: dark) {
   @theme {
-    --color-paper:        #0E1620;
-    --color-paper-raised: #16202C;
-    --color-ink:          #E8ECEF;
-    --color-ink-muted:    #9FAAB3;
-    --color-rule:         #5A6874;
-    --color-hairline:     #2A3541;
-    --color-accent:       #FF4D5E;
-    --color-accent-quiet: #2A1A1F;
+    --color-paper:        #141413;
+    --color-paper-raised: #1D1D1B;
+    --color-ink:          #EDEBE8;
+    --color-ink-muted:    #A8A49E;
+    --color-rule:         #57544F;
+    --color-hairline:     #2A2927;
+    --color-accent:       #7FA893;
+    --color-accent-quiet: #20261F;
   }
 }
 
@@ -71,6 +83,13 @@
 @layer base {
   * {
     border-radius: 0 !important;
+  }
+
+  /* The `hidden` attribute must always win over any component-level
+     `display` declaration (e.g. Fig. 1's `.fig1-controls { display: flex }`),
+     so controls stay genuinely invisible with JS off. */
+  [hidden] {
+    display: none !important;
   }
 
   html {
@@ -135,6 +154,14 @@
    The sheet grid — margin-and-measure, not 12-column.
 --------------------------------------------------------------------------- */
 @layer components {
+  /*
+   * The rail column is an opt-in (`.sheet--rail`), not the default. Most
+   * sections have no rail content (no basis notes, no case metadata) — a
+   * bare `.sheet` centres the measure instead of reserving a dead 15rem
+   * column. Sections that actually carry rail content (Figures/basis notes,
+   * the case-study meta block) render inside a `.sheet--rail` (via
+   * `<Sheet rail>`), which brings the rail tracks back.
+   */
   .sheet {
     max-width: var(--page-max);
     margin-inline: auto;
@@ -147,8 +174,16 @@
       [full-end];
   }
 
+  .sheet--rail {
+    grid-template-columns:
+      [full-start] minmax(0, 1fr)
+      [measure-start] minmax(0, var(--measure))
+      [measure-end] minmax(0, 1fr)
+      [full-end];
+  }
+
   @media (min-width: 48rem) {
-    .sheet {
+    .sheet--rail {
       padding-inline: 2rem;
       grid-template-columns:
         [full-start rail-start] var(--rail-md) [rail-end] var(--gutter)
@@ -158,7 +193,7 @@
   }
 
   @media (min-width: 64rem) {
-    .sheet {
+    .sheet--rail {
       grid-template-columns:
         [full-start rail-start] var(--rail) [rail-end] var(--gutter)
         [measure-start] minmax(0, var(--measure)) [measure-end]
@@ -173,8 +208,11 @@
   .sheet .rail {
     grid-column: measure;
   }
+  .sheet--rail .rail {
+    grid-column: measure;
+  }
   @media (min-width: 48rem) {
-    .sheet .rail {
+    .sheet--rail .rail {
       grid-column: rail;
     }
   }
@@ -182,8 +220,11 @@
   .sheet .breakout {
     grid-column: measure;
   }
+  .sheet--rail .breakout {
+    grid-column: measure;
+  }
   @media (min-width: 48rem) {
-    .sheet .breakout {
+    .sheet--rail .breakout {
       grid-column: measure-start / full-end;
     }
   }
@@ -192,14 +233,8 @@
     grid-column: full;
   }
 
-  /* /about and /research: no apparatus rail, measure centred. */
-  .sheet--no-rail {
-    grid-template-columns:
-      [full-start] minmax(0, 1fr)
-      [measure-start] minmax(0, var(--measure))
-      [measure-end] minmax(0, 1fr)
-      [full-end];
-  }
+  /* Legacy alias: some markup still opts out explicitly. Equivalent to the
+     bare `.sheet` default. */
   .sheet--no-rail > * {
     grid-column: measure;
   }
@@ -307,15 +342,191 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Motion: the entire budget.
-   There is nothing to disable under prefers-reduced-motion — no entrance
-   animation, no scroll reveal, no parallax, no counters, no marquee exist
-   in this build. The media query below is asserted, not left empty.
+   Motion: hero entrance, scroll reveals, count-up, hover/focus. See
+   .design/MOTION.md. Everything here is triggered by load, scroll-into-view
+   (once), hover, or focus — never a loop or autoplay.
 --------------------------------------------------------------------------- */
+@layer components {
+  /* ---- Hero entrance (index.astro masthead). CSS only; JS's one job is
+     flipping `data-entrance="run"` on the wrapper after checking
+     prefers-reduced-motion. ---- */
+  [data-entrance] > * {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  [data-entrance="run"] > * {
+    transition:
+      opacity var(--dur-entrance) var(--ease-entrance),
+      transform var(--dur-entrance) var(--ease-entrance);
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  [data-entrance="run"] > *:nth-child(1) { transition-delay: 0ms; }
+  [data-entrance="run"] > *:nth-child(2) { transition-delay: 90ms; }
+  [data-entrance="run"] > *:nth-child(3) { transition-delay: 170ms; }
+  [data-entrance="run"] > *:nth-child(4) { transition-delay: 260ms; }
+
+  [data-entrance] .section-divider {
+    transform: scaleX(0);
+    transform-origin: left;
+    opacity: 1;
+  }
+
+  [data-entrance="run"] .section-divider {
+    transition: transform var(--dur-reveal) var(--ease-reveal);
+    transition-delay: 340ms;
+    transform: scaleX(1);
+  }
+
+  /* ---- Scroll-driven reveals: direction-aware, per content type. IO adds
+     [data-revealed] once; CSS transitions the motion. Never opacity-only,
+     never the same curve across two content types. ---- */
+  [data-reveal] {
+    transition: opacity var(--dur-reveal) var(--ease-reveal), transform var(--dur-reveal) var(--ease-reveal);
+  }
+
+  [data-reveal="heading"] {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  [data-reveal="heading"][data-revealed] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  [data-reveal="entry"] {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  [data-reveal="entry"][data-revealed] {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  [data-reveal="pub"] {
+    opacity: 0;
+    transform: translateY(10px);
+    transition-duration: 380ms;
+  }
+  [data-reveal="pub"][data-revealed] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  [data-reveal="rule"] {
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-reveal) var(--ease-reveal);
+  }
+  [data-reveal="rule"][data-revealed] {
+    transform: scaleX(1);
+  }
+
+  /* ---- Hover / focus micro-interactions ---- */
+  .link-underline {
+    display: inline-block;
+    position: relative;
+  }
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 160ms var(--ease-state);
+  }
+  .link-underline:hover::after,
+  .link-underline:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  .nav-link {
+    position: relative;
+  }
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 2px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 160ms var(--ease-state);
+  }
+  .nav-link:hover::after,
+  .nav-link:focus-visible::after {
+    transform: scaleX(1);
+  }
+  .nav-link[aria-current="page"]::after {
+    transform: scaleX(1);
+  }
+
+  .entry-row {
+    border-left: 2px solid transparent;
+    padding-left: 1rem;
+    transition: border-color var(--dur-state) var(--ease-state);
+  }
+  .entry-row:hover,
+  .entry-row:focus-within {
+    border-left-color: var(--color-accent);
+  }
+
+  .basis-note {
+    transition: background-color 240ms ease-out;
+    background-color: transparent;
+  }
+  .basis-note--flash {
+    background-color: var(--color-accent-quiet);
+  }
+
+  /* ---- Count-up numerals: layout-stable while animating ---- */
+  .metric-value.fig {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  /* Intentionally empty: the only motion on the site (120ms colour/underline
-     transitions on hover and :focus-visible) is not disorienting and needs
-     no reduction. Nothing else moves to begin with. */
+  [data-entrance] > *,
+  [data-entrance] .section-divider,
+  [data-reveal] {
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   View transitions: pin the chrome (nav, footer) so only the Sheet content
+   area crossfades between pages. Declarative only — no JS orchestration.
+--------------------------------------------------------------------------- */
+@view-transition {
+  navigation: auto;
+}
+
+nav, footer {
+  view-transition-name: chrome;
+}
+
+::view-transition-old(chrome),
+::view-transition-new(chrome) {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -726,43 +937,61 @@
    Figures (results table) / basis notes
 --------------------------------------------------------------------------- */
 @layer components {
-  .metrics-table {
-    margin-top: var(--space-block);
+  /*
+   * The results table + its basis notes are direct children of one grid
+   * (`.figures-grid`) so a note can sit on the exact same row as its metric
+   * — mobile stacks them (note directly under its row); desktop/tablet
+   * splits them across the measure and rail columns via `subgrid`, using
+   * explicit --rd row indices so alignment holds regardless of auto-flow.
+   */
+  .figures-grid {
+    grid-column: measure;
     display: grid;
-    grid-template-columns: auto 1fr auto;
-    column-gap: 1rem;
+    grid-template-columns: 1fr;
     row-gap: 0;
+    margin-top: var(--space-block);
+  }
+
+  @media (min-width: 48rem) {
+    .figures-grid {
+      grid-column: rail-start / full-end;
+      grid-template-columns: subgrid;
+    }
   }
 
   .metrics-row {
-    display: contents;
+    grid-column: 1;
+    grid-row: var(--rm);
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-para);
+    padding-block: var(--space-tight);
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  @media (min-width: 48rem) {
+    .metrics-row {
+      grid-column: measure-start / full-end;
+      grid-row: var(--rd);
+    }
   }
 
   .metric-value {
-    grid-column: 1;
+    flex: 0 0 auto;
     font-size: var(--text-figure);
     line-height: var(--text-figure--line-height);
     text-align: right;
-    align-self: center;
-    padding-block: var(--space-tight);
-    border-top: 1px solid var(--color-hairline);
+    min-width: 5ch;
   }
 
   .metric-label {
-    grid-column: 2;
-    align-self: center;
-    padding-block: var(--space-tight);
-    padding-inline-start: var(--space-para);
+    flex: 1 1 auto;
     font-size: var(--text-body);
     color: var(--color-ink);
-    border-top: 1px solid var(--color-hairline);
   }
 
   .metric-marker-cell {
-    grid-column: 3;
-    align-self: center;
-    padding-block: var(--space-tight);
-    border-top: 1px solid var(--color-hairline);
+    flex: 0 0 auto;
   }
 
   .metric-marker {
@@ -773,11 +1002,12 @@
   }
 
   .basis-list {
-    padding: 0;
-    margin-top: var(--space-tight);
+    display: contents;
   }
 
   .basis-note {
+    grid-column: 1;
+    grid-row: var(--rm);
     font-style: italic;
     font-size: var(--text-note);
     line-height: var(--text-note--line-height);
@@ -786,6 +1016,16 @@
     padding-left: var(--space-note);
     border-left: 2px solid var(--color-rule);
     margin-block: var(--space-tight);
+    align-self: start;
+  }
+
+  @media (min-width: 48rem) {
+    .basis-note {
+      grid-column: rail-start / rail-end;
+      grid-row: var(--rd);
+      margin-block: 0;
+      padding-top: var(--space-tight);
+    }
   }
 
   .basis-note-mark {

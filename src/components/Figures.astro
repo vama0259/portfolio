@@ -20,64 +20,76 @@ interface Props {
 
 const { metrics, prefix } = Astro.props;
 const letters = "abcdefghij";
+
+// Count-up target: only pure leading numerics animate (e.g. "95", "500").
+// Ranges, currency and mixed values ("$0.05-0.20", "27/wk") render as-is —
+// counting up half of a range or a currency symbol reads as a bug, not a
+// feature. See .design/MOTION.md #3.
+function countTarget(value: string): number | null {
+  const match = value.match(/^(\d+(?:\.\d+)?)\s*%?$/);
+  return match ? Number(match[1]) : null;
+}
 ---
 
 <Fragment>
-  <dl
-    class="breakout metrics-table"
-  >
-    {
-      metrics.map((m, i) => {
-        const marker = letters[i] ?? String(i + 1);
-        const id = `basis-${prefix}-${marker}`;
-        return (
-          <div
-            class="figures-row metrics-row"
-          >
-            <dt
-              class="fig metric-value"
-            >
-              {m.value}
-            </dt>
-            <dd
-              class="metric-label"
-            >
-              {m.label}
-            </dd>
-            <dd
-              class="metric-marker-cell"
-            >
-              <a
-                href={`#${id}`}
-                class="fig basis-marker metric-marker"
-                aria-label={`Basis for ${m.label}`}
+  <div class="figures-grid">
+    <dl class="basis-list-reset" style="display: contents;">
+      {
+        metrics.map((m, i) => {
+          const marker = letters[i] ?? String(i + 1);
+          const id = `basis-${prefix}-${marker}`;
+          const target = countTarget(m.value);
+          const suffix = target !== null ? m.value.replace(/^[\d.]+/, "") : "";
+          return (
+            <div class="metrics-row" style={`--rm: ${2 * i + 1}; --rd: ${i + 1}`}>
+              <dt
+                class="fig metric-value"
+                data-count={target !== null ? target : undefined}
+                data-count-suffix={target !== null ? suffix : undefined}
               >
-                [{marker}]
-              </a>
-            </dd>
-          </div>
-        );
-      })
-    }
-  </dl>
+                {m.value}
+              </dt>
+              <dd
+                class="metric-label"
+              >
+                {m.label}
+              </dd>
+              <dd
+                class="metric-marker-cell"
+              >
+                <a
+                  href={`#${id}`}
+                  class="fig basis-marker metric-marker"
+                  aria-label={`Basis for ${m.label}`}
+                >
+                  [{marker}]
+                </a>
+              </dd>
+            </div>
+          );
+        })
+      }
+    </dl>
 
-  <ul class="rail basis-list">
-    {
-      metrics.map((m, i) => {
-        const marker = letters[i] ?? String(i + 1);
-        const id = `basis-${prefix}-${marker}`;
-        return (
-          <li
-            id={id}
-            class="basis-note"
-          >
-            <span class="fig basis-note-mark">
-              [{marker}]
-            </span>
-            {m.basis}
-          </li>
-        );
-      })
-    }
-  </ul>
+    <ul class="rail basis-list">
+      {
+        metrics.map((m, i) => {
+          const marker = letters[i] ?? String(i + 1);
+          const id = `basis-${prefix}-${marker}`;
+          return (
+            <li
+              id={id}
+              class="basis-note"
+              style={`--rm: ${2 * i + 2}; --rd: ${i + 1}`}
+            >
+              <span class="fig basis-note-mark">
+                [{marker}]
+              </span>
+              {m.basis}
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
 </Fragment>

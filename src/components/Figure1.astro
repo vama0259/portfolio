@@ -54,11 +54,13 @@ const { steps, number = "1", caption } = Astro.props;
     </button>
   </div>
 
-  <div class="fig1-choice" hidden data-choice-panel>
-    <p class="u-label fig1-choice-prompt">Ambiguous schema match. Two tables fit this question equally well — which did the analyst mean?</p>
-    <div class="fig1-choice-opts">
-      <button type="button" class="fig1-btn" data-choice="a">Candidate A &mdash; narrower match</button>
-      <button type="button" class="fig1-btn" data-choice="b">Candidate B &mdash; broader match</button>
+  <div class="fig1-choice-slot" data-choice-slot>
+    <div class="fig1-choice" hidden data-choice-panel>
+      <p class="u-label fig1-choice-prompt">Ambiguous schema match. Two tables fit this question equally well — which did the analyst mean?</p>
+      <div class="fig1-choice-opts">
+        <button type="button" class="fig1-btn" data-choice="a">Candidate A &mdash; narrower match</button>
+        <button type="button" class="fig1-btn" data-choice="b">Candidate B &mdash; broader match</button>
+      </div>
     </div>
   </div>
 
@@ -188,6 +190,13 @@ const { steps, number = "1", caption } = Astro.props;
     min-height: 44px;
   }
 
+  /* Reserves the choice panel's rendered height (locked by JS the first time
+     it opens) so resolving the gate collapses the panel without shifting
+     the rest of the page or jumping scroll position. */
+  .fig1-choice-slot {
+    transition: min-height var(--dur-state) var(--ease-state);
+  }
+
   .fig1-choice {
     margin: 0 1.5rem var(--space-block);
     padding: var(--space-note);
@@ -274,6 +283,7 @@ const { steps, number = "1", caption } = Astro.props;
     const track = fig.querySelector<HTMLOListElement>(".fig1-track");
     const rows = Array.from(fig.querySelectorAll<HTMLLIElement>(".fig1-row"));
     const controls = fig.querySelector<HTMLElement>(".fig1-controls");
+    const choiceSlot = fig.querySelector<HTMLElement>("[data-choice-slot]");
     const choicePanel = fig.querySelector<HTMLElement>("[data-choice-panel]");
     const status = fig.querySelector<HTMLElement>("[data-status]");
     const curLabel = fig.querySelector<HTMLElement>("[data-cur]");
@@ -374,7 +384,18 @@ const { steps, number = "1", caption } = Astro.props;
       const gated = gateIndex >= 0 && current === gateIndex && !gateResolved;
       if (nextBtn) nextBtn.disabled = current === rows.length - 1 || gated;
       if (writeBtn) writeBtn.hidden = !(guardIndex >= 0 && current === guardIndex);
-      if (choicePanel) choicePanel.hidden = !gated;
+      if (choicePanel) {
+        choicePanel.hidden = !gated;
+        // Reserve the panel's rendered height on the slot the first time it
+        // opens, so resolving the gate (hiding it again) collapses within
+        // that reserved space instead of yanking the rest of the page and
+        // the scroll position upward.
+        if (gated && choiceSlot) {
+          requestAnimationFrame(() => {
+            choiceSlot.style.minHeight = `${choicePanel.scrollHeight}px`;
+          });
+        }
+      }
     }
 
     function moveTo(requested: number) {

@@ -33,7 +33,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://example.com
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#E8ECEF" />
+    <meta name="theme-color" content="#FAF9F7" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
@@ -74,5 +74,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://example.com
       </main>
       <Colophon />
     </div>
+
+    <script>
+      import { initMotion } from "../scripts/motion";
+      initMotion();
+    </script>
   </body>
 </html>

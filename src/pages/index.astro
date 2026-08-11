@@ -10,38 +10,49 @@ const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.
 ---
 
 <Base>
-  <!-- Masthead + abstract + results table: the whole first viewport. -->
-  <Sheet>
-    <div class="home-masthead">
-      <h1
-        class="u-display home-title"
-      >
-        {profile.name}
-      </h1>
-      <p class="home-subtitle">
-        Data scientist, generative AI and LLM engineering. {profile.roles[0].company}, Pune.
+  <!-- Masthead + abstract + results table: the whole first viewport.
+       `data-entrance` on the wrapper drives the 820ms hero choreography
+       (title, subtitle, lede, figures, then the divider) — see
+       .design/MOTION.md #2. JS flips it to "run" once, after checking
+       prefers-reduced-motion; first paint already shows the full text. -->
+  <div data-entrance>
+    <Sheet>
+      <div class="home-masthead">
+        <h1
+          class="u-display home-title"
+        >
+          {profile.name}
+        </h1>
+        <p class="home-subtitle">
+          Data scientist, generative AI and LLM engineering. {profile.roles[0].company}, Pune.
+        </p>
+      </div>
+    </Sheet>
+
+    <Sheet>
+      <p class="lede">
+        {profile.positioning}
       </p>
-    </div>
+    </Sheet>
 
-    <p class="lede">
-      {profile.positioning}
-    </p>
+    <Sheet rail>
+      <Figures metrics={profile.headline} prefix="home" />
+    </Sheet>
 
-    <Figures metrics={profile.headline} prefix="home" />
-  </Sheet>
-
-  <hr class="rule full section-divider" />
+    <hr class="rule full section-divider" />
+  </div>
 
   <!-- SS1 Selected work -->
   <Sheet>
     <h2
       class="u-label section-heading"
+      data-reveal="heading"
     >
       Selected work
     </h2>
     <div>
       {
-        work.map((entry) => (
+        work.map((entry, i) => (
           <Entry
             slug={entry.id}
             title={entry.data.title}
@@ -49,6 +60,7 @@ const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.
             status={entry.data.status}
             period={entry.data.period}
             stack={entry.data.stack}
+            revealIndex={i}
           />
         ))
       }
@@ -60,19 +72,20 @@ const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.
     </p>
   </Sheet>
 
-  <hr class="rule full section-divider" />
+  <hr class="rule full section-divider" data-reveal="rule" />
 
   <!-- SS2 Publications -->
   <Sheet>
     <h2
       class="u-label section-heading"
+      data-reveal="heading"
     >
       Publications
     </h2>
     <div>
       {
-        profile.publications.map((p) => (
-          <div class="pub-row">
+        profile.publications.map((p, i) => (
+          <div class="pub-row" data-reveal="pub" style={`transition-delay: ${i * 90}ms`}>
             <p class="fig pub-venue">
               {p.venue}
               {p.note.includes("First author") && (

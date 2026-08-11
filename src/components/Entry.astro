@@ -12,15 +12,20 @@ interface Props {
   status: "production" | "research" | "shipped";
   period: string;
   stack: readonly string[];
+  /** Position in the list; staggers the scroll-reveal, capped at 6 rows. */
+  revealIndex?: number;
 }
 
-const { slug, title, tagline, status, period, stack } = Astro.props;
+const { slug, title, tagline, status, period, stack, revealIndex } = Astro.props;
 const meta = [period, status, ...stack.slice(0, 4)];
+const delay = revealIndex !== undefined ? Math.min(revealIndex, 5) * 60 : 0;
 ---
 
 <a
   href={`/work/${slug}`}
   class="entry-link entry-row"
+  data-reveal="entry"
+  style={`transition-delay: ${delay}ms`}
 >
   <h3 class="entry-title">
     {title}

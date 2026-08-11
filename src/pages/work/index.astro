@@ -20,9 +20,9 @@ const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.
     </p>
   </Sheet>
 
-  <Sheet class="full">
+  <Sheet rail class="full">
     {
-      work.map((entry) => (
+      work.map((entry, i) => (
         <Fragment>
           <Entry
             slug={entry.id}
@@ -31,6 +31,7 @@ const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.
             status={entry.data.status}
             period={entry.data.period}
             stack={entry.data.stack}
+            revealIndex={i}
           />
           <Figures metrics={entry.data.metrics.slice(0, 2)} prefix={entry.id} />
         </Fragment>
