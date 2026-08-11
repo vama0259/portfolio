@@ -29,6 +29,8 @@
 
   --dur-state: 150ms;
   --ease-state: cubic-bezier(0.3, 0.7, 0.4, 1);
+
+  --shadow-panel: 0 8px 20px -12px rgba(18, 22, 27, 0.35);
 }
 
 /* ---------------------------------------------------------------------------
@@ -321,6 +323,14 @@
   .nav-mobile[open] > .nav-mobile-toggle::before {
     content: "\2715"; /* x */
   }
+  /* Accessible name tracks open/closed state without JS: both state spans
+     are in the DOM, but only one is exposed at a time via the native
+     [open] attribute — same complementary-visibility pattern already used
+     for the desktop/mobile nav landmarks. AT announces "Menu, closed" or
+     "Menu, open" instead of "Menu" unconditionally. */
+  .nav-mobile-state-open { display: none; }
+  .nav-mobile[open] > .nav-mobile-toggle .nav-mobile-state-open { display: inline; }
+  .nav-mobile[open] > .nav-mobile-toggle .nav-mobile-state-closed { display: none; }
   .nav-mobile-toggle:hover {
     border-color: var(--color-signal);
     color: var(--color-signal);
@@ -338,7 +348,7 @@
     right: 0;
     left: 0;
     z-index: 600;
-    box-shadow: 0 8px 20px -12px rgba(18, 22, 27, 0.35);
+    box-shadow: var(--shadow-panel);
   }
   @media (min-width: 481px) {
     .nav-mobile-list {
@@ -732,7 +742,7 @@
     border-color: var(--color-signal);
     background: #fff;
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px -12px rgba(18, 22, 27, 0.35);
+    box-shadow: var(--shadow-panel);
   }
   .react-step.done { border-color: var(--color-line-strong); }
   .react-step.done .n { color: var(--color-ok); }
@@ -1075,6 +1085,14 @@
   .case-tagline { font-size: 1.1rem; line-height: 1.6; color: var(--color-ink-soft); max-width: 60ch; margin-top: 0.6rem; }
   .case-owned { font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-muted); margin-top: 0.6rem; }
   .case-problem { font-size: 1.1rem; line-height: 1.6; color: var(--color-ink); max-width: 62ch; margin-top: 1.4rem; }
+
+  /* Lede/intro prose — about.astro's opening paragraphs. Reconciled to
+     .case-problem's 1.1rem/1.6 rather than the previous 1.15rem/1.65: the
+     case-study lede is the more established pattern (used across three
+     content files) and the two sizes were never intentionally distinct,
+     just drifted. */
+  .about-copy p { font-size: 1.1rem; line-height: 1.6; color: var(--color-ink); max-width: 62ch; }
+  .about-copy p + p { margin-top: 1.2rem; }
 
   .stack-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.6rem 0 0; padding: 0; list-style: none; }
   .stack-item {

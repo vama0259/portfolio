@@ -12,21 +12,23 @@ import { profile } from "../data/profile";
 
   <section>
     <div class="wrap">
-      <p style="font-size: 1.15rem; line-height: 1.65; color: var(--color-ink); max-width: 62ch;">
-        The through-line has been the same question in different clothes: how do you know the model is
-        right. At Samsung it was image restoration you could judge by eye. At Michelin it is a
-        natural-language interface to a pricing warehouse, where the answer looks equally plausible whether
-        or not it is correct, and eyeballing it stops working.
-      </p>
-      <p style="font-size: 1.15rem; line-height: 1.65; color: var(--color-ink); max-width: 62ch; margin-top: 1.2rem;">
-        That is why most of what I build now is evaluation and guardrails rather than models. Benchmarks
-        that exist before the system does, read-only enforcement that holds at every layer, gates that stop
-        the agent when it is uncertain instead of letting it guess confidently.
-      </p>
-      <p style="font-size: 1.15rem; line-height: 1.65; color: var(--color-ink); max-width: 62ch; margin-top: 1.2rem;">
-        I am in {profile.location}, and I am looking for work where the system has to hold up under real
-        users rather than a demo.
-      </p>
+      <div class="about-copy">
+        <p>
+          The through-line has been the same question in different clothes: how do you know the model is
+          right. At Samsung it was image restoration you could judge by eye. At Michelin it is a
+          natural-language interface to a pricing warehouse, where the answer looks equally plausible whether
+          or not it is correct, and eyeballing it stops working.
+        </p>
+        <p>
+          That is why most of what I build now is evaluation and guardrails rather than models. Benchmarks
+          that exist before the system does, read-only enforcement that holds at every layer, gates that stop
+          the agent when it is uncertain instead of letting it guess confidently.
+        </p>
+        <p>
+          I am in {profile.location}, and I am looking for work where the system has to hold up under real
+          users rather than a demo.
+        </p>
+      </div>
     </div>
   </section>
 

@@ -46,6 +46,8 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
     <details class="nav-mobile">
       <summary class="nav-mobile-toggle mono">
         Menu
+        <span class="sr-only nav-mobile-state-closed">, closed</span>
+        <span class="sr-only nav-mobile-state-open">, open</span>
       </summary>
       <nav aria-label="Primary (mobile)">
         <ul class="nav-mobile-list">
