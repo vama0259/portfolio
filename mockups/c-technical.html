@@ -1,0 +1,878 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Varun Malhotra — LLM Systems Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#EEF0EC;
+    --panel:#F7F8F5;
+    --ink:#12161B;
+    --ink-soft:#454E57;
+    --muted:#7C8790;
+    --line:#C7CCC3;
+    --line-strong:#9AA29A;
+    --signal:#2453D9;
+    --signal-dim:#1B3EA3;
+    --alert:#C4291A;
+    --ok:#1E7A4C;
+    --grid-w: 1360px;
+  }
+  *{box-sizing:border-box;}
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Source Sans 3', sans-serif;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--signal); color:#fff; }
+  a{ color:inherit; }
+
+  .display{ font-family:'Space Grotesk', sans-serif; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+
+  /* background technical grid */
+  .grid-bg{
+    position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(18,22,27,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(18,22,27,0.045) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  .wrap{ max-width:var(--grid-w); margin:0 auto; padding:0 2rem; }
+  @media (max-width:700px){ .wrap{ padding:0 1.1rem; } }
+
+  /* ---------- HEADER ---------- */
+  header{
+    position:sticky; top:0; z-index:500;
+    background:rgba(238,240,236,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line-strong);
+  }
+  .header-inner{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:0.95rem 2rem;
+    max-width:var(--grid-w); margin:0 auto;
+  }
+  @media (max-width:700px){ .header-inner{ padding:0.8rem 1.1rem; } }
+  .brand{
+    font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:0.98rem;
+    display:flex; align-items:center; gap:0.55rem; text-decoration:none;
+  }
+  .brand .tag{
+    font-family:'JetBrains Mono', monospace; font-size:0.62rem; color:var(--signal);
+    border:1px solid var(--signal); padding:0.15rem 0.4rem; letter-spacing:0.04em;
+  }
+  header nav{ display:flex; gap:1.9rem; align-items:center; }
+  header nav a{
+    font-family:'JetBrains Mono', monospace; font-size:0.72rem; text-transform:uppercase;
+    letter-spacing:0.07em; color:var(--ink-soft); text-decoration:none; position:relative;
+  }
+  header nav a::before{ content:"· "; color:var(--muted); }
+  header nav a:hover{ color:var(--signal); }
+  @media (max-width:760px){ header nav{ display:none; } }
+
+  section{ padding:4.4rem 0; border-bottom:1px solid var(--line); position:relative; }
+  section:last-of-type{ border-bottom:none; }
+
+  .kicker{
+    display:flex; align-items:center; gap:0.9rem; margin-bottom:2.4rem;
+  }
+  .kicker .idx{ font-family:'JetBrains Mono', monospace; font-size:0.78rem; color:var(--signal); font-weight:600; }
+  .kicker h2{
+    font-family:'Space Grotesk', sans-serif; font-size:0.82rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.12em; margin:0; color:var(--ink);
+  }
+  .kicker .rule{ flex:1; height:1px; background:var(--line); }
+  .kicker .meta{ font-family:'JetBrains Mono', monospace; font-size:0.68rem; color:var(--muted); }
+
+  /* ---------- HERO ---------- */
+  .hero{ padding-top:3.2rem; border-bottom:1px solid var(--line-strong); }
+  .hero-grid{
+    display:grid; grid-template-columns: 1fr 340px; gap:3rem; align-items:start;
+  }
+  @media (max-width:900px){ .hero-grid{ grid-template-columns:1fr; gap:2rem; } }
+  .hero-tag{
+    font-family:'JetBrains Mono', monospace; font-size:0.74rem; color:var(--signal);
+    text-transform:uppercase; letter-spacing:0.1em; margin-bottom:1.2rem;
+    display:flex; align-items:center; gap:0.6rem;
+  }
+  .hero-tag .sw{ width:8px; height:8px; background:var(--signal); }
+  h1.hero-title{
+    font-family:'Space Grotesk', sans-serif; font-weight:700;
+    font-size:clamp(2.4rem, 5.2vw, 4.4rem);
+    line-height:1.04; letter-spacing:-0.01em; margin:0 0 1.4rem 0;
+  }
+  h1.hero-title .accent{ color:var(--signal); }
+  .hero-sub{ font-size:1.14rem; line-height:1.6; color:var(--ink-soft); max-width:56ch; margin:0 0 1.6rem 0; }
+  .hero-role{ font-family:'JetBrains Mono', monospace; font-size:0.8rem; color:var(--muted); }
+  .hero-role strong{ color:var(--ink); font-weight:600; }
+
+  .hero-panel{
+    border:1px solid var(--line-strong); background:var(--panel);
+  }
+  .hero-panel .row{
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding:0.85rem 1.1rem; border-bottom:1px solid var(--line);
+    font-family:'JetBrains Mono', monospace; font-size:0.78rem;
+  }
+  .hero-panel .row:last-child{ border-bottom:none; }
+  .hero-panel .row .k{ color:var(--muted); }
+  .hero-panel .row .v{ color:var(--ink); font-weight:600; }
+  .hero-panel .head{
+    padding:0.7rem 1.1rem; background:var(--ink); color:var(--paper);
+    font-family:'JetBrains Mono', monospace; font-size:0.68rem; text-transform:uppercase;
+    letter-spacing:0.1em;
+  }
+
+  /* ---------- METRICS / CHARTS ---------- */
+  .chart-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.4rem; }
+  @media (max-width:900px){ .chart-grid{ grid-template-columns:1fr; } }
+  .chart-card{
+    border:1px solid var(--line-strong); background:var(--panel); padding:1.5rem 1.5rem 1.2rem;
+  }
+  .chart-card h3{
+    font-family:'Space Grotesk', sans-serif; font-size:1rem; margin:0 0 0.2rem 0; font-weight:600;
+  }
+  .chart-card .basis{
+    font-family:'JetBrains Mono', monospace; font-size:0.68rem; color:var(--muted);
+    text-transform:uppercase; letter-spacing:0.03em; margin-bottom:1rem;
+  }
+  .chart-card svg{ display:block; width:100%; height:auto; }
+  .axis-label{ font-family:'JetBrains Mono', monospace; font-size:9px; fill:var(--muted); }
+  .bar-fill{ fill:var(--signal); }
+  .bar-track{ fill:none; stroke:var(--line-strong); stroke-width:1; }
+  .val-label{ font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700; fill:var(--ink); }
+  .grid-line{ stroke:var(--line); stroke-width:1; }
+
+  /* ---------- REACT DIAGRAM ---------- */
+  .diagram-shell{
+    border:1px solid var(--line-strong); background:var(--panel);
+  }
+  .diagram-toolbar{
+    display:flex; justify-content:space-between; align-items:center; gap:1rem;
+    padding:0.9rem 1.2rem; border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .diagram-toolbar .title{ font-family:'JetBrains Mono', monospace; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
+  .diagram-controls{ display:flex; gap:0.5rem; flex-wrap:wrap; }
+  .btn{
+    font-family:'JetBrains Mono', monospace; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em;
+    padding:0.45rem 0.85rem; border:1px solid var(--ink); background:var(--ink); color:var(--paper);
+    cursor:pointer; transition:transform .15s cubic-bezier(.3,.7,.4,1), background .15s;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn:active{ transform:translateY(0); }
+  .btn.ghost{ background:transparent; color:var(--ink); }
+  .btn.ghost:hover{ background:var(--ink); color:var(--paper); }
+  .btn.danger{ border-color:var(--alert); background:var(--alert); }
+  .btn.danger.ghost{ background:transparent; color:var(--alert); }
+  .btn.danger.ghost:hover{ background:var(--alert); color:#fff; }
+  .btn:disabled{ opacity:0.35; cursor:not-allowed; transform:none; }
+
+  .react-track{
+    padding:2rem 1.2rem 1.4rem;
+    display:grid; grid-template-columns:repeat(6,1fr); gap:0.6rem;
+    position:relative;
+  }
+  @media (max-width:960px){ .react-track{ grid-template-columns:1fr; } }
+  .react-step{
+    border:1px solid var(--line-strong); background:var(--paper);
+    padding:0.9rem 0.8rem; position:relative; min-height:150px;
+    display:flex; flex-direction:column; gap:0.5rem;
+    transition:border-color .18s, background .18s, transform .18s cubic-bezier(.3,.7,.4,1);
+    cursor:pointer;
+  }
+  .react-step .n{ font-family:'JetBrains Mono', monospace; font-size:0.68rem; color:var(--muted); }
+  .react-step h4{ font-family:'Space Grotesk', sans-serif; font-size:0.86rem; margin:0; font-weight:600; line-height:1.25; }
+  .react-step p{ font-family:'JetBrains Mono', monospace; font-size:0.66rem; line-height:1.45; color:var(--ink-soft); margin:0; }
+  .react-step .flag{
+    margin-top:auto; font-family:'JetBrains Mono', monospace; font-size:0.6rem; text-transform:uppercase;
+    letter-spacing:0.05em; color:var(--signal); border-top:1px dashed var(--line-strong); padding-top:0.4rem;
+  }
+  .react-step.active{ border-color:var(--signal); background:#fff; transform:translateY(-3px); box-shadow:0 8px 20px -12px rgba(18,22,27,0.35); }
+  .react-step.done{ border-color:var(--line-strong); }
+  .react-step.done .n{ color:var(--ok); }
+  .react-step.critical .flag{ color:var(--alert); }
+  .react-step.critical.active{ border-color:var(--alert); }
+  .react-step.rejecting{ border-color:var(--alert); background:#FCEEEC; animation:shake 0.4s cubic-bezier(.3,.3,.5,1); }
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    20%{ transform:translateX(-6px); }
+    40%{ transform:translateX(5px); }
+    60%{ transform:translateX(-3px); }
+    80%{ transform:translateX(2px); }
+  }
+  .react-arrow{
+    display:none;
+  }
+  @media (min-width:961px){
+    .react-arrow{
+      display:block; position:absolute; top:50%; right:-0.55rem; transform:translateY(-50%);
+      width:0.9rem; height:1px; background:var(--line-strong); z-index:2;
+    }
+    .react-arrow::after{
+      content:""; position:absolute; right:-1px; top:50%; transform:translateY(-50%);
+      width:0; height:0; border-top:4px solid transparent; border-bottom:4px solid transparent;
+      border-left:5px solid var(--line-strong);
+    }
+  }
+
+  .react-console{
+    border-top:1px solid var(--line-strong); padding:1.1rem 1.2rem 1.3rem;
+    background:var(--ink); color:#D7DCE0;
+  }
+  .react-console .line{
+    font-family:'JetBrains Mono', monospace; font-size:0.78rem; line-height:1.7;
+    white-space:pre-wrap; word-break:break-word;
+  }
+  .react-console .line .p{ color:#6E8AE0; }
+  .react-console .line.ok .p{ color:#4FC08D; }
+  .react-console .line.err{ color:#F08A7E; }
+  .react-console .line.err .p{ color:#F08A7E; }
+  .react-console .cursor{ display:inline-block; width:7px; height:14px; background:#D7DCE0; vertical-align:-2px; animation:blink 1s step-end infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .guardrail-demo{
+    padding:1.1rem 1.2rem 1.4rem; border-top:1px solid var(--line-strong);
+    display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;
+  }
+  @media (max-width:760px){ .guardrail-demo{ grid-template-columns:1fr; } }
+  .guardrail-demo .col{ border:1px solid var(--line-strong); background:var(--paper); padding:1rem; }
+  .guardrail-demo h5{
+    font-family:'JetBrains Mono', monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em;
+    margin:0 0 0.7rem 0; color:var(--muted);
+  }
+  .qbtn{
+    display:block; width:100%; text-align:left; margin-bottom:0.5rem;
+    font-family:'JetBrains Mono', monospace; font-size:0.72rem;
+    padding:0.55rem 0.7rem; border:1px solid var(--line-strong); background:#fff; color:var(--ink);
+    cursor:pointer; transition:border-color .15s, background .15s;
+  }
+  .qbtn:hover{ border-color:var(--signal); }
+  .qbtn.write{ }
+  .qbtn.write:hover{ border-color:var(--alert); color:var(--alert); }
+  .verdict{
+    min-height:64px; font-family:'JetBrains Mono', monospace; font-size:0.76rem;
+    padding:0.8rem; border:1px dashed var(--line-strong); color:var(--muted);
+    display:flex; align-items:center; gap:0.6rem;
+  }
+  .verdict.pass{ border-color:var(--ok); color:var(--ok); border-style:solid; background:rgba(30,122,76,0.06); }
+  .verdict.fail{ border-color:var(--alert); color:var(--alert); border-style:solid; background:rgba(196,41,26,0.06); }
+
+  /* ---------- WORK ---------- */
+  .work-table{ width:100%; border-collapse:collapse; }
+  .work-row{ border-top:1px solid var(--line); }
+  .work-row:last-child{ border-bottom:1px solid var(--line); }
+  .work-entry{
+    display:grid; grid-template-columns:64px 1fr 260px; gap:1.6rem; padding:2rem 0; align-items:start;
+  }
+  @media (max-width:880px){ .work-entry{ grid-template-columns:1fr; gap:0.9rem; padding:1.6rem 0; } }
+  .work-entry .idx{ font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--muted); padding-top:0.2rem; }
+  .work-entry .status{
+    display:inline-block; font-family:'JetBrains Mono', monospace; font-size:0.62rem; text-transform:uppercase;
+    letter-spacing:0.06em; padding:0.2rem 0.5rem; border:1px solid var(--ok); color:var(--ok); margin-bottom:0.8rem;
+  }
+  .work-entry .status.research{ border-color:var(--signal); color:var(--signal); }
+  .work-entry .status.shipped{ border-color:var(--ink-soft); color:var(--ink-soft); }
+  .work-entry h3{ font-family:'Space Grotesk', sans-serif; font-size:1.55rem; margin:0 0 0.6rem 0; font-weight:600; }
+  .work-entry .quote{ font-size:1.02rem; color:var(--ink-soft); line-height:1.55; margin:0 0 1rem 0; max-width:52ch; }
+  .work-stack{ display:flex; flex-wrap:wrap; gap:0.4rem; }
+  .work-stack span{
+    font-family:'JetBrains Mono', monospace; font-size:0.65rem; color:var(--ink-soft);
+    border:1px solid var(--line-strong); padding:0.22rem 0.5rem;
+  }
+  .work-metrics{ display:flex; flex-direction:column; gap:0.75rem; }
+  .work-metrics .wm{ border-left:2px solid var(--line-strong); padding-left:0.8rem; }
+  .work-metrics .wm .v{ font-family:'JetBrains Mono', monospace; font-size:1.05rem; color:var(--ink); font-weight:700; }
+  .work-metrics .wm .k{ font-family:'JetBrains Mono', monospace; font-size:0.66rem; color:var(--muted); margin-top:0.15rem; }
+
+  /* ---------- PUBLICATIONS ---------- */
+  .pub-row{
+    display:grid; grid-template-columns:110px 1fr auto; gap:1.2rem; align-items:baseline;
+    padding:1.1rem 0; border-top:1px solid var(--line);
+  }
+  .pub-row:last-child{ border-bottom:1px solid var(--line); }
+  .pub-row .venue{ font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:var(--signal); font-weight:700; }
+  .pub-row h4{ font-family:'Space Grotesk', sans-serif; font-size:1.02rem; margin:0 0 0.25rem 0; font-weight:600; }
+  .pub-row p{ margin:0; font-family:'JetBrains Mono', monospace; font-size:0.7rem; color:var(--muted); }
+  .pub-row .tag{ font-family:'JetBrains Mono', monospace; font-size:0.65rem; color:var(--muted); white-space:nowrap; }
+  @media (max-width:700px){ .pub-row{ grid-template-columns:1fr; } .pub-row .venue{ order:-1; } }
+
+  /* ---------- ABOUT / CONTACT ---------- */
+  .about-grid{ display:grid; grid-template-columns:1.4fr 1fr; gap:3rem; }
+  @media (max-width:880px){ .about-grid{ grid-template-columns:1fr; } }
+  .about-copy p{ font-size:1.04rem; line-height:1.65; color:var(--ink-soft); max-width:58ch; }
+  .about-copy strong{ color:var(--ink); font-weight:700; }
+  .edu-panel{ border:1px solid var(--line-strong); background:var(--panel); padding:1.1rem 1.2rem; margin-top:1.6rem; }
+  .edu-panel .k{ font-family:'JetBrains Mono', monospace; font-size:0.66rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:0.4rem; }
+  .edu-panel .v{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:0.98rem; }
+  .edu-panel .g{ font-family:'JetBrains Mono', monospace; font-size:0.76rem; color:var(--ink-soft); margin-top:0.3rem; }
+
+  .contact-panel{ border:1px solid var(--ink); background:var(--ink); color:var(--paper); padding:2rem; }
+  .contact-panel h3{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:1.4rem; margin:0 0 1.1rem 0; }
+  .contact-panel a.email{
+    font-family:'JetBrains Mono', monospace; font-size:1rem; color:#fff; text-decoration:none;
+    border-bottom:1px solid rgba(255,255,255,0.4); padding-bottom:0.25rem; display:inline-block;
+    transition:border-color .2s;
+  }
+  .contact-panel a.email:hover{ border-color:var(--signal); color:var(--signal); }
+  .contact-panel .loc{ margin-top:1.6rem; font-family:'JetBrains Mono', monospace; font-size:0.72rem; opacity:0.7; text-transform:uppercase; letter-spacing:0.06em; }
+
+  footer{
+    padding:2rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;
+    font-family:'JetBrains Mono', monospace; font-size:0.68rem; color:var(--muted);
+    max-width:var(--grid-w); margin:0 auto;
+  }
+
+  [data-fade]{ opacity:0; transform:translateY(14px); transition:opacity .5s cubic-bezier(.22,1,.36,1), transform .5s cubic-bezier(.22,1,.36,1); }
+  [data-fade].in{ opacity:1; transform:none; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+    [data-fade]{ opacity:1 !important; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg" aria-hidden="true"></div>
+
+<header>
+  <div class="header-inner">
+    <a class="brand" href="#top">Varun Malhotra <span class="tag">SYS</span></a>
+    <nav>
+      <a href="#metrics">Metrics</a>
+      <a href="#diagram">Fig. 1</a>
+      <a href="#work">Work</a>
+      <a href="#publications">Papers</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="hero-tag"><span class="sw"></span> Data Scientist — Generative AI &amp; LLM Engineer</div>
+        <h1 class="hero-title">Systems that go to <span class="accent">production</span><br/>and stay there.</h1>
+        <p class="hero-sub">I build LLM systems that go to production and stay there — agent architectures, the evaluation stacks that prove they work, and the guardrails that keep them honest.</p>
+        <div class="hero-role">Michelin <span style="color:var(--line-strong)">/</span> Pune, India <span style="color:var(--line-strong)">/</span> <strong>vama0259@gmail.com</strong></div>
+      </div>
+      <div class="hero-panel">
+        <div class="head">Live figures — basis logged</div>
+        <div class="row"><span class="k">Analysts served</span><span class="v">50+</span></div>
+        <div class="row"><span class="k">Benchmark accuracy</span><span class="v">95%</span></div>
+        <div class="row"><span class="k">Analyst hrs saved / wk</span><span class="v">27</span></div>
+        <div class="row"><span class="k">Cost / query</span><span class="v">$0.05–0.20</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ METRICS AS DATA ============ -->
+  <section id="metrics">
+    <div class="wrap">
+      <div class="kicker">
+        <span class="idx">01</span>
+        <h2>Results, plotted</h2>
+        <span class="rule"></span>
+        <span class="meta">n = 500-question benchmark unless noted</span>
+      </div>
+
+      <div class="chart-grid">
+
+        <!-- Chart 1: accuracy vs threshold -->
+        <div class="chart-card" data-fade>
+          <h3>Benchmark accuracy</h3>
+          <div class="basis">Basis — 500-question internal benchmark</div>
+          <svg viewBox="0 0 300 190" id="chart-accuracy">
+            <line class="grid-line" x1="30" y1="20" x2="30" y2="150"></line>
+            <line class="grid-line" x1="30" y1="150" x2="280" y2="150"></line>
+            <text class="axis-label" x="4" y="24">100</text>
+            <text class="axis-label" x="8" y="61">75</text>
+            <text class="axis-label" x="8" y="98">50</text>
+            <text class="axis-label" x="8" y="135">25</text>
+            <text class="axis-label" x="12" y="158">0</text>
+            <line class="grid-line" x1="30" y1="20" x2="280" y2="20" stroke-dasharray="2,3" opacity="0.5"></line>
+            <line class="grid-line" x1="30" y1="57" x2="280" y2="57" stroke-dasharray="2,3" opacity="0.5"></line>
+            <line class="grid-line" x1="30" y1="94" x2="280" y2="94" stroke-dasharray="2,3" opacity="0.5"></line>
+            <line class="grid-line" x1="30" y1="131" x2="280" y2="131" stroke-dasharray="2,3" opacity="0.5"></line>
+            <rect class="bar-track" x="90" y="20" width="90" height="130"></rect>
+            <rect class="bar-fill" id="bar-accuracy" x="90" y="150" width="90" height="0"></rect>
+            <text class="val-label" id="val-accuracy" x="102" y="43" opacity="0">95%</text>
+            <text class="axis-label" x="103" y="168">correct</text>
+          </svg>
+        </div>
+
+        <!-- Chart 2: consistency -->
+        <div class="chart-card" data-fade>
+          <h3>Run-to-run consistency</h3>
+          <div class="basis">Basis — repeated identical queries, production trace sample</div>
+          <svg viewBox="0 0 300 190" id="chart-consistency">
+            <line class="grid-line" x1="30" y1="20" x2="30" y2="150"></line>
+            <line class="grid-line" x1="30" y1="150" x2="280" y2="150"></line>
+            <text class="axis-label" x="4" y="24">100</text>
+            <text class="axis-label" x="8" y="61">75</text>
+            <text class="axis-label" x="8" y="98">50</text>
+            <text class="axis-label" x="8" y="135">25</text>
+            <text class="axis-label" x="12" y="158">0</text>
+            <line class="grid-line" x1="30" y1="20" x2="280" y2="20" stroke-dasharray="2,3" opacity="0.5"></line>
+            <line class="grid-line" x1="30" y1="57" x2="280" y2="57" stroke-dasharray="2,3" opacity="0.5"></line>
+            <line class="grid-line" x1="30" y1="94" x2="280" y2="94" stroke-dasharray="2,3" opacity="0.5"></line>
+            <line class="grid-line" x1="30" y1="131" x2="280" y2="131" stroke-dasharray="2,3" opacity="0.5"></line>
+            <rect class="bar-track" x="90" y="20" width="90" height="130"></rect>
+            <rect class="bar-fill" id="bar-consistency" x="90" y="150" width="90" height="0"></rect>
+            <text class="val-label" id="val-consistency" x="102" y="60" opacity="0">85%</text>
+            <text class="axis-label" x="95" y="168">identical output</text>
+          </svg>
+        </div>
+
+        <!-- Chart 3: component ID lift, before/after -->
+        <div class="chart-card" data-fade>
+          <h3>Component identification</h3>
+          <div class="basis">Basis — GPT-4-mini, autonomous web agent eval, MLDS 2025</div>
+          <svg viewBox="0 0 300 190" id="chart-lift">
+            <line class="grid-line" x1="30" y1="20" x2="30" y2="150"></line>
+            <line class="grid-line" x1="30" y1="150" x2="280" y2="150"></line>
+            <text class="axis-label" x="4" y="24">100</text>
+            <text class="axis-label" x="8" y="61">75</text>
+            <text class="axis-label" x="8" y="98">50</text>
+            <text class="axis-label" x="8" y="135">25</text>
+            <text class="axis-label" x="12" y="158">0</text>
+            <line class="grid-line" x1="30" y1="20" x2="280" y2="20" stroke-dasharray="2,3" opacity="0.5"></line>
+            <line class="grid-line" x1="30" y1="57" x2="280" y2="57" stroke-dasharray="2,3" opacity="0.5"></line>
+            <line class="grid-line" x1="30" y1="94" x2="280" y2="94" stroke-dasharray="2,3" opacity="0.5"></line>
+            <line class="grid-line" x1="30" y1="131" x2="280" y2="131" stroke-dasharray="2,3" opacity="0.5"></line>
+            <rect class="bar-track" x="60" y="20" width="55" height="130"></rect>
+            <rect x="60" y="150" width="55" height="0" fill="var(--line-strong)" id="bar-lift-before"></rect>
+            <text class="val-label" x="66" y="140" opacity="0" id="val-lift-before">30%</text>
+            <text class="axis-label" x="62" y="168">before</text>
+
+            <rect class="bar-track" x="180" y="20" width="55" height="130"></rect>
+            <rect class="bar-fill" x="180" y="150" width="55" height="0" id="bar-lift-after"></rect>
+            <text class="val-label" x="176" y="60" opacity="0" id="val-lift-after">59–68%</text>
+            <text class="axis-label" x="182" y="168">after</text>
+          </svg>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REACT DIAGRAM ============ -->
+  <section id="diagram">
+    <div class="wrap">
+      <div class="kicker">
+        <span class="idx">02</span>
+        <h2>Fig. 1 — the ReAct loop, operated</h2>
+        <span class="rule"></span>
+        <span class="meta">Talk to Data · production</span>
+      </div>
+
+      <p style="max-width:64ch; color:var(--ink-soft); font-size:0.98rem; line-height:1.6; margin:0 0 1.6rem;">
+        Six steps, one loop, run against a live query below. Step through it manually, or try to
+        push a write past the guardrail — it will not reach the database, and the trace shows
+        exactly why.
+      </p>
+
+      <div class="diagram-shell">
+        <div class="diagram-toolbar">
+          <div class="title">Trace — step 0 / 6</div>
+          <div class="diagram-controls">
+            <button class="btn ghost" id="btn-reset">Reset</button>
+            <button class="btn" id="btn-step">Step →</button>
+          </div>
+        </div>
+
+        <div class="react-track" id="react-track">
+          <div class="react-step" data-step="1">
+            <div class="react-arrow"></div>
+            <span class="n">01 / retrieve</span>
+            <h4>Question arrives</h4>
+            <p>Natural language. No SQL assumed — an analyst types the question they'd ask a colleague.</p>
+          </div>
+          <div class="react-step" data-step="2">
+            <div class="react-arrow"></div>
+            <span class="n">02 / retrieve</span>
+            <h4>Memory recall</h4>
+            <p>mem0 + PostgreSQL retrieve this analyst's own terminology and past query patterns.</p>
+          </div>
+          <div class="react-step critical" data-step="3">
+            <div class="react-arrow"></div>
+            <span class="n">03 / plan</span>
+            <h4>Schema selection</h4>
+            <p>3 tables resolved from a 50-table semantic layer. Wrong table here means a wrong answer downstream.</p>
+            <span class="flag">Critical step</span>
+          </div>
+          <div class="react-step critical" data-step="4">
+            <div class="react-arrow"></div>
+            <span class="n">04 / act</span>
+            <h4>Guardrail</h4>
+            <p>Read-only enforced. No write or DDL statement reaches the database, regardless of what the model proposes.</p>
+            <span class="flag">Critical step</span>
+          </div>
+          <div class="react-step" data-step="5">
+            <div class="react-arrow"></div>
+            <span class="n">05 / act</span>
+            <h4>Execution</h4>
+            <p>SQL runs over Dremio via MCP. Only statements that clear the guardrail get here.</p>
+          </div>
+          <div class="react-step" data-step="6">
+            <span class="n">06 / respond</span>
+            <h4>Answer</h4>
+            <p>Charted result returned to the analyst. Cost and latency logged to MLflow for every call.</p>
+          </div>
+        </div>
+
+        <div class="react-console" id="react-console" aria-live="polite">
+          <div class="line mono">$ <span class="p">awaiting input</span> <span class="cursor"></span></div>
+        </div>
+
+        <div class="guardrail-demo">
+          <div class="col">
+            <h5>Try a query</h5>
+            <button class="qbtn" data-q="read" data-text="What was Q3 revenue for the Iberia market?">SELECT-style · "What was Q3 revenue for the Iberia market?"</button>
+            <button class="qbtn" data-q="read" data-text="Which analysts ran the most queries last week?">SELECT-style · "Which analysts ran the most queries last week?"</button>
+            <button class="qbtn write" data-q="write" data-text="Update the Iberia Q3 revenue figure to 4.2M.">WRITE attempt · "Update the Iberia Q3 revenue figure to 4.2M."</button>
+            <button class="qbtn write" data-q="write" data-text="Drop the stale pricing_backup table.">DDL attempt · "Drop the stale pricing_backup table."</button>
+          </div>
+          <div class="col">
+            <h5>Guardrail verdict</h5>
+            <div class="verdict" id="verdict">Select a query on the left to run it through the guardrail.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WORK ============ -->
+  <section id="work">
+    <div class="wrap">
+      <div class="kicker">
+        <span class="idx">03</span>
+        <h2>Selected work</h2>
+        <span class="rule"></span>
+      </div>
+
+      <table class="work-table"><tbody>
+        <tr class="work-row"><td colspan="1">
+        <div class="work-entry" data-fade>
+          <div class="idx mono">01</div>
+          <div>
+            <span class="status">Production · 2024–present</span>
+            <h3>Talk to Data</h3>
+            <p class="quote">"Fifty analysts were filing tickets to ask questions about their own data."</p>
+            <div class="work-stack">
+              <span>LangGraph</span><span>ReAct agents</span><span>Dremio MCP</span><span>mem0</span>
+              <span>PostgreSQL</span><span>MLflow</span><span>Azure ML</span><span>Kubernetes</span><span>React / TS</span>
+            </div>
+          </div>
+          <div class="work-metrics">
+            <div class="wm"><div class="v">50+</div><div class="k">analysts on the system</div></div>
+            <div class="wm"><div class="v">95%</div><div class="k">accuracy, 500-question benchmark</div></div>
+            <div class="wm"><div class="v">$0.05–0.20</div><div class="k">cost / query, tracked in MLflow</div></div>
+            <div class="wm"><div class="v">85%</div><div class="k">run-to-run consistency</div></div>
+          </div>
+        </div>
+        </td></tr>
+
+        <tr class="work-row"><td>
+        <div class="work-entry" data-fade>
+          <div class="idx mono">02</div>
+          <div>
+            <span class="status research">Research · 2024–2025</span>
+            <h3>Autonomous Web Agent</h3>
+            <p class="quote">"The model could see the page. It could not tell you which box was the submit button."</p>
+            <div class="work-stack">
+              <span>GPT-4-mini</span><span>DOM grounding</span><span>Component ID</span><span>Evaluation harness</span>
+            </div>
+          </div>
+          <div class="work-metrics">
+            <div class="wm"><div class="v">30% → 59–68%</div><div class="k">component identification, GPT-4-mini</div></div>
+            <div class="wm"><div class="v">MLDS 2025</div><div class="k">first author, peer-reviewed</div></div>
+          </div>
+        </div>
+        </td></tr>
+
+        <tr class="work-row"><td>
+        <div class="work-entry" data-fade>
+          <div class="idx mono">03</div>
+          <div>
+            <span class="status shipped">Shipped · 2024</span>
+            <h3>Stratified Anomaly Detection</h3>
+            <p class="quote">"Compare every market to every other market and the small ones all look like errors."</p>
+            <div class="work-stack">
+              <span>Stratified sampling</span><span>Outlier detection</span><span>Sales pipeline</span>
+            </div>
+          </div>
+          <div class="work-metrics">
+            <div class="wm"><div class="v">Default</div><div class="k">cleaning stage, every sales pipeline</div></div>
+          </div>
+        </div>
+        </td></tr>
+      </tbody></table>
+    </div>
+  </section>
+
+  <!-- ============ PUBLICATIONS ============ -->
+  <section id="publications">
+    <div class="wrap">
+      <div class="kicker">
+        <span class="idx">04</span>
+        <h2>Publications</h2>
+        <span class="rule"></span>
+      </div>
+
+      <div class="pub-row" data-fade>
+        <div class="venue">MLDS 2025</div>
+        <div>
+          <h4>Autonomous web agent for enterprise workflows</h4>
+          <p>First author</p>
+        </div>
+        <div class="tag">Peer-reviewed</div>
+      </div>
+      <div class="pub-row" data-fade>
+        <div class="venue">MLDS 2024</div>
+        <div>
+          <h4>VAE and GAN models for 3D reconstruction of mechanical parts</h4>
+          <p>Co-authored</p>
+        </div>
+        <div class="tag">Peer-reviewed</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT / CONTACT ============ -->
+  <section id="about">
+    <div class="wrap about-grid">
+      <div class="about-copy" data-fade>
+        <div class="kicker">
+          <span class="idx">05</span>
+          <h2>About</h2>
+          <span class="rule"></span>
+        </div>
+        <p>
+          I'm <strong>Varun Malhotra</strong>, a Data Scientist working on generative AI and LLM
+          engineering at <strong>Michelin</strong> in Pune, India. My work sits across three
+          layers of the same problem: <strong>agent architecture</strong> — deciding what an LLM
+          system is allowed to do and when it should stop and ask; <strong>evaluation</strong> —
+          building the benchmarks that prove a system works before a user finds out it doesn't;
+          and <strong>guardrails</strong> — the read-only boundaries and human-in-the-loop gates
+          that keep an autonomous system honest in production.
+        </p>
+        <p>
+          On Talk to Data I own the agent architecture, LLMOps, security and frontend
+          workstreams — I architect, build, and engineer the system end to end.
+        </p>
+        <div class="edu-panel">
+          <div class="k">Education</div>
+          <div class="v">B.Tech, Computer Science (Big Data Analytics)</div>
+          <div class="g">SRM Institute · 9.25 / 10 GPA · 2020–2024</div>
+        </div>
+      </div>
+
+      <div data-fade id="contact">
+        <div class="contact-panel">
+          <h3>Let's talk shop.</h3>
+          <a class="email" href="mailto:vama0259@gmail.com">vama0259@gmail.com</a>
+          <div class="loc">Michelin · Pune, India</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span>© 2026 Varun Malhotra</span>
+  <span>Swiss Technical — Direction C</span>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- scroll fade-in (non-uniform, targeted only) ---------- */
+  var fadeEls = document.querySelectorAll('[data-fade]');
+  if('IntersectionObserver' in window && !reduce){
+    var fio = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){ entry.target.classList.add('in'); fio.unobserve(entry.target); }
+      });
+    }, { threshold:0.15 });
+    fadeEls.forEach(function(el){ fio.observe(el); });
+  } else {
+    fadeEls.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  /* ---------- charts: draw in on scroll ---------- */
+  function drawBar(barId, valId, targetY, targetH, fullH, baseY){
+    var bar = document.getElementById(barId);
+    var val = document.getElementById(valId);
+    if(!bar) return;
+    var dur = reduce ? 1 : 900;
+    var start = null;
+    function step(ts){
+      if(!start) start = ts;
+      var p = Math.min(1, (ts-start)/dur);
+      var eased = 1 - Math.pow(1-p, 3);
+      var h = fullH * eased;
+      bar.setAttribute('y', baseY - h);
+      bar.setAttribute('height', h);
+      if(p >= 0.6 && val) val.setAttribute('opacity', Math.min(1,(p-0.6)/0.4));
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  var chartCards = document.querySelectorAll('.chart-card');
+  var chartDrawn = {};
+  if('IntersectionObserver' in window){
+    var cio = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting && !chartDrawn[entry.target.id]){
+          chartDrawn[entry.target.id] = true;
+          var svg = entry.target.querySelector('svg');
+          if(svg && svg.id === 'chart-accuracy') drawBar('bar-accuracy','val-accuracy',20,130*0.95,130*0.95,150);
+          if(svg && svg.id === 'chart-consistency') drawBar('bar-consistency','val-consistency',20,130*0.85,130*0.85,150);
+          if(svg && svg.id === 'chart-lift'){
+            drawBar('bar-lift-before','val-lift-before',20,130*0.30,130*0.30,150);
+            setTimeout(function(){ drawBar('bar-lift-after','val-lift-after',20,130*0.635,130*0.635,150); }, reduce?0:180);
+          }
+          cio.unobserve(entry.target);
+        }
+      });
+    }, { threshold:0.35 });
+    chartCards.forEach(function(el){ cio.observe(el); });
+  } else {
+    drawBar('bar-accuracy','val-accuracy',20,130*0.95,130*0.95,150);
+    drawBar('bar-consistency','val-consistency',20,130*0.85,130*0.85,150);
+    drawBar('bar-lift-before','val-lift-before',20,130*0.30,130*0.30,150);
+    drawBar('bar-lift-after','val-lift-after',20,130*0.635,130*0.635,150);
+  }
+
+  /* ---------- Fig.1 — reader-driven ReAct trace ---------- */
+  var steps = Array.prototype.slice.call(document.querySelectorAll('.react-step'));
+  var stepBtn = document.getElementById('btn-step');
+  var resetBtn = document.getElementById('btn-reset');
+  var toolbarTitle = document.querySelector('.diagram-toolbar .title');
+  var console_ = document.getElementById('react-console');
+  var current = 0;
+
+  var stepLog = {
+    1: '$ <span class="p">receive</span> question — no SQL assumed, natural language parsed',
+    2: '$ <span class="p">mem0.recall</span>(analyst_id) → terminology + prior query patterns hydrated',
+    3: '$ <span class="p">resolve_schema</span>(semantic_layer[50 tables]) → 3 tables selected',
+    4: '$ <span class="p">guardrail.check</span>(statement) → READ-ONLY ok, no DDL/write detected → PASS',
+    5: '$ <span class="p">execute</span> via Dremio MCP → rows returned',
+    6: '$ <span class="p">respond</span> — chart rendered · cost + latency → MLflow'
+  };
+
+  function logLine(html, cls){
+    var d = document.createElement('div');
+    d.className = 'line mono' + (cls ? ' '+cls : '');
+    d.innerHTML = html;
+    console_.appendChild(d);
+    console_.scrollTop = console_.scrollHeight;
+  }
+
+  function renderConsole(upto){
+    console_.innerHTML = '';
+    for(var i=1;i<=upto;i++){
+      logLine(stepLog[i], 'ok');
+    }
+    if(upto === 0){
+      logLine('$ <span class="p">awaiting input</span> <span class="cursor"></span>');
+    } else if(upto < 6) {
+      logLine('$ <span class="p">next</span> <span class="cursor"></span>');
+    } else {
+      logLine('$ <span class="p">trace complete</span> <span class="cursor"></span>');
+    }
+  }
+
+  function renderSteps(){
+    steps.forEach(function(s){
+      var n = parseInt(s.getAttribute('data-step'), 10);
+      s.classList.remove('active','done');
+      if(n < current) s.classList.add('done');
+      if(n === current) s.classList.add('active');
+    });
+    toolbarTitle.textContent = 'Trace — step ' + current + ' / 6';
+    stepBtn.disabled = current >= 6;
+  }
+
+  function advance(){
+    if(current >= 6) return;
+    current += 1;
+    renderSteps();
+    renderConsole(current);
+  }
+  function resetTrace(){
+    current = 0;
+    renderSteps();
+    renderConsole(0);
+  }
+  stepBtn.addEventListener('click', advance);
+  resetBtn.addEventListener('click', resetTrace);
+  steps.forEach(function(s){
+    s.addEventListener('click', function(){
+      var n = parseInt(s.getAttribute('data-step'), 10);
+      current = n;
+      renderSteps();
+      renderConsole(current);
+    });
+  });
+  renderSteps();
+
+  /* ---------- guardrail live demo ---------- */
+  var qButtons = document.querySelectorAll('.qbtn');
+  var verdict = document.getElementById('verdict');
+  var gateStep = document.querySelector('.react-step[data-step="4"]');
+
+  qButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var kind = btn.getAttribute('data-q');
+      var text = btn.getAttribute('data-text');
+      qButtons.forEach(function(b){ b.style.opacity = '1'; });
+
+      if(kind === 'read'){
+        verdict.className = 'verdict pass';
+        verdict.innerHTML = '<strong>PASS</strong> — read-only statement. Proceeds to execution over Dremio via MCP.';
+        logLine('$ <span class="p">guardrail.check</span>("' + text + '") → SELECT-equivalent → PASS', 'ok');
+        if(gateStep){
+          gateStep.classList.remove('rejecting');
+          void gateStep.offsetWidth;
+        }
+      } else {
+        verdict.className = 'verdict fail';
+        verdict.innerHTML = '<strong>REJECTED</strong> — write/DDL detected. Statement never reaches the database.';
+        logLine('$ <span class="p">guardrail.check</span>("' + text + '") → WRITE/DDL detected → <strong>REJECTED</strong>', 'err');
+        if(gateStep){
+          gateStep.classList.remove('rejecting');
+          void gateStep.offsetWidth;
+          if(!reduce) gateStep.classList.add('rejecting');
+          steps.forEach(function(s){ s.classList.remove('active'); });
+          gateStep.classList.add('active');
+          toolbarTitle.textContent = 'Trace — step 4 / 6 (blocked at guardrail)';
+        }
+      }
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>
