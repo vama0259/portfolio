@@ -109,22 +109,12 @@ const personLd = {
     <script type="application/ld+json" set:html={JSON.stringify(personLd)} />
   </head>
   <body>
-    <!--
-    THESIS: Swiss technical — a light ledger-paper offprint that reads as engineering
-      documentation, not a landing page. It refuses the dark instrument-panel with one
-      neon accent.
-    OWN-WORLD: Light ledger paper #EEF0EC, near-black ink, one signal blue #2453D9
-      rationed to links/active state/bars/critical flags, proof-correction red reserved
-      for the guardrail rejection. Space Grotesk display, Source Sans 3 body,
-      JetBrains Mono for data and labels. Zero radius. A 64px technical grid sits behind
-      everything.
-    STORY: A hiring manager reads a positioning line, a live-figures panel, three
-      plotted results with their bases printed under each chart, drives Fig. 1's ReAct
-      loop and bounces a write off the guardrail, then opens a case study and finds the
-      trade-off and the errata stated without being asked.
-    FORM: content is driven entirely by src/data/profile.ts and src/content/work — the
-      mockup's hardcoded copy is a skin, not a source of truth.
-    -->
+    {/*
+      Notes for maintainers live in CLAUDE.md and .design/, never in an HTML comment.
+      An HTML comment ships to every visitor and shows up in View Source; an Astro
+      comment like this one is compiled away. Do not describe the design, the intended
+      reader, or the build process in markup.
+    */}
     <div class="grid-bg" aria-hidden="true"></div>
 
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 skip-link">

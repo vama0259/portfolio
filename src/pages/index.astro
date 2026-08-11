@@ -112,9 +112,17 @@ const plotted = work
             <div class="venue mono">{p.venue}</div>
             <div>
               <h3>{p.title}</h3>
-              <p>{p.note}</p>
+              {/* `note` already reads e.g. "First author · peer-reviewed", so printing it
+                  whole and then adding a "Peer-reviewed" tag said it twice. Show only the
+                  part the tag does not cover, and render no tag element at all when there
+                  is nothing to put in it. */}
+              {p.note.replace(/\s*·?\s*peer-reviewed\s*/i, "").trim() && (
+                <p>{p.note.replace(/\s*·?\s*peer-reviewed\s*/i, "").trim()}</p>
+              )}
             </div>
-            <div class="tag">{p.note.includes("peer-reviewed") ? "Peer-reviewed" : ""}</div>
+            {p.note.toLowerCase().includes("peer-reviewed") && (
+              <div class="tag">Peer-reviewed</div>
+            )}
           </div>
         ))
       }

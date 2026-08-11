@@ -25,5 +25,7 @@ const channels = [
       ))
     }
   </ul>
-  <span class="footer-meta">&copy; {year} {profile.name} &mdash; Swiss Technical</span>
+  {/* Never put the design direction's internal codename here, or anywhere a reader
+      can see it. It means nothing to a visitor and reads as leaked process. */}
+  <span class="footer-meta">&copy; {year} {profile.name} &middot; {profile.location}</span>
 </footer>

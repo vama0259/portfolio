@@ -25,10 +25,16 @@ import { profile } from "../data/profile";
             <div class="venue mono">{p.venue}</div>
             <div>
               <h3>{p.title}</h3>
-              <p>{p.note}</p>
+              {/* Same rule as the home page: `note` already contains "peer-reviewed",
+                  so the tag would repeat it. Print only what the tag does not cover. */}
+              {p.note.replace(/\s*·?\s*peer-reviewed\s*/i, "").trim() && (
+                <p>{p.note.replace(/\s*·?\s*peer-reviewed\s*/i, "").trim()}</p>
+              )}
               <p class="detail">{p.detail}</p>
             </div>
-            <div class="tag">{p.note.includes("peer-reviewed") ? "Peer-reviewed" : ""}</div>
+            {p.note.toLowerCase().includes("peer-reviewed") && (
+              <div class="tag">Peer-reviewed</div>
+            )}
           </div>
         ))
       }
