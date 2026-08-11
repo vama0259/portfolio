@@ -17,7 +17,10 @@ export const profile = {
   title: "Data Scientist · Generative AI & LLM Engineer",
   location: "Pune, India",
   email: "vama0259@gmail.com",
-  phone: "+91 REDACTED",
+  // No phone number here. This repo is public, so anything in this file is
+  // permanently searchable — including in history, which is why removing it
+  // later would not help. The resume carries the number; the site does not
+  // need it, and never rendered it.
   linkedin: "https://www.linkedin.com/in/vama0259",
   github: "https://github.com/vama0259",
 
