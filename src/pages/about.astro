@@ -2,11 +2,35 @@
 import Base from "../layouts/Base.astro";
 import Masthead from "../components/Masthead.astro";
 import { profile } from "../data/profile";
+
+const site = Astro.site;
+const aboutLd = {
+  "@type": "ProfilePage",
+  name: "About Varun Malhotra",
+  url: new URL("/about", site).toString(),
+  mainEntity: { "@id": `${site}#person` },
+  isPartOf: { "@id": `${site}#website` },
+  about: {
+    "@id": `${site}#person`,
+  },
+};
+// Employment history as its own nodes: a Person's `hasOccupation` is what a
+// parser reads to answer "where does he work now", and the roles array is
+// already the resume-synced source for it.
+const occupationLd = profile.roles.map((r) => ({
+  "@type": "OrganizationRole",
+  roleName: r.title,
+  startDate: r.dates,
+  memberOf: { "@type": "Organization", name: r.company },
+}));
 ---
 
 <Base
   title="About - Varun Malhotra"
   description="Why the work moved from models to evaluation and guardrails, plus positions, education, and skills for Varun Malhotra, Data Scientist at Michelin."
+  ogType="profile"
+  schemas={[aboutLd, ...occupationLd]}
+  breadcrumbs={[{ name: "About", path: "/about" }]}
 >
   <Masthead title="About" />
 

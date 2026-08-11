@@ -1,0 +1,16 @@
+{
+  "name": "Varun Malhotra — Data Scientist · Generative AI & LLM Engineer",
+  "short_name": "Varun Malhotra",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#EEF0EC",
+  "theme_color": "#EEF0EC",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

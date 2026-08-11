@@ -5,11 +5,30 @@ import Masthead from "../../components/Masthead.astro";
 import Entry from "../../components/Entry.astro";
 
 const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order);
+
+const site = Astro.site;
+const listLd = {
+  "@type": "CollectionPage",
+  name: "Work — Varun Malhotra",
+  url: new URL("/work", site).toString(),
+  isPartOf: { "@id": `${site}#website` },
+  mainEntity: {
+    "@type": "ItemList",
+    itemListElement: work.map((entry, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: entry.data.title,
+      url: new URL(`/work/${entry.id}`, site).toString(),
+    })),
+  },
+};
 ---
 
 <Base
   title="Work - Varun Malhotra"
   description="Three production LLM and ML systems — an analyst-facing data agent, an autonomous web agent, and stratified anomaly detection — each with its trade-off stated."
+  schemas={[listLd]}
+  breadcrumbs={[{ name: "Work", path: "/work" }]}
   navSticky
 >
   <Masthead

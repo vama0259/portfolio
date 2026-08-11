@@ -1,4 +1,11 @@
 User-agent: *
 Allow: /
 
+# Standalone design references copied into public/ so the dev server can serve
+# them. Unlinked, untitled, not part of the site — keep them out of the index
+# rather than letting them rank as thin duplicates of the real pages.
+Disallow: /a-kinetic.html
+Disallow: /b-cinematic.html
+Disallow: /c-technical.html
+
 Sitemap: https://varun-malhotra.pages.dev/sitemap-index.xml

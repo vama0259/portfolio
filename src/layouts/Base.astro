@@ -32,6 +32,13 @@ import "@fontsource/source-sans-3/latin-400-italic.css";
 import "@fontsource/source-sans-3/latin-600.css";
 import "@fontsource/source-sans-3/latin-700.css";
 import "@fontsource-variable/jetbrains-mono";
+// Preload only the two faces that paint above the fold — the display 700 that
+// draws every <h1> and the body 400. Vite rewrites these to the hashed asset
+// URLs it emits, so the <link rel="preload"> can never drift from the file the
+// @font-face rule above actually requests. Preloading more than the LCP faces
+// costs bandwidth against the thing you are trying to speed up.
+import displayFont from "@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2?url";
+import bodyFont from "@fontsource/source-sans-3/files/source-sans-3-latin-400-normal.woff2?url";
 import "../styles/global.css";
 import Nav from "../components/Nav.astro";
 import Colophon from "../components/Colophon.astro";
@@ -41,12 +48,31 @@ interface Props {
   title?: string;
   description?: string;
   navSticky?: boolean;
+  /** `article` on case studies, `profile` on /about — anything else is a page. */
+  ogType?: "website" | "article" | "profile";
+  /** Page-specific JSON-LD nodes, merged into the site-wide @graph. */
+  schemas?: Record<string, unknown>[];
+  /** Visible trail, also emitted as BreadcrumbList. Home is prepended. */
+  breadcrumbs?: { name: string; path: string }[];
+  /** Keeps utility pages (404) out of the index without blocking the crawl. */
+  noindex?: boolean;
 }
 
 const {
-  title = `${profile.name} - ${profile.title}`,
-  description = profile.positioning,
+  // profile.title in full ("Data Scientist · Generative AI & LLM Engineer")
+  // pushes the home <title> to 62 characters and Google truncates it. The
+  // shortened form keeps the name first and the two terms someone would
+  // actually search for.
+  title = `${profile.name} — Generative AI & LLM Engineer`,
+  // profile.positioning is the on-page promise, not a meta description: at ~190
+  // characters Google truncates it mid-clause. Meta descriptions are written to
+  // fit 150-160 and every page passes its own; this is the fallback.
+  description = "Data scientist at Michelin building production LLM systems: agent architectures, the evaluation stacks that prove they work, and the guardrails that hold.",
   navSticky = false,
+  ogType = "website",
+  schemas = [],
+  breadcrumbs,
+  noindex = false,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://example.com");
@@ -56,21 +82,64 @@ const ogImagePng = new URL("/og-image.png", Astro.site ?? "https://example.com")
 const ogImageSvg = new URL("/og-image.svg", Astro.site ?? "https://example.com");
 const ogImageAlt = `${profile.name} — ${profile.title}: 50+ analysts served, 95% accuracy, 27 hrs/week saved`;
 
+const siteUrl = (Astro.site ?? "https://example.com").toString();
+
+// One @graph per page rather than a stack of loose <script> blocks: the nodes
+// cross-reference each other by @id (an Article's author points at the same
+// Person node the home page declares), which is what lets a parser build one
+// entity instead of three unrelated ones.
+const personId = `${siteUrl}#person`;
+const siteId = `${siteUrl}#website`;
+
 const personLd = {
-  "@context": "https://schema.org",
   "@type": "Person",
+  "@id": personId,
   name: profile.name,
   jobTitle: profile.title,
+  description: profile.positioning,
+  email: `mailto:${profile.email}`,
+  image: ogImagePng.toString(),
   worksFor: {
     "@type": "Organization",
     name: profile.roles[0].company,
   },
-  url: (Astro.site ?? "https://example.com").toString(),
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Pune",
+    addressCountry: "IN",
+  },
+  knowsAbout: profile.skills.flatMap((g) => g.items as readonly string[]),
+  url: siteUrl,
   sameAs: [profile.linkedin, profile.github],
   alumniOf: {
     "@type": "CollegeOrUniversity",
     name: profile.education.school,
   },
+};
+
+const websiteLd = {
+  "@type": "WebSite",
+  "@id": siteId,
+  url: siteUrl,
+  name: `${profile.name} — ${profile.title}`,
+  inLanguage: "en",
+  publisher: { "@id": personId },
+};
+
+const trail = breadcrumbs ? [{ name: "Home", path: "/" }, ...breadcrumbs] : null;
+const breadcrumbLd = trail && {
+  "@type": "BreadcrumbList",
+  itemListElement: trail.map((c, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    name: c.name,
+    item: new URL(c.path, siteUrl).toString(),
+  })),
+};
+
+const graph = {
+  "@context": "https://schema.org",
+  "@graph": [personLd, websiteLd, ...(breadcrumbLd ? [breadcrumbLd] : []), ...schemas],
 };
 ---
 
@@ -83,15 +152,43 @@ const personLd = {
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <meta name="author" content={profile.name} />
+    {
+      /* The defaults are index,follow — but not the snippet and image limits.
+         Without max-image-preview:large a result carries a thumbnail instead of
+         a full-width image, and max-snippet:-1 lets Google quote as much of the
+         page as it judges useful rather than capping it. */
+    }
+    <meta
+      name="robots"
+      content={noindex
+        ? "noindex, follow"
+        : "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"}
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#EEF0EC" />
+    <link rel="preload" as="font" type="font/woff2" href={displayFont} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={bodyFont} crossorigin />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={profile.name} />
     <meta property="og:locale" content="en_US" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    {
+      /* og:type=profile has its own required-ish properties; without them the
+         type is declared and then unfulfilled. */
+      ogType === "profile" && (
+        <>
+          <meta property="profile:first_name" content={profile.name.split(" ")[0]} />
+          <meta property="profile:last_name" content={profile.name.split(" ").slice(1).join(" ")} />
+          <meta property="profile:username" content="vama0259" />
+        </>
+      )
+    }
     <meta property="og:image" content={ogImagePng} />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
@@ -106,7 +203,8 @@ const personLd = {
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImagePng} />
-    <script type="application/ld+json" set:html={JSON.stringify(personLd)} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
+    <script type="application/ld+json" set:html={JSON.stringify(graph)} />
   </head>
   <body>
     {/*

@@ -80,7 +80,16 @@ function barGeom(num: number) {
           <BasisNote basis={m.basis} />
 
           {parsed.kind === "bar" && (
-            <svg viewBox="0 0 300 190" data-chart-single data-target={parsed.num} data-bar-id={`bar-${id}`} data-val-id={`val-${id}`}>
+            <svg
+              viewBox="0 0 300 190"
+              role="img"
+              aria-label={`${m.label}: ${m.value}. Basis: ${m.basis}.`}
+              data-chart-single
+              data-target={parsed.num}
+              data-bar-id={`bar-${id}`}
+              data-val-id={`val-${id}`}
+            >
+              <title>{`${m.label}: ${m.value}. Basis: ${m.basis}.`}</title>
               <line class="grid-line ref-line" x1="30" y1={CHART_TOP} x2="280" y2={CHART_TOP} stroke-dasharray="1,3" opacity="0.4" />
               <line class="grid-line" x1="30" y1={CHART_BASE} x2="280" y2={CHART_BASE} />
               <text class="axis-label" x="6" y={CHART_TOP + 4}>100</text>
@@ -100,7 +109,15 @@ function barGeom(num: number) {
           )}
 
           {parsed.kind === "lift" && (
-            <svg viewBox="0 0 300 190" data-chart-lift data-before={parsed.before} data-after={parsed.after}>
+            <svg
+              viewBox="0 0 300 190"
+              role="img"
+              aria-label={`${m.label}: ${parsed.before}% before, ${parsed.afterLabel} after. Basis: ${m.basis}.`}
+              data-chart-lift
+              data-before={parsed.before}
+              data-after={parsed.after}
+            >
+              <title>{`${m.label}: ${parsed.before}% before, ${parsed.afterLabel} after. Basis: ${m.basis}.`}</title>
               <line class="grid-line ref-line" x1="30" y1={CHART_TOP} x2="280" y2={CHART_TOP} stroke-dasharray="1,3" opacity="0.4" />
               <line class="grid-line" x1="30" y1={CHART_BASE} x2="280" y2={CHART_BASE} />
               <text class="axis-label" x="6" y={CHART_TOP + 4}>100</text>

@@ -19,13 +19,55 @@ const d = entry.data;
 const all = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order);
 const idx = all.findIndex((e) => e.id === entry.id);
 const next = all[(idx + 1) % all.length];
+
+// The tagline alone is a 70-character description that spends none of its
+// budget on what the system is or what it achieved. Pad it with the first
+// sentence of `problem` and the headline metric, then trim on a word boundary
+// so the SERP snippet ends in a word rather than mid-syllable.
+const firstProblemSentence = d.problem.replace(/\s+/g, " ").split(/(?<=\.)\s/)[0];
+const rawDescription = `${d.tagline} ${firstProblemSentence} ${d.metrics[0].label}: ${d.metrics[0].value} (${d.metrics[0].basis}).`;
+const description =
+  rawDescription.length <= 158
+    ? rawDescription
+    : `${rawDescription.slice(0, 155).replace(/\s+\S*$/, "")}…`;
+
+// `title` in the schema is the case study's own name; the <title> tag adds the
+// site name because a SERP result needs to say whose work this is.
+const caseLd = {
+  "@type": "Article",
+  headline: d.title,
+  name: d.title,
+  description: d.tagline,
+  about: d.stack,
+  url: new URL(`/work/${entry.id}`, Astro.site).toString(),
+  mainEntityOfPage: new URL(`/work/${entry.id}`, Astro.site).toString(),
+  image: new URL("/og-image.png", Astro.site).toString(),
+  author: { "@id": `${Astro.site}#person` },
+  publisher: { "@id": `${Astro.site}#person` },
+  isPartOf: { "@id": `${Astro.site}#website` },
+  keywords: d.stack.join(", "),
+};
 ---
 
-<Base title={`${d.title} - Varun Malhotra`} description={d.tagline} navSticky>
+<Base
+  title={`${d.title} — case study | Varun Malhotra`}
+  description={description}
+  ogType="article"
+  schemas={[caseLd]}
+  breadcrumbs={[{ name: "Work", path: "/work" }, { name: d.title, path: `/work/${entry.id}` }]}
+  navSticky
+>
   <article>
     <div class="wrap" style="padding-top: 3.2rem;">
       <p class="mono" style="font-size:0.72rem; color: var(--color-muted);">
-        <a href="/work" class="text-muted">Work</a><br />
+        {/* Wrapped as a breadcrumb because the page emits a BreadcrumbList —
+            structured data is supposed to describe something the reader can
+            also see, and the trail was already here in everything but name. */}
+        <nav aria-label="Breadcrumb" style="display:inline;">
+          <a href="/" class="text-muted">Home</a>
+          <span aria-hidden="true"> / </span>
+          <a href="/work" class="text-muted">Work</a>
+        </nav><br />
         <span class="mono">{d.period}</span><br />
         {d.status === "production" ? <span class="status-live">&#9679; production</span> : <span>{d.status}</span>}
       </p>

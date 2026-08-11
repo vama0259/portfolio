@@ -2,11 +2,38 @@
 import Base from "../layouts/Base.astro";
 import Masthead from "../components/Masthead.astro";
 import { profile } from "../data/profile";
+
+const site = Astro.site;
+// ScholarlyArticle rather than Article: the venue is a conference and the
+// distinction is what makes these eligible to be read as publications rather
+// than blog posts.
+const paperLd = profile.publications.map((p) => ({
+  "@type": "ScholarlyArticle",
+  headline: p.title,
+  name: p.title,
+  description: p.detail,
+  author: { "@id": `${site}#person` },
+  publisher: { "@type": "Organization", name: p.venue.replace(/\s*\d{4}$/, "") },
+  datePublished: p.venue.match(/\d{4}/)?.[0],
+  isPartOf: {
+    "@type": "PublicationEvent",
+    name: p.venue,
+  },
+}));
+const collectionLd = {
+  "@type": "CollectionPage",
+  name: "Research — Varun Malhotra",
+  url: new URL("/research", site).toString(),
+  isPartOf: { "@id": `${site}#website` },
+  about: { "@id": `${site}#person` },
+};
 ---
 
 <Base
   title="Research - Varun Malhotra"
   description="Two peer-reviewed papers on visual grounding for web agents and generative 3D reconstruction, both grown out of production problems at Michelin and Samsung."
+  schemas={[collectionLd, ...paperLd]}
+  breadcrumbs={[{ name: "Research", path: "/research" }]}
 >
   <Masthead
     title="Research"

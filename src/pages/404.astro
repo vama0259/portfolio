@@ -1,0 +1,41 @@
+---
+/**
+ * Cloudflare Pages serves dist/404.html for any unmatched path automatically —
+ * no _routes or redirect config needed. It is noindexed: a soft-404 that
+ * returns 200-looking content and gets indexed is worse than no page at all.
+ */
+import Base from "../layouts/Base.astro";
+import Masthead from "../components/Masthead.astro";
+
+const links = [
+  { href: "/work", label: "Work", note: "Three production systems, each with its trade-off stated." },
+  { href: "/research", label: "Research", note: "Two peer-reviewed papers." },
+  { href: "/about", label: "About", note: "Positions, education, skills." },
+];
+---
+
+<Base
+  title="Page not found - Varun Malhotra"
+  description="That page does not exist — it may have been renamed or never shipped. Links through to the work, research, and about pages for Varun Malhotra."
+  noindex
+>
+  <Masthead title="404" standfirst="That page does not exist — it may have been renamed or never shipped." />
+  <section>
+    <div class="wrap">
+      {
+        links.map((l) => (
+          <div class="list-row">
+            <span class="list-row-date mono">{l.href}</span>
+            <span class="list-row-main">
+              <a href={l.href} class="list-row-title">
+                {l.label}
+              </a>
+              <br />
+              <span class="list-row-sub">{l.note}</span>
+            </span>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</Base>
