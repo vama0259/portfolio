@@ -1,22 +1,29 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   THE OFFPRINT — design tokens (Tailwind v4, CSS-first)
-   Light ledger-paper ground by default; dark is a media-query override only.
+   Design tokens (Tailwind v4, CSS-first)
+
+   ONE scheme, not two. The ground is a deep petrol colour field rather than a
+   neutral, and it is deliberately not scheme-dependent: the site looks the way
+   it was designed regardless of the reader's OS setting. Ratios below are
+   measured against the LIGHTEST stop of the gradient (#0C3540), which is the
+   worst case for text contrast.
+
    One accent, rationed to three semantic jobs: the errata marker, the
    `production` status glyph, and link hover/focus + basis markers.
 --------------------------------------------------------------------------- */
 @theme {
-  /* Palette: "Midnight & Gold" — warm cream ground, deep bronze-gold accent;
-     dark scheme is midnight indigo with warm gold. Ratios verified. */
-  --color-paper:        #F6F2EA;
-  --color-paper-raised: #EFE9DD;
-  --color-ink:          #17151F;
-  --color-ink-muted:    #56525E;
-  --color-rule:         #8B8593;
-  --color-hairline:     #DFD8CB;
-  --color-accent:       #8A6410;  /* 4.81:1 */
-  --color-accent-quiet: #F0E5CC;
+  /* Palette: "Petrol & Gold" — saturated deep-teal field, warm gold accent. */
+  --color-field-hi:     #0C3540;  /* gradient light stop                     */
+  --color-field-lo:     #05141B;  /* gradient dark stop                      */
+  --color-paper:        #0A2A33;  /* flat fallback / solid surfaces          */
+  --color-paper-raised: #0F3A46;  /* figure plates                           */
+  --color-ink:          #F2EFE8;  /* 11.44:1 worst case                      */
+  --color-ink-muted:    #B3BEC2;  /*  6.92:1 worst case                      */
+  --color-rule:         #5E7B84;  /* structural rules, non-text              */
+  --color-hairline:     #1B4654;
+  --color-accent:       #E8BC63;  /*  7.38:1 worst case — warm gold          */
+  --color-accent-quiet: #24301F;
 
   --font-text:  "Spectral", ui-serif, Georgia, serif;
   --font-util:  "Archivo Variable", "Archivo", ui-sans-serif, system-ui, sans-serif;
@@ -64,19 +71,6 @@
   --stagger-step-lg:  90ms;
 }
 
-@media (prefers-color-scheme: dark) {
-  @theme {
-    --color-paper:        #10131B;  /* midnight indigo */
-    --color-paper-raised: #181C27;
-    --color-ink:          #F0EDE6;  /* 15.88:1 */
-    --color-ink-muted:    #A9ACB8;  /*  8.21:1 */
-    --color-rule:         #5A5E6E;
-    --color-hairline:     #262B38;
-    --color-accent:       #E3B458;  /* warm gold, 9.67:1 */
-    --color-accent-quiet: #2A2416;
-  }
-}
-
 /* ---------------------------------------------------------------------------
    Base layer
 --------------------------------------------------------------------------- */
@@ -93,11 +87,23 @@
   }
 
   html {
-    color-scheme: light dark;
+    color-scheme: dark;
+    /* The field lives on <html> so it covers overscroll too, and is fixed so
+       it does not scroll away or band on long pages. */
+    background-color: var(--color-field-lo);
+    background-image: linear-gradient(
+      165deg,
+      var(--color-field-hi) 0%,
+      var(--color-paper) 38%,
+      var(--color-field-lo) 100%
+    );
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    min-height: 100%;
   }
 
   body {
-    background-color: var(--color-paper);
+    background-color: transparent;
     color: var(--color-ink);
     font-family: var(--font-text);
     -webkit-font-smoothing: antialiased;
