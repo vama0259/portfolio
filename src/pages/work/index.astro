@@ -7,7 +7,11 @@ import Entry from "../../components/Entry.astro";
 const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order);
 ---
 
-<Base title="Work - Varun Malhotra" navSticky>
+<Base
+  title="Work - Varun Malhotra"
+  description="Three production LLM and ML systems — an analyst-facing data agent, an autonomous web agent, and stratified anomaly detection — each with its trade-off stated."
+  navSticky
+>
   <Masthead
     title="Work"
     standfirst="Three systems, each ending with the trade-off it made and what I would build differently now."

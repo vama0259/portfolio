@@ -1,11 +1,14 @@
 ---
+// Weight 500 is not requested anywhere: grepped `font-weight:\s*500` and
+// Tailwind `font-medium` across src/ — zero matches for both Space Grotesk
+// and Source Sans 3. Those two imports were dead weight; dropped. 400/600/700
+// are all reachable (400 implicit body text, 600/700 via display/heading
+// classes in global.css), so they stay.
 import "@fontsource/space-grotesk/400.css";
-import "@fontsource/space-grotesk/500.css";
 import "@fontsource/space-grotesk/600.css";
 import "@fontsource/space-grotesk/700.css";
 import "@fontsource/source-sans-3/400.css";
 import "@fontsource/source-sans-3/400-italic.css";
-import "@fontsource/source-sans-3/500.css";
 import "@fontsource/source-sans-3/600.css";
 import "@fontsource/source-sans-3/700.css";
 import "@fontsource-variable/jetbrains-mono";
@@ -27,6 +30,25 @@ const {
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://example.com");
+const ogImage = new URL("/og-image.svg", Astro.site ?? "https://example.com");
+const ogImageAlt = `${profile.name} — ${profile.title}: 50+ analysts served, 95% accuracy, 27 hrs/week saved`;
+
+const personLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: profile.name,
+  jobTitle: profile.title,
+  worksFor: {
+    "@type": "Organization",
+    name: profile.roles[0].company,
+  },
+  url: (Astro.site ?? "https://example.com").toString(),
+  sameAs: [profile.linkedin, profile.github],
+  alumniOf: {
+    "@type": "CollegeOrUniversity",
+    name: profile.education.school,
+  },
+};
 ---
 
 <!doctype html>
@@ -42,10 +64,20 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://example.com
     <meta name="theme-color" content="#EEF0EC" />
 
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <script type="application/ld+json" set:html={JSON.stringify(personLd)} />
   </head>
   <body>
     <!--

@@ -23,7 +23,7 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 <header class:list={["nav-bar", sticky && "nav-bar--sticky"]}>
   <div class="nav-inner">
     <a href="/" class="display nav-brand">{profile.name}</a>
-    <nav aria-label="Primary">
+    <nav aria-label="Primary" class="nav-primary">
       <ul class="nav-list nav-list--links">
         {
           links.map((link) => (
@@ -43,5 +43,32 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
         </li>
       </ul>
     </nav>
+    <details class="nav-mobile">
+      <summary class="nav-mobile-toggle mono">
+        Menu
+      </summary>
+      <nav aria-label="Primary (mobile)">
+        <ul class="nav-mobile-list">
+          {
+            links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  aria-current={isActive(link.href) ? "page" : undefined}
+                  class="nav-mobile-link"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+          <li>
+            <a href={`mailto:${profile.email}`} class="nav-mobile-link nav-mobile-email">
+              {profile.email}
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </details>
   </div>
 </header>
