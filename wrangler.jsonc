@@ -1,0 +1,38 @@
+{
+  // Cloudflare Workers Static Assets config.
+  //
+  // Cloudflare now routes new projects through Workers rather than Pages, and
+  // its build wizard runs `npx wrangler deploy`, which needs this file to know
+  // what to serve. Without it the deploy fails with no config found.
+  //
+  // There is no Worker script here on purpose: `assets.directory` alone serves
+  // the static build straight from Cloudflare's edge. Adding a script would
+  // mean paying for invocations on requests that are just files.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "portfolio",
+
+  // Pins the Workers runtime API surface. Bump deliberately, not casually —
+  // it changes runtime behaviour.
+  "compatibility_date": "2026-08-12",
+
+  "assets": {
+    // Astro's static output. Must match `outDir` in astro.config.mjs.
+    "directory": "./dist",
+
+    // The site is a set of prerendered directories (work/index.html), so a
+    // request for /work should serve work/index.html rather than 404.
+    // `astro.config.mjs` sets `trailingSlash: "never"` and canonical tags are
+    // slash-less, so this must not redirect /work -> /work/ or the canonical
+    // and the served URL would disagree.
+    "html_handling": "drop-trailing-slash",
+
+    // Unmatched paths fall through to the 404 page Astro builds at
+    // dist/404.html, with a real 404 status rather than a soft 200.
+    "not_found_handling": "404-page"
+  },
+
+  "observability": {
+    // Free-tier logging, useful for confirming a deploy is actually serving.
+    "enabled": true
+  }
+}
