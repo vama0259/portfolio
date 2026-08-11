@@ -15,11 +15,10 @@ export default defineConfig({
   // image URLs and the JSON-LD @ids. Changing this one line is the whole
   // domain migration — nothing else hardcodes the host.
   //
-  // Planned move to https://varunmalhotra.me once that domain is registered.
-  // Do not point this at a domain that is not yet owned: canonicals and the
-  // sitemap would advertise a host that does not resolve, which is worse than
-  // a provisional subdomain.
-  site: "https://varun-malhotra.pages.dev",
+  // Do not point this at a domain that is not yet owned and pointed at this
+  // deployment: canonicals and the sitemap would advertise a host that does not
+  // resolve, which is worse than a provisional subdomain.
+  site: "https://varunmalhotra.net",
 
   // @astrojs/sitemap is build-time-only (walks the static output and writes
   // sitemap-index.xml / sitemap-0.xml to dist/) — it does not add a runtime

@@ -548,8 +548,10 @@
     text-decoration: underline;
     text-decoration-color: var(--color-line-strong);
   }
+  /* Same fix as .pipe-sep: this is visible text, so it needs the AA floor, not
+     a border token. */
   .hero-role .sep {
-    color: var(--color-line-strong);
+    color: var(--color-muted);
   }
 
   .hero-panel {
@@ -804,7 +806,11 @@
       content: "\2193"; /* down arrow */
       display: inline-block;
       margin-left: 0.4rem;
-      color: var(--color-line-strong);
+      /* This arrow carries meaning on mobile — it is the only thing showing the
+         trace runs as a sequence once the horizontal connectors are hidden. A
+         border token at 2.29:1 fails even the 3:1 floor for non-text
+         indicators, so it uses the text-grade token. */
+      color: var(--color-muted);
     }
     .react-step.done:not(:last-child) .n::after {
       color: var(--color-signal);
@@ -1188,7 +1194,11 @@
   .skills-group { margin-top: 0.7rem; font-size: 0.92rem; line-height: 1.8; color: var(--color-ink-soft); }
   .skills-group-label { font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.06em; }
   .skills-item { color: var(--color-ink); }
-  .pipe-sep { color: var(--color-line-strong); }
+  /* Was --color-line-strong at 2.29:1, which the a11y gate correctly failed:
+     --line-strong is a rule/border token and must never carry text. --muted is
+     the AA floor for text on paper (5.17:1). A separator a reader cannot make
+     out is not doing its job either. */
+  .pipe-sep { color: var(--color-muted); }
 
   .contact-block { font-size: 1rem; line-height: 2; }
   .link-underline {

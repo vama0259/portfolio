@@ -54,22 +54,52 @@ function run(cmd, args, opts = {}) {
   });
 }
 
+/**
+ * `spawn(..., { shell: true })` on Windows launches `cmd.exe` as the direct
+ * child, with `npx`/`astro`/node as *its* child — killing the shell process
+ * does not kill that grandchild, so the preview server survives and keeps
+ * the port bound for the next run. `taskkill /T /F` kills the whole tree.
+ * POSIX doesn't need this (the shell relays the signal), but a detached
+ * process group + negative-pid kill is the equivalent belt-and-suspenders.
+ */
+function killTree(child) {
+  if (!child.pid || child.killed) return;
+  if (process.platform === "win32") {
+    spawn("taskkill", ["/PID", String(child.pid), "/T", "/F"], {
+      stdio: "ignore",
+      shell: true,
+    });
+  } else {
+    try {
+      process.kill(-child.pid, "SIGTERM");
+    } catch {
+      child.kill("SIGTERM");
+    }
+  }
+}
+
 async function main() {
   console.log(`Starting \`astro preview\` on ${BASE} ...`);
   const server = spawn(
     "npx",
     ["astro", "preview", "--port", String(PORT), "--host", HOST],
-    { shell: true, stdio: ["ignore", "pipe", "pipe"] },
+    {
+      shell: true,
+      stdio: ["ignore", "pipe", "pipe"],
+      // Own process group on POSIX so killTree can signal the whole tree.
+      detached: process.platform !== "win32",
+    },
   );
 
   let serverOutput = "";
   server.stdout?.on("data", (d) => (serverOutput += d.toString()));
   server.stderr?.on("data", (d) => (serverOutput += d.toString()));
 
+  let didShutdown = false;
   const shutdown = () => {
-    if (!server.killed) {
-      server.kill();
-    }
+    if (didShutdown) return;
+    didShutdown = true;
+    killTree(server);
   };
   process.on("exit", shutdown);
   process.on("SIGINT", () => {

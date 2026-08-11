@@ -114,7 +114,13 @@ const occupationLd = profile.roles.map((r) => ({
             <span class="skills-group-label">{g.group}:</span>{" "}
             {g.items.map((s, i) => (
               <Fragment>
-                {i > 0 && <span class="pipe-sep"> &#10072; </span>}
+                {/* The separator is decoration: a screen reader announcing
+                    "light vertical bar" between every skill is noise, so it is
+                    hidden from the accessibility tree. It still has to meet
+                    contrast for sighted readers — see .pipe-sep. */}
+                {i > 0 && (
+                  <span class="pipe-sep" aria-hidden="true"> &#10072; </span>
+                )}
                 <span class="skills-item">{s}</span>
               </Fragment>
             ))}

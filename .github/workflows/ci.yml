@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+# Cancel superseded runs on the same ref (e.g. new commits on a PR) so the
+# runner queue doesn't fill up with stale builds.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-check:
+    name: Build, types, content and no-JS gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check (astro check)
+        run: npx astro check
+
+      - name: Build
+        run: npm run build
+
+      - name: Content-integrity gate
+        run: npm run check:content
+
+      - name: No-JS integrity gate
+        run: npm run check:nojs
+
+  accessibility:
+    name: Accessibility scan (WCAG2AA)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # pa11y-ci drives Chromium via puppeteer, which downloads its own
+      # browser binary during `npm ci` (see package.json's allowScripts) —
+      # no system Chrome dependency, so this doesn't depend on whatever
+      # browser happens to be preinstalled on the runner image.
+      - name: Accessibility gate (pa11y-ci, WCAG2AA)
+        run: npm run check:a11y
