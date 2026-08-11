@@ -1275,3 +1275,60 @@
     clip-path: none !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Mobile legibility and tap targets
+
+   Found with Playwright device emulation (scripts/check-mobile.mjs), which was
+   the first tool in this project able to render real device viewports — the
+   automated browser used earlier ignored resizing, so none of this was visible.
+
+   Two real defects it surfaced on iPhone SE / Pixel 7 / 320px:
+
+   1. `.basis` captions rendered at 9.92px. Those carry the citation behind
+      every figure and are the whole argument of the site; they are the last
+      text that should be unreadable on a phone. Small-but-legible is the
+      intent, not small-and-decorative.
+
+   2. Several links fell to 15-22px tall, under the 24px minimum in WCAG 2.2
+      SC 2.5.8 (Level AA). Fixed with padding rather than font-size so the
+      visual weight of the type is unchanged.
+--------------------------------------------------------------------------- */
+@media (max-width: 820px) {
+  /* Raise the small-type floor. 0.72rem = 11.52px at the default root size,
+     comfortably above the ~10px threshold where mono text stops being
+     readable at arm's length. */
+  .hero-panel .row .k .basis,
+  .chart-card .basis,
+  .work-metrics .basis,
+  .react-step .flag,
+  .react-step p,
+  .footer-channel-label,
+  .status {
+    font-size: 0.72rem;
+    line-height: 1.45;
+  }
+
+  /* Chart axis labels are SVG text scaled by the viewBox, so a CSS font-size
+     bump does not reach them; nudge via the SVG's own class instead. */
+  .chart-card svg .axis-label {
+    font-size: 11px;
+  }
+
+  /* Tap targets: pad to the AA minimum without changing type size.
+     `.hero-role a` (the email under the headline) and `.loc a` (LinkedIn and
+     GitHub in the contact panel) are unclassed anchors that measured 17px and
+     15px respectively — they are contact links, so they are among the most
+     likely things a reader actually tries to tap on a phone. */
+  .nav-brand,
+  .footer-channel-value,
+  .contact-block a,
+  .case-nav a,
+  a.text-muted,
+  .hero-role a,
+  .loc a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+  }
+}

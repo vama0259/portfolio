@@ -14,7 +14,8 @@
     "check:content": "node scripts/check-content.mjs",
     "check:nojs": "node scripts/check-nojs.mjs",
     "check:a11y": "node scripts/check-a11y.mjs",
-    "test": "npm run build && npm run check:content && npm run check:nojs && npm run check:types"
+    "test": "npm run build && npm run check:content && npm run check:nojs && npm run check:types",
+    "check:mobile": "astro build && start-server-and-test \"astro preview --port 4327\" http://localhost:4327 \"node scripts/check-mobile.mjs http://localhost:4327\""
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
@@ -29,6 +30,8 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "pa11y-ci": "^4.1.1",
+    "playwright": "^1.62.1",
+    "start-server-and-test": "^3.0.12",
     "typescript": "^6.0.3"
   },
   "allowScripts": {
