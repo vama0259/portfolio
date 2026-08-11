@@ -1,7 +1,15 @@
 /**
  * Accessibility gate. Serves the built `dist/` with `astro preview` and runs
- * @axe-core/cli against every page, failing CI on serious/critical WCAG
- * violations.
+ * pa11y-ci (WCAG2AA, via `pa11yci.config.cjs`) against every page, failing
+ * CI on any error-level violation.
+ *
+ * pa11y-ci was chosen over @axe-core/cli specifically because it drives
+ * Chromium through puppeteer, which npm-installs its own browser binary. The
+ * axe-core CLI instead drives *system* Chrome through selenium-webdriver +
+ * chromedriver, and on a machine with no system Chrome installed (true of
+ * this dev box) it hangs indefinitely waiting for a browser that will never
+ * appear rather than failing fast. That is exactly the kind of flakiness
+ * this script exists to avoid.
  *
  * Runs against the *built* output for the same reason check-content.mjs and
  * check-nojs.mjs do: what a visitor gets is the only thing that matters, and
@@ -18,25 +26,11 @@
 import { spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
 
-const PORT = 4173;
+const PORT = 4173; // must match PORT in pa11yci.config.cjs
 const HOST = "127.0.0.1";
 const BASE = `http://${HOST}:${PORT}`;
 const START_TIMEOUT_MS = 30_000;
 const POLL_INTERVAL_MS = 250;
-
-// Every route the build emits. Kept in sync by hand — there are five pages
-// plus the three case studies, and a `.astro`-only site gives graphify (and
-// therefore this script) no cheap way to discover routes automatically.
-const PAGES = [
-  "/",
-  "/about",
-  "/research",
-  "/work",
-  "/work/talk-to-data",
-  "/work/anomaly-detection",
-  "/work/web-agent",
-  "/404",
-];
 
 async function waitForServer(url, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
@@ -92,26 +86,17 @@ async function main() {
       return;
     }
 
-    const urls = PAGES.map((p) => BASE + p);
-    console.log(`Running axe against ${urls.length} page(s)...`);
+    console.log(`Running pa11y-ci against the pages in pa11yci.config.cjs...`);
 
-    const code = await run("npx", [
-      "axe",
-      ...urls,
-      "--exit",
-      "--tags",
-      "wcag2a,wcag2aa,wcag21a,wcag21aa",
-      "--save",
-      "axe-report.json",
-    ]);
+    const code = await run("npx", ["pa11y-ci", "--config", "pa11yci.config.cjs"]);
 
     if (code !== 0) {
-      console.error("\n✗ accessibility: axe reported violations (see above / axe-report.json)\n");
+      console.error("\n✗ accessibility: pa11y-ci reported violations (see above)\n");
       process.exitCode = code;
       return;
     }
 
-    console.log(`\n✓ accessibility: ${urls.length} page(s) clean against WCAG 2.1 A/AA\n`);
+    console.log(`\n✓ accessibility: all pages clean against WCAG2AA\n`);
   } finally {
     shutdown();
   }

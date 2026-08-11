@@ -28,11 +28,11 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "@axe-core/cli": "^4.13.0",
+    "pa11y-ci": "^4.1.1",
     "typescript": "^6.0.3"
   },
   "allowScripts": {
-    "chromedriver@151.0.5": true,
-    "esbuild@0.28.1": true
+    "esbuild@0.28.1": true,
+    "puppeteer@24.43.1": true
   }
 }
