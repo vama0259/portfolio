@@ -570,6 +570,23 @@
   }
   .hero-panel .row .k {
     color: var(--color-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  /* The basis sits under its label rather than beside the figure: the figure
+     column is mono and right-aligned, and a second line there would fight it.
+     Smaller and dimmer than the label, but still --color-muted, which is the
+     AA floor — a citation nobody can read is not a citation. */
+  .hero-panel .row .k .basis {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+    color: var(--color-muted);
+    opacity: 0.85;
+    text-transform: none;
   }
   .hero-panel .row .v {
     color: var(--color-ink);

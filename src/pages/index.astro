@@ -48,7 +48,14 @@ const plotted = work
             const suffix = num ? f.value.slice(num.length) : "";
             return (
               <div class="row">
-                <span class="k">{f.label}</span>
+                <span class="k">
+                  {f.label}
+                  {/* The panel header promises "basis logged". It has to actually
+                      show one, or the header is a claim the page does not honour —
+                      and this is the site whose whole argument is that every number
+                      carries its source. */}
+                  {f.basis && <span class="basis">{f.basis}</span>}
+                </span>
                 <span class="v mono" data-final={f.value} data-num={num} data-suffix={suffix}>
                   {f.value}
                 </span>
