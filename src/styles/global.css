@@ -7,16 +7,16 @@
    `production` status glyph, and link hover/focus + basis markers.
 --------------------------------------------------------------------------- */
 @theme {
-  /* Palette: "Porcelain & Sage" — warm porcelain ground, muted sage accent.
-     Replaces the cool blue-grey ledger + proof-red. See .design/PALETTE.md. */
-  --color-paper:        #FAF9F7;
-  --color-paper-raised: #F1EFEB;
-  --color-ink:          #1C1B1A;
-  --color-ink-muted:    #5C5955;
-  --color-rule:         #8A867F;
-  --color-hairline:     #DDD9D3;
-  --color-accent:       #4A6B5D;
-  --color-accent-quiet: #E4EAE6;
+  /* Palette: "Midnight & Gold" — warm cream ground, deep bronze-gold accent;
+     dark scheme is midnight indigo with warm gold. Ratios verified. */
+  --color-paper:        #F6F2EA;
+  --color-paper-raised: #EFE9DD;
+  --color-ink:          #17151F;
+  --color-ink-muted:    #56525E;
+  --color-rule:         #8B8593;
+  --color-hairline:     #DFD8CB;
+  --color-accent:       #8A6410;  /* 4.81:1 */
+  --color-accent-quiet: #F0E5CC;
 
   --font-text:  "Spectral", ui-serif, Georgia, serif;
   --font-util:  "Archivo Variable", "Archivo", ui-sans-serif, system-ui, sans-serif;
@@ -66,14 +66,14 @@
 
 @media (prefers-color-scheme: dark) {
   @theme {
-    --color-paper:        #141413;
-    --color-paper-raised: #1D1D1B;
-    --color-ink:          #EDEBE8;
-    --color-ink-muted:    #A8A49E;
-    --color-rule:         #57544F;
-    --color-hairline:     #2A2927;
-    --color-accent:       #7FA893;
-    --color-accent-quiet: #20261F;
+    --color-paper:        #10131B;  /* midnight indigo */
+    --color-paper-raised: #181C27;
+    --color-ink:          #F0EDE6;  /* 15.88:1 */
+    --color-ink-muted:    #A9ACB8;  /*  8.21:1 */
+    --color-rule:         #5A5E6E;
+    --color-hairline:     #262B38;
+    --color-accent:       #E3B458;  /* warm gold, 9.67:1 */
+    --color-accent-quiet: #2A2416;
   }
 }
 
