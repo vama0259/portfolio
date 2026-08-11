@@ -42,15 +42,27 @@ src/
   data/profile.ts        single source of truth for facts — start here
   content.config.ts      Zod schema for case studies (see below)
   content/work/*.md      one case study per file
-  layouts/Base.astro     shell: head, nav, grid overlay, footer
+  layouts/Base.astro     shell: head, fonts, js-anim gate, SEO/JSON-LD, grid, footer
   components/
-    AgentTrace.astro     scroll-driven ReAct diagram — pure CSS, zero JS
-    MetricStrip.astro    the repeating label/value/basis unit
-    WorkCard.astro       case study card
-    CountUp.tsx          the only React island on the site
+    Figures.astro        generates SVG bar charts from a metrics array + basis captions
+    Figure1.astro        ReAct diagram built from `trace` frontmatter + guardrail demo
+    Entry.astro          a work-list row
+    Nav.astro            desktop list + pure-CSS <details> mobile nav (no JS)
+    Masthead.astro       page title block
+    BasisNote.astro      the basis caption under a figure
+    Colophon.astro       footer
   pages/                 index, work/, work/[...slug], research, about
+  scripts/motion.ts      the only shared JS: reveals, kickers, count-up
   styles/global.css      design tokens in @theme (Tailwind v4, CSS-first)
+
+mockups/                 standalone reference designs (a-kinetic, b-cinematic, c-technical)
+public/                  og-image.svg, robots.txt, favicons; mockups copied here to preview
 ```
+
+`mockups/*.html` are also copied into `public/` so the dev server can serve them at e.g.
+`/c-technical.html`. They are not linked from any route and are reference only — but they do
+ship in `dist/`. Remove them from `public/` before a real launch if you would rather not
+publish them.
 
 ### The schema enforces the editorial rules
 
@@ -61,48 +73,58 @@ loosen the schema to make a case study easier to write; write the missing part.
 
 Note that YAML parses a bare `2024` as a number — quote `period` values.
 
-## Design direction: "the offprint"
+## Design direction: "Swiss technical"
 
-The site is a contemporary scientific offprint. Light ledger paper by default, Spectral for
-text, Archivo for utility, Martian Mono for figures only, one proof-correction red. Every
-corner is `0px`. There are no cards.
-
-The full spec — tokens with verified contrast ratios, the `.sheet` grid, component
-composition, per-page layouts, ship checklist — is `.design/DIRECTION.md`. Read it before
-changing anything visual. `.design/REFERENCES.md` §C is a banned list of visual patterns that
+**Source of truth: `mockups/c-technical.html`.** That file is the approved design, kept as a
+standalone reference implementation; `src/` is the content-driven port of it. Read it before
+changing anything visual. Current quality scores and the open worklist are in
+`.design/BENCHMARK.md`. `.design/REFERENCES.md` §C is a banned list of visual patterns that
 read as machine-generated; check work against it.
 
-The premise it replaced was "instrument panel" — dark, amber, mono micro-labels. It was
-discarded, not tuned: near-black plus one bright accent is a top-two identifiable AI default,
-and a competent instance of the most common answer still reads as generated. Do not drift back
-toward it.
+Space Grotesk (display) + Source Sans 3 (body) + JetBrains Mono (figures, labels, console).
+Ledger paper `#EEF0EC`, ink `#12161B`, one signal blue `#2453D9`, alert red `#C4291A` reserved
+for the guardrail rejection and errata. `--muted` is `#5B6570` and must never go lighter — it
+carries the `basis` captions and is the AA floor. A 64px technical grid sits behind everything.
+Every corner is `0px`.
 
-Two rules carry the identity:
+Two earlier directions were built and discarded — do not drift back toward either. "Instrument
+panel" (dark, amber, mono micro-labels) is a top-two identifiable AI default. "The Offprint"
+(ledger paper, Spectral, apparatus rail) was built, rejected as too restrained, and its spec in
+`.design/DIRECTION.md` is marked superseded.
 
-- **`basis` is the visual signature.** Every metric's basis renders as a margin note in the
-  apparatus rail, keyed by a superscript anchor. Real in-page anchors — the apparatus must work
-  with JS *and* CSS disabled. This is the schema rule made visible; it is why the design cannot
-  decay away from the content.
-- **The accent has exactly three permitted uses**: the errata marker, the `production` status
-  glyph, and focus/basis markers. A fourth use is a regression.
+Three rules carry the identity:
+
+- **The work is the visual content.** Metrics render as plotted SVG bars generated from each
+  case study's `metrics` array; Fig. 1 is built from the `trace` frontmatter. Adding a metric in
+  markdown produces a plotted bar with its basis, with no template change. The design cannot
+  decay away from the content because the content generates it.
+- **The interaction is the argument.** Fig. 1's guardrail demo lets a reader fire a write query
+  and watch it get rejected. The case study *claims* read-only enforcement; the page lets you
+  test it. This is the single most valuable element on the site — protect it.
+- **Every metric shows its `basis`**, enforced by the Zod schema in `src/content.config.ts`.
 
 ### Motion budget
 
-Concentrated, never sprinkled. The entire budget is spent on **Fig. 1, the ReAct trace**, which
-is a simulation rather than a diagram: the reader drives a query through the loop, watches it
-stall at the human-in-the-loop gate, and watches a write bounce off the read-only guardrail. The
-interaction *is* the argument — a reader tests the guardrail claim instead of taking it on faith.
+The client asked for motion explicitly, twice. The budget is real but disciplined: hero
+entrance stagger, count-up on figures and chart labels, charts drawing in, scroll-spy nav,
+mechanical hover on work rows, animated connectors in Fig. 1, and section rules drawing in.
 
-Everywhere else, motion is limited to interface physics on state: focus, hover, the nav
-underline, the basis-marker link. Spring curves, ~120–180ms, critically damped so things settle
-rather than bounce.
-
-- **No scroll-reveal. Anywhere.** Nothing fades in because it entered the viewport. Uniform
-  fade-up is on the banned list and spring-easing everything is its successor.
-- First paint is the final state. No entrance animation stands between a hurried reader and the
-  results table.
-- Fig. 1 must be complete and readable with JS off. Motion is enhancement, never a prerequisite.
+- **Reveals are differentiated per content type** — labels wipe, charts draw, entries slide from
+  the reading edge, rows rise. Applying one identical fade-up to every section is on the banned
+  list, and doing it is a regression.
+- **Motion never owns a correct value.** This bit us: a count-up that sets `textContent = "0"`
+  before animating will display `0 analysts served` if anything stalls. Markup always holds the
+  true final value; JS zeroes it only on the animation's own first frame.
+- **Prefer keyframes with `both` fill over class-toggled transitions** for anything that starts
+  hidden. A toggled transition can land in the same style recalculation as first paint and never
+  run, leaving the element invisible forever.
 - Everything respects `prefers-reduced-motion`.
+
+**Testing caveat that will waste your time otherwise:** the automated Chrome used here pauses
+CSS animations and throttles `requestAnimationFrame` because the tab is unfocused. Anything
+animating from `opacity: 0` reads as `0` forever when inspected, and count-ups appear frozen
+mid-flight. That is a measurement artifact, not a bug. Verify end-states with
+`el.getAnimations().forEach(a => a.finish())` before reporting anything as broken.
 
 ## Agent tooling
 

@@ -5,6 +5,34 @@ Date: 2026-08-10.
 
 ---
 
+> ## SUPERSEDED — 2026-08-12
+>
+> **The committed direction in this document ("The Offprint") is no longer the design of
+> this site.** It was built, reviewed by the client, and rejected: too restrained, and its
+> grid shipped a dead rail column that left every page reading as a narrow centre strip.
+>
+> Two later directions were built as working mockups and compared in an adversarial audit:
+> `mockups/a-kinetic.html` (warm-paper editorial, Fraunces) and `mockups/c-technical.html`
+> (Swiss technical, plotted metrics, operable ReAct diagram). **C won** — chiefly because A's
+> hero and metric strip depended on JavaScript and rendered `0 analysts served` when it did
+> not run, whereas C degrades correctly.
+>
+> **`mockups/c-technical.html` is now the design source of truth.** Current scores live in
+> `.design/BENCHMARK.md`.
+>
+> What survives from this document and is still binding:
+> - Every metric renders with its `basis`. The Zod schema in `src/content.config.ts` enforces it.
+> - The wording rule on Talk to Data: own / architect / build / engineer, never *led*.
+> - First paint is the final state; the site must render complete and correct with JS disabled.
+> - Square corners, one rationed accent, no scroll-reveal that hides content behind JS.
+>
+> What is **dead** and must not be reintroduced from here: the apparatus rail with superscript
+> basis markers keyed to margin notes, the ledger-paper palette, Spectral/Archivo/Martian Mono,
+> and the zero-motion budget (the client asked for motion; the current budget is defined in
+> `## Design direction` in `CLAUDE.md`).
+
+---
+
 ## 0. What went wrong with the current site
 
 The current build is: near-black ground, one amber accent, uppercase monospace micro-labels,
