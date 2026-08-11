@@ -206,9 +206,9 @@
   .chart-card svg{ display:block; width:100%; height:auto; }
   .axis-label{ font-family:'JetBrains Mono', monospace; font-size:9px; fill:var(--muted); }
   .bar-fill{ fill:var(--signal); }
-  .bar-track{ fill:none; stroke:var(--line-strong); stroke-width:1; }
   .val-label{ font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700; fill:var(--ink); }
-  .grid-line{ stroke:var(--line); stroke-width:1; }
+  .grid-line{ stroke:var(--line-strong); stroke-width:1; }
+  .grid-line.ref-line{ stroke:var(--line); stroke-width:1; }
 
   /* ---------- REACT DIAGRAM ---------- */
   .diagram-shell{
@@ -522,20 +522,12 @@
           <h3>Benchmark accuracy</h3>
           <div class="basis">Basis — 500-question internal benchmark</div>
           <svg viewBox="0 0 300 190" id="chart-accuracy">
-            <line class="grid-line" x1="30" y1="20" x2="30" y2="150"></line>
+            <line class="grid-line ref-line" x1="30" y1="32" x2="280" y2="32" stroke-dasharray="1,3" opacity="0.4"></line>
             <line class="grid-line" x1="30" y1="150" x2="280" y2="150"></line>
-            <text class="axis-label" x="4" y="24">100</text>
-            <text class="axis-label" x="8" y="61">75</text>
-            <text class="axis-label" x="8" y="98">50</text>
-            <text class="axis-label" x="8" y="135">25</text>
-            <text class="axis-label" x="12" y="158">0</text>
-            <line class="grid-line" x1="30" y1="20" x2="280" y2="20" stroke-dasharray="2,3" opacity="0.5"></line>
-            <line class="grid-line" x1="30" y1="57" x2="280" y2="57" stroke-dasharray="2,3" opacity="0.5"></line>
-            <line class="grid-line" x1="30" y1="94" x2="280" y2="94" stroke-dasharray="2,3" opacity="0.5"></line>
-            <line class="grid-line" x1="30" y1="131" x2="280" y2="131" stroke-dasharray="2,3" opacity="0.5"></line>
-            <rect class="bar-track" x="90" y="20" width="90" height="130"></rect>
-            <rect class="bar-fill" id="bar-accuracy" x="90" y="26.5" width="90" height="123.5"></rect>
-            <text class="val-label" id="val-accuracy" x="102" y="43" opacity="1">95%</text>
+            <text class="axis-label" x="6" y="36">100</text>
+            <text class="axis-label" x="14" y="154">0</text>
+            <rect class="bar-fill" id="bar-accuracy" x="131" y="37.9" width="48" height="112.1"></rect>
+            <text class="val-label" id="val-accuracy" x="155" y="28" text-anchor="middle" opacity="1">95%</text>
             <text class="axis-label" x="103" y="168">correct</text>
           </svg>
         </div>
@@ -545,20 +537,12 @@
           <h3>Run-to-run consistency</h3>
           <div class="basis">Basis — repeated identical queries, production trace sample</div>
           <svg viewBox="0 0 300 190" id="chart-consistency">
-            <line class="grid-line" x1="30" y1="20" x2="30" y2="150"></line>
+            <line class="grid-line ref-line" x1="30" y1="32" x2="280" y2="32" stroke-dasharray="1,3" opacity="0.4"></line>
             <line class="grid-line" x1="30" y1="150" x2="280" y2="150"></line>
-            <text class="axis-label" x="4" y="24">100</text>
-            <text class="axis-label" x="8" y="61">75</text>
-            <text class="axis-label" x="8" y="98">50</text>
-            <text class="axis-label" x="8" y="135">25</text>
-            <text class="axis-label" x="12" y="158">0</text>
-            <line class="grid-line" x1="30" y1="20" x2="280" y2="20" stroke-dasharray="2,3" opacity="0.5"></line>
-            <line class="grid-line" x1="30" y1="57" x2="280" y2="57" stroke-dasharray="2,3" opacity="0.5"></line>
-            <line class="grid-line" x1="30" y1="94" x2="280" y2="94" stroke-dasharray="2,3" opacity="0.5"></line>
-            <line class="grid-line" x1="30" y1="131" x2="280" y2="131" stroke-dasharray="2,3" opacity="0.5"></line>
-            <rect class="bar-track" x="90" y="20" width="90" height="130"></rect>
-            <rect class="bar-fill" id="bar-consistency" x="90" y="39.5" width="90" height="110.5"></rect>
-            <text class="val-label" id="val-consistency" x="102" y="60" opacity="1">85%</text>
+            <text class="axis-label" x="6" y="36">100</text>
+            <text class="axis-label" x="14" y="154">0</text>
+            <rect class="bar-fill" id="bar-consistency" x="131" y="49.7" width="48" height="100.3"></rect>
+            <text class="val-label" id="val-consistency" x="155" y="40" text-anchor="middle" opacity="1">85%</text>
             <text class="axis-label" x="95" y="168">identical output</text>
           </svg>
         </div>
@@ -568,26 +552,18 @@
           <h3>Component identification</h3>
           <div class="basis">Basis — GPT-4-mini, autonomous web agent eval, MLDS 2025</div>
           <svg viewBox="0 0 300 190" id="chart-lift">
-            <line class="grid-line" x1="30" y1="20" x2="30" y2="150"></line>
+            <line class="grid-line ref-line" x1="30" y1="32" x2="280" y2="32" stroke-dasharray="1,3" opacity="0.4"></line>
             <line class="grid-line" x1="30" y1="150" x2="280" y2="150"></line>
-            <text class="axis-label" x="4" y="24">100</text>
-            <text class="axis-label" x="8" y="61">75</text>
-            <text class="axis-label" x="8" y="98">50</text>
-            <text class="axis-label" x="8" y="135">25</text>
-            <text class="axis-label" x="12" y="158">0</text>
-            <line class="grid-line" x1="30" y1="20" x2="280" y2="20" stroke-dasharray="2,3" opacity="0.5"></line>
-            <line class="grid-line" x1="30" y1="57" x2="280" y2="57" stroke-dasharray="2,3" opacity="0.5"></line>
-            <line class="grid-line" x1="30" y1="94" x2="280" y2="94" stroke-dasharray="2,3" opacity="0.5"></line>
-            <line class="grid-line" x1="30" y1="131" x2="280" y2="131" stroke-dasharray="2,3" opacity="0.5"></line>
-            <rect class="bar-track" x="60" y="20" width="55" height="130"></rect>
-            <rect x="60" y="111" width="55" height="39" fill="var(--line-strong)" id="bar-lift-before"></rect>
-            <text class="val-label" x="66" y="140" opacity="1" id="val-lift-before">30%</text>
-            <text class="axis-label" x="62" y="168">before</text>
+            <text class="axis-label" x="6" y="36">100</text>
+            <text class="axis-label" x="14" y="154">0</text>
 
-            <rect class="bar-track" x="180" y="20" width="55" height="130"></rect>
-            <rect class="bar-fill" x="180" y="67.45" width="55" height="82.55" id="bar-lift-after"></rect>
-            <text class="val-label" x="176" y="60" opacity="1" id="val-lift-after">59–68%</text>
-            <text class="axis-label" x="182" y="168">after</text>
+            <rect x="80" y="114.6" width="40" height="35.4" fill="var(--line-strong)" id="bar-lift-before"></rect>
+            <text class="val-label" x="100" y="105" text-anchor="middle" opacity="1" id="val-lift-before">30%</text>
+            <text class="axis-label" x="85" y="168">before</text>
+
+            <rect class="bar-fill" x="190" y="75.07" width="40" height="74.93" id="bar-lift-after"></rect>
+            <text class="val-label" x="210" y="65" text-anchor="middle" opacity="1" id="val-lift-after">59–68%</text>
+            <text class="axis-label" x="192" y="168">after</text>
           </svg>
         </div>
 
@@ -996,12 +972,12 @@
         if(entry.isIntersecting && !chartDrawn[entry.target.id]){
           chartDrawn[entry.target.id] = true;
           var svg = entry.target.querySelector('svg');
-          if(svg && svg.id === 'chart-accuracy') drawBar('bar-accuracy','val-accuracy',130*0.95,150,95);
-          if(svg && svg.id === 'chart-consistency') drawBar('bar-consistency','val-consistency',130*0.85,150,85);
+          if(svg && svg.id === 'chart-accuracy') drawBar('bar-accuracy','val-accuracy',118*0.95,150,95);
+          if(svg && svg.id === 'chart-consistency') drawBar('bar-consistency','val-consistency',118*0.85,150,85);
           if(svg && svg.id === 'chart-lift'){
-            drawBar('bar-lift-before','val-lift-before',130*0.30,150,30);
+            drawBar('bar-lift-before','val-lift-before',118*0.30,150,30);
             // "59–68%" is a range, not a single count — fade it in on the true value rather than animating digits
-            setTimeout(function(){ drawBar('bar-lift-after','val-lift-after',130*0.635,150); }, 180);
+            setTimeout(function(){ drawBar('bar-lift-after','val-lift-after',118*0.635,150); }, 180);
           }
           cio.unobserve(entry.target);
         }
