@@ -3,6 +3,10 @@ import { defineConfig } from "astro/config";
 
 import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
+// @astrojs/sitemap re-types `changefreq` as the `sitemap` package's string
+// enum, not a plain string literal — `astro check` fails on the literal
+// assignment without this.
+import { EnumChangefreq } from "sitemap";
 
 // https://astro.build/config
 export default defineConfig({
@@ -35,7 +39,7 @@ export default defineConfig({
         // one. Add it back only if it can be sourced per-page (git mtime or
         // frontmatter).
         const path = new URL(item.url).pathname;
-        item.changefreq = "monthly";
+        item.changefreq = EnumChangefreq.MONTHLY;
         item.priority = path === "/" ? 1.0 : /^\/work/.test(path) ? 0.8 : 0.6;
         return item;
       },

@@ -51,5 +51,8 @@
   <!-- footer -->
   <rect x="72" y="558" width="1056" height="1" fill="#C7CDC2"/>
   <text x="72" y="592" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="15" fill="#454E57">michelin &#8212; pune, india</text>
-  <text x="1128" y="592" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="15" fill="#454E57" text-anchor="end">varun-malhotra.pages.dev</text>
+  <!-- No domain printed here on purpose. Social platforms already render the
+       host beneath the card, and baking it in means the image goes stale the
+       day the site moves to a custom domain. -->
+  <text x="1128" y="592" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="15" fill="#454E57" text-anchor="end">MLDS 2025 &#183; first author</text>
 </svg>
