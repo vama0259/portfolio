@@ -92,7 +92,7 @@ const caseLd = {
       <div class="wrap">
         <div class="kicker">
           <span class="idx">01</span>
-          <h2>Results, plotted</h2>
+          <h2>{entry.id === "agent-supervisor" ? "Design boundaries" : "Results, plotted"}</h2>
           <span class="rule"></span>
         </div>
         <Figures metrics={d.metrics} prefix={entry.id} />

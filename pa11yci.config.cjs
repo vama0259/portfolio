@@ -23,6 +23,7 @@ const ROUTES = [
   "/work/talk-to-data",
   "/work/anomaly-detection",
   "/work/web-agent",
+  "/work/agent-supervisor",
   "/404",
 ];
 
